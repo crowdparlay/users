@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .ConfigureApplicationServices()
     .ConfigurePersistenceServices()
-    .ConfigureApiServices(builder.Configuration);
+    .ConfigureApiServices(builder.Configuration, builder.Environment);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -1,10 +1,12 @@
+using System.Security.Cryptography.X509Certificates;
 using DbContext = CrowdParlay.Auth.Infrastructure.Persistence.DbContext;
 
 namespace CrowdParlay.Auth.Api.Extensions;
 
 public static class ConfigureOpenIddictExtensions
 {
-    public static IServiceCollection ConfigureOpenIddict(this IServiceCollection services)
+    public static IServiceCollection ConfigureOpenIddict(
+        this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         var builder = services.AddOpenIddict();
 
@@ -30,9 +32,24 @@ public static class ConfigureOpenIddictExtensions
             options
                 .DisableAccessTokenEncryption();
 
-            options
-                .AddDevelopmentEncryptionCertificate()
-                .AddDevelopmentSigningCertificate();
+            if (environment.IsDevelopment())
+            {
+                options
+                    .AddDevelopmentEncryptionCertificate()
+                    .AddDevelopmentSigningCertificate();
+            }
+            else
+            {
+                var encryptionCertificatePath = configuration["ENCRYPTION_CERTIFICATE_PATH"]!;
+                var signingCertificatePath = configuration["SIGNING_CERTIFICATE_PATH"]!;
+
+                var encryptionCertificate = X509Certificate2.CreateFromPemFile(encryptionCertificatePath);
+                var signingCertificate = X509Certificate2.CreateFromPemFile(signingCertificatePath);
+                
+                options
+                    .AddEncryptionCertificate(encryptionCertificate)
+                    .AddSigningCertificate(signingCertificate);
+            }
 
             options
                 .UseAspNetCore()

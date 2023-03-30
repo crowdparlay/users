@@ -12,11 +12,12 @@ public static class ConfigureServices
 {
     private const string SwaggerIgnoredNamespaceIdentifiersKey = "Swagger:IgnoredNamespaceIdentifiers";
     
-    public static IServiceCollection ConfigureApiServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureApiServices(
+        this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         services
             .ConfigureAuthentication()
-            .ConfigureOpenIddict();
+            .ConfigureOpenIddict(configuration, environment);
         
         services
             .AddScoped<ICurrentUserProvider, CurrentUserProvider>()
