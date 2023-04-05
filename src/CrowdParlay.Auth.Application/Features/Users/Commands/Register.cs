@@ -9,13 +9,14 @@ namespace CrowdParlay.Auth.Application.Features.Users.Commands;
 
 public static class Register
 {
-    public sealed record Command(string Email, string Password) : IRequest<Response>;
+    public sealed record Command(string Username, string DisplayName, string Password) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
         public Validator(IPasswordValidator<Command> passwordValidator)
         {
-            RuleFor(x => x.Email).EmailAddress();
+            RuleFor(x => x.Username).NotEmpty();
+            RuleFor(x => x.DisplayName).NotEmpty();
             RuleFor(x => x.Password).Apply(passwordValidator);
         }
     }
@@ -36,21 +37,21 @@ public static class Register
             if (_issuer.IsAuthenticated)
                 throw new ForbiddenException();
 
-            var sameExists = await _users.FindByEmailAsync(request.Email) is not null;
+            var sameExists = await _users.FindByUsernameAsync(request.Username) is not null;
             if (sameExists)
-                throw new AlreadyExistsException("User with the specified email already exists.");
+                throw new AlreadyExistsException("User with the specified username already exists.");
 
-            var errorDescriptions = await _users.CreateAsync(request.Email, request.Password);
+            var errorDescriptions = await _users.CreateAsync(request.Username, request.DisplayName, request.Password);
             if (errorDescriptions is not null)
                 throw new Exceptions.ValidationException(nameof(request.Password), errorDescriptions);
 
             var user =
-                await _users.FindByEmailAsync(request.Email)
+                await _users.FindByUsernameAsync(request.Username)
                 ?? throw new InvalidOperationException();
 
-            return new Response(user.Id, user.Email!);
+            return new Response(user.Id, user.Username!);
         }
     }
 
-    public sealed record Response(Guid Id, string Email);
+    public sealed record Response(Guid Id, string Username);
 }

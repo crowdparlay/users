@@ -11,12 +11,12 @@ public class UserService : IUserService
     public UserService(UserManager<User> userManager) =>
         _userManager = userManager;
 
-    public async Task<IEnumerable<string>?> CreateAsync(string email, string password)
+    public async Task<IEnumerable<string>?> CreateAsync(string username, string displayName, string password)
     {
         var user = new User
         {
-            Email = email,
-            UserName = email
+            UserName = username,
+            DisplayName = displayName
         };
 
         var result = await _userManager.CreateAsync(user, password);
