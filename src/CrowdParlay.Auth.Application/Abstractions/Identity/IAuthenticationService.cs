@@ -1,3 +1,5 @@
+using CrowdParlay.Auth.Application.Exceptions;
+
 namespace CrowdParlay.Auth.Application.Abstractions.Identity;
 
 public interface IAuthenticationService
@@ -5,7 +7,8 @@ public interface IAuthenticationService
     /// <summary>
     /// Authenticates user by credentials.
     /// </summary>
-    /// <returns>User ID if the specified credentials are valid, otherwise null.</returns>
-    public Task<IUser?> AuthenticateAsync(string username, string password);
+    /// <exception cref="NotFoundException">User with the specified username does not exist.</exception>
+    /// <returns>True if the specified credentials are valid, otherwise false.</returns>
+    public Task<bool> AuthenticateAsync(IUser user, string password);
     public Task<bool> CanSignInAsync(IUser user);
 }

@@ -39,8 +39,12 @@ public static class ExchangePassword
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _authentication.AuthenticateAsync(request.Username, request.Password)
-                ?? throw new ForbiddenException("The specified credentials are invalid.");
+                await _users.FindByUsernameAsync(request.Username)
+                ?? throw new NotFoundException();
+
+            var isAuthenticated = await _authentication.AuthenticateAsync(user, request.Password);
+            if (!isAuthenticated)
+                throw new ForbiddenException("The specified credentials are invalid.");
 
             var identity = new ClaimsIdentity(
                 authenticationType: OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
