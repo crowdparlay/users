@@ -17,7 +17,7 @@ public static class ExchangeRefreshToken
 {
     public sealed record Command(string Username, string Scope, HttpContext Context) : IRequest<Response>;
 
-    internal sealed class Validator : AbstractValidator<Command>
+    public sealed class Validator : AbstractValidator<Command>
     {
         public Validator() => RuleFor(x => x.Username).NotEmpty();
     }

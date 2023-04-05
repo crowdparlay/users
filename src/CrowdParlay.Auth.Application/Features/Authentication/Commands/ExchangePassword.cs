@@ -16,12 +16,12 @@ public static class ExchangePassword
 {
     public sealed record Command(string Username, string Password, string Scope) : IRequest<Response>;
 
-    internal sealed class Validator : AbstractValidator<Command>
+    public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator()
+        public Validator(IPasswordValidator<Command> passwordValidator)
         {
             RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.Password).NotEmpty();
+            RuleFor(x => x.Password).Apply(passwordValidator);
         }
     }
 
