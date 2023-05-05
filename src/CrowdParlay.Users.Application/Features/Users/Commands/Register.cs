@@ -1,5 +1,6 @@
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Abstractions;
+using CrowdParlay.Users.Application.Abstractions.Communication;
 using CrowdParlay.Users.Application.Exceptions;
 using FluentValidation;
 using Mediator;
@@ -24,11 +25,13 @@ public static class Register
     {
         private readonly IUserService _users;
         private readonly ICurrentUserProvider _issuer;
+        private readonly IMessageBroker _broker;
 
-        public Handler(IUserService users, ICurrentUserProvider issuer)
+        public Handler(IUserService users, ICurrentUserProvider issuer, IMessageBroker broker)
         {
             _users = users;
             _issuer = issuer;
+            _broker = broker;
         }
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
@@ -47,6 +50,9 @@ public static class Register
             var user =
                 await _users.FindByUsernameAsync(request.Username)
                 ?? throw new InvalidOperationException();
+
+            var @event = new UserCreatedEvent(user.Id, user.UserName!, user.DisplayName);
+            await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);
 
             return new Response(user.Id, user.UserName!);
         }
