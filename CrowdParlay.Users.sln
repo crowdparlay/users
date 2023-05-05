@@ -6,9 +6,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Api", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Application", "src\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj", "{0D00F363-8010-4FE8-BB57-57A40AB21B15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Infrastructure", "src\CrowdParlay.Users.Infrastructure\CrowdParlay.Users.Infrastructure.csproj", "{5655A9D6-5093-4EBD-9398-DBD23A6C6A7D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Domain", "src\CrowdParlay.Users.Domain\CrowdParlay.Users.Domain.csproj", "{726B5107-1813-4548-B787-93A814E51383}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Infrastructure.Persistence", "src\CrowdParlay.Users.Infrastructure.Persistence\CrowdParlay.Users.Infrastructure.Persistence.csproj", "{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Infrastructure.Communication", "src\CrowdParlay.Users.Infrastructure.Communication\CrowdParlay.Users.Infrastructure.Communication.csproj", "{00533927-8C13-42D4-B817-1F9E46407C27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,8 +20,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1513B10F-B191-49A3-BDA4-A0F17AE2518F} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
 		{0D00F363-8010-4FE8-BB57-57A40AB21B15} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
-		{5655A9D6-5093-4EBD-9398-DBD23A6C6A7D} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
 		{726B5107-1813-4548-B787-93A814E51383} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
+		{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
+		{00533927-8C13-42D4-B817-1F9E46407C27} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1513B10F-B191-49A3-BDA4-A0F17AE2518F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,13 +33,17 @@ Global
 		{0D00F363-8010-4FE8-BB57-57A40AB21B15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D00F363-8010-4FE8-BB57-57A40AB21B15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D00F363-8010-4FE8-BB57-57A40AB21B15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5655A9D6-5093-4EBD-9398-DBD23A6C6A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5655A9D6-5093-4EBD-9398-DBD23A6C6A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5655A9D6-5093-4EBD-9398-DBD23A6C6A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5655A9D6-5093-4EBD-9398-DBD23A6C6A7D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{726B5107-1813-4548-B787-93A814E51383}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{726B5107-1813-4548-B787-93A814E51383}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{726B5107-1813-4548-B787-93A814E51383}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{726B5107-1813-4548-B787-93A814E51383}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00533927-8C13-42D4-B817-1F9E46407C27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00533927-8C13-42D4-B817-1F9E46407C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00533927-8C13-42D4-B817-1F9E46407C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00533927-8C13-42D4-B817-1F9E46407C27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

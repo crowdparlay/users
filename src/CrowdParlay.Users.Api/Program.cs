@@ -1,6 +1,7 @@
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Application.Extensions;
-using CrowdParlay.Users.Infrastructure.Extensions;
+using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
+using CrowdParlay.Users.Infrastructure.Communication.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .ConfigureApplicationServices()
     .ConfigurePersistenceServices()
+    .ConfigureCommunicationServices(builder.Configuration)
     .ConfigureApiServices(builder.Configuration, builder.Environment);
 
 builder.Services.AddControllers();
