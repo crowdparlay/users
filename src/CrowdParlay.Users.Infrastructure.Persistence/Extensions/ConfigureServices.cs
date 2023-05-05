@@ -5,9 +5,8 @@ using CrowdParlay.Users.Infrastructure.Persistence.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using DbContext = CrowdParlay.Users.Infrastructure.Persistence.DbContext;
 
-namespace CrowdParlay.Users.Infrastructure.Extensions;
+namespace CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 
 public static class ConfigureServices
 {
@@ -30,7 +29,7 @@ public static class ConfigureServices
             "Database = %POSTGRES_DB%;" +
             "Username = %POSTGRES_USER%;" +
             "Password = %POSTGRES_PASSWORD%");
-        
+
         services.AddDbContext<DbContext>(options =>
         {
             options.UseNpgsql(connectionString);
