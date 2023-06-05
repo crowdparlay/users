@@ -8,5 +8,5 @@ public class UsersController : ApiControllerBase
 {
     [HttpPost, Route("[action]"), AllowAnonymous]
     public async Task<Register.Response> Register([FromBody] Register.Command command) =>
-        await Mediator.Send(command);
+        await Mediator.Send(command with { IsAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false });
 }

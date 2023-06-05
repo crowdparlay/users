@@ -18,7 +18,6 @@ public static class ConfigureServices
             .ConfigureSwagger(configuration);
 
         services
-            .AddScoped<ICurrentUserProvider, CurrentUserProvider>()
             .AddEndpointsApiExplorer()
             .AddHealthChecks();
 

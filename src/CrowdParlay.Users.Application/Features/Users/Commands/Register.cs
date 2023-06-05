@@ -9,7 +9,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Register
 {
-    public sealed record Command(string Username, string DisplayName, string Password) : IRequest<Response>;
+    public sealed record Command(string Username, string DisplayName, string Password, bool IsAuthenticated) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -24,21 +24,19 @@ public static class Register
     public sealed class Handler : IRequestHandler<Command, Response>
     {
         private readonly IUserService _users;
-        private readonly ICurrentUserProvider _issuer;
         private readonly IMessageBroker _broker;
 
-        public Handler(IUserService users, ICurrentUserProvider issuer, IMessageBroker broker)
+        public Handler(IUserService users, IMessageBroker broker)
         {
             _users = users;
-            _issuer = issuer;
             _broker = broker;
         }
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            if (_issuer.IsAuthenticated)
+            if (request.IsAuthenticated)
                 throw new ForbiddenException();
-
+            
             var sameExists = await _users.FindByUsernameAsync(request.Username) is not null;
             if (sameExists)
                 throw new AlreadyExistsException("User with the specified username already exists.");
