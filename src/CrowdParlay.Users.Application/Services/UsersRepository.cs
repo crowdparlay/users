@@ -4,7 +4,7 @@ using Dodo.Primitives;
 
 namespace CrowdParlay.Users.Application.Services;
 
-public class UserService : IUserService
+public class UsersRepository : IUsersRepository
 {
     public async Task<IEnumerable<string>?> CreateAsync(string username, string displayName, string password)
     {

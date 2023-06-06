@@ -2,7 +2,7 @@ using CrowdParlay.Users.Domain.Entities;
 
 namespace CrowdParlay.Users.Application.Abstractions;
 
-public interface IUserService
+public interface IUsersRepository
 {
     public Task<IEnumerable<string>?> CreateAsync(string email, string displayName, string password);
     public Task<User?> FindByIdAsync(Guid userId);

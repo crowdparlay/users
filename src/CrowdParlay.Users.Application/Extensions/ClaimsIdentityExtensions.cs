@@ -8,7 +8,7 @@ namespace CrowdParlay.Users.Application.Extensions;
 
 public static class ClaimsIdentityExtensions
 {
-    public static async Task InjectClaimsAsync(this ClaimsIdentity identity, User user, IUserService users)
+    public static async Task InjectClaimsAsync(this ClaimsIdentity identity, User user, IUsersRepository users)
     {
         identity.AddClaim(OpenIddictConstants.Claims.Subject, user.Id.ToString());
         identity.AddClaim(OpenIddictConstants.Claims.Name, user.Username);

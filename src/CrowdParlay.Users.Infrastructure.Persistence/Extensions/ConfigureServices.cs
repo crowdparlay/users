@@ -3,6 +3,7 @@ using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
 using Microsoft.Extensions.DependencyInjection;
+using UsersRepository = CrowdParlay.Users.Application.Services.UsersRepository;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 
@@ -23,7 +24,7 @@ public static class ConfigureServices
         });
 
         return services
-            .AddScoped<IUserService, UserService>()
+            .AddScoped<IUsersRepository, UsersRepository>()
             .AddScoped<IAuthenticationService, AuthenticationService>()
             .AddHostedService<DataStoreInitializer>();
     }

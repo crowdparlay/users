@@ -21,15 +21,16 @@ public static class ExchangePassword
         public Validator()
         {
             RuleFor(x => x.Username).NotEmpty();
+            RuleFor(x => x.Password).NotEmpty();
         }
     }
 
     public sealed class Handler : IRequestHandler<Command, Response>
     {
         private readonly IAuthenticationService _authentication;
-        private readonly IUserService _users;
+        private readonly IUsersRepository _users;
 
-        public Handler(IAuthenticationService authentication, IUserService users)
+        public Handler(IAuthenticationService authentication, IUsersRepository users)
         {
             _authentication = authentication;
             _users = users;

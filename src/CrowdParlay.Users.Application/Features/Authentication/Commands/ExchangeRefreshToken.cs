@@ -24,10 +24,10 @@ public static class ExchangeRefreshToken
 
     public sealed class Handler : IRequestHandler<Command, Response>
     {
-        private readonly IUserService _users;
+        private readonly IUsersRepository _users;
         private readonly IAuthenticationService _authenticationService;
 
-        public Handler(IUserService users, IAuthenticationService authenticationService)
+        public Handler(IUsersRepository users, IAuthenticationService authenticationService)
         {
             _users = users;
             _authenticationService = authenticationService;
