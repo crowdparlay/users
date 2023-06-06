@@ -11,8 +11,13 @@ public static class ConfigureServices
 {
     public static IServiceCollection ConfigureCommunicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var producerName = configuration["KAFKA_PRODUCER_NAME"]!;
-        var kafkaBootstrapHost = configuration["KAFKA_BOOTSTRAP_SERVER"]!;
+        var producerName =
+            configuration["KAFKA_PRODUCER_NAME"]
+            ?? throw new InvalidOperationException("Missing required configuration 'KAFKA_PRODUCER_NAME'");
+        
+        var kafkaBootstrapHost =
+            configuration["KAFKA_BOOTSTRAP_SERVER"]
+            ?? throw new InvalidOperationException("Missing required configuration 'KAFKA_BOOTSTRAP_SERVER'");
 
         services.AddKafka(kafka => kafka
             .UseMicrosoftLog()

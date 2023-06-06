@@ -11,12 +11,7 @@ public static class ClaimsIdentityExtensions
     public static async Task InjectClaimsAsync(this ClaimsIdentity identity, User user, IUserService users)
     {
         identity.AddClaim(OpenIddictConstants.Claims.Subject, user.Id.ToString());
-
-        if (user.Email is not null)
-            identity.AddClaim(OpenIddictConstants.Claims.Email, user.Email);
-
-        if (user.UserName is not null)
-            identity.AddClaim(OpenIddictConstants.Claims.Name, user.UserName);
+        identity.AddClaim(OpenIddictConstants.Claims.Name, user.Username);
 
         var roles = await users.GetRolesAsync(user);
         identity.AddClaims(OpenIddictConstants.Claims.Role, roles.ToImmutableArray());

@@ -18,10 +18,9 @@ public static class ExchangePassword
 
     public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator(IPasswordValidator<Command> passwordValidator)
+        public Validator()
         {
             RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.Password).Apply(passwordValidator);
         }
     }
 

@@ -13,11 +13,10 @@ public static class Register
 
     public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator(IPasswordValidator<Command> passwordValidator)
+        public Validator()
         {
             RuleFor(x => x.Username).NotEmpty();
             RuleFor(x => x.DisplayName).NotEmpty();
-            RuleFor(x => x.Password).Apply(passwordValidator);
         }
     }
 
@@ -49,10 +48,11 @@ public static class Register
                 await _users.FindByUsernameAsync(request.Username)
                 ?? throw new InvalidOperationException();
 
-            var @event = new UserCreatedEvent(user.Id, user.UserName!, user.DisplayName);
-            await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);
+            //todo
+            //var @event = new UserCreatedEvent(user.Id, user.UserName!, user.DisplayName);
+            //await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);
 
-            return new Response(user.Id, user.UserName!);
+            throw new NotImplementedException();
         }
     }
 
