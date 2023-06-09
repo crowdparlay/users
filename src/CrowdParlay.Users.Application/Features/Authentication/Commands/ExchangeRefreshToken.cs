@@ -2,6 +2,7 @@ using System.Security.Claims;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Domain.Abstractions;
 using FluentValidation;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
@@ -36,11 +37,8 @@ public static class ExchangeRefreshToken
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.FindByUsernameAsync(request.Username)
+                await _users.GetByUsernameAsync(request.Username)
                 ?? throw new NotFoundException("The user does not exist.");
-
-            if (!await _authenticationService.CanSignInAsync(user))
-                throw new ForbiddenException("The user is no longer allowed to sign in.");
 
             var authenticateResult = await request.Context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
             var identity = new ClaimsIdentity(
@@ -50,7 +48,7 @@ public static class ExchangeRefreshToken
                 roleType: OpenIddictConstants.Claims.Role);
 
             identity.SetScopes(OpenIddictConstants.Claims.Scope, request.Scope);
-            await identity.InjectClaimsAsync(user, _users);
+            identity.InjectClaims(user, _users);
 
             var ticket = new AuthenticationTicket(
                 new ClaimsPrincipal(identity),

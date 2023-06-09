@@ -1,9 +1,12 @@
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Abstractions.Communication;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Domain.Abstractions;
+using CrowdParlay.Users.Domain.Entities;
 using Dodo.Primitives;
 using FluentValidation;
 using Mediator;
+using ValidationException = CrowdParlay.Users.Application.Exceptions.ValidationException;
 
 namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
@@ -24,11 +27,13 @@ public static class Register
     {
         private readonly IUsersRepository _users;
         private readonly IMessageBroker _broker;
+        private readonly IPasswordHasher _hasher;
 
-        public Handler(IUsersRepository users, IMessageBroker broker)
+        public Handler(IUsersRepository users, IMessageBroker broker, IPasswordHasher hasher)
         {
             _users = users;
             _broker = broker;
+            _hasher = hasher;
         }
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
@@ -36,17 +41,19 @@ public static class Register
             if (request.IsAuthenticated)
                 throw new ForbiddenException();
 
-            var sameExists = await _users.FindByUsernameAsync(request.Username) is not null;
+            var sameExists = await _users.GetByUsernameAsync(request.Username) is not null;
             if (sameExists)
                 throw new AlreadyExistsException("User with the specified username already exists.");
 
-            var errorDescriptions = await _users.CreateAsync(request.Username, request.DisplayName, request.Password);
-            if (errorDescriptions is not null)
-                throw new Exceptions.ValidationException(nameof(request.Password), errorDescriptions);
+            var user = new User
+            {
+                Id = new Uuid(),
+                Username = request.Username,
+                DisplayName = request.DisplayName,
+                PasswordHash = _hasher.HashPassword(request.Password)
+            };
 
-            var user =
-                await _users.FindByUsernameAsync(request.Username)
-                ?? throw new InvalidOperationException();
+            await _users.AddAsync(user);
 
             var @event = new UserCreatedEvent(user.Id, user.Username, user.DisplayName);
             await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);

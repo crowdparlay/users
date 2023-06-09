@@ -1,8 +1,8 @@
-using System.Data;
+using System.Data.Common;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 
 internal interface IDbConnectionFactory
 {
-    public Task<IDbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default);
+    public Task<DbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default);
 }

@@ -25,8 +25,4 @@
       <ProjectReference Include="..\CrowdParlay.Users.Domain\CrowdParlay.Users.Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Services" />
-    </ItemGroup>
-
 </Project>
