@@ -1,9 +1,8 @@
 using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Services;
+using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
 using Microsoft.Extensions.DependencyInjection;
-using UsersRepository = CrowdParlay.Users.Application.Services.UsersRepository;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 

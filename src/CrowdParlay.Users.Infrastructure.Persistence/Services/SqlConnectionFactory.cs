@@ -10,10 +10,10 @@ internal class SqlConnectionFactory : IDbConnectionFactory
 
     public SqlConnectionFactory(string connectionString) => _connectionString = connectionString;
 
-    public async Task<IDbConnection> CreateConnectionAsync(CancellationToken? cancellationToken = null)
+    public async Task<IDbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
     {
         var connection = new SqlConnection(_connectionString);
-        await connection.OpenAsync(cancellationToken ?? CancellationToken.None);
+        await connection.OpenAsync(cancellationToken);
         return connection;
     }
 }

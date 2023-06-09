@@ -1,6 +1,5 @@
-using System.Collections.Immutable;
 using System.Security.Claims;
-using CrowdParlay.Users.Application.Abstractions;
+using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using OpenIddict.Abstractions;
 
@@ -12,9 +11,6 @@ public static class ClaimsIdentityExtensions
     {
         identity.AddClaim(OpenIddictConstants.Claims.Subject, user.Id.ToString());
         identity.AddClaim(OpenIddictConstants.Claims.Name, user.Username);
-
-        var roles = await users.GetRolesAsync(user);
-        identity.AddClaims(OpenIddictConstants.Claims.Role, roles.ToImmutableArray());
 
         foreach (var claim in identity.Claims)
         {

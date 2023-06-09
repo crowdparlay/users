@@ -1,7 +1,7 @@
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 
-namespace CrowdParlay.Users.Application.Services;
+namespace CrowdParlay.Users.Infrastructure.Persistence.Services;
 
 public class AuthenticationService : IAuthenticationService
 {

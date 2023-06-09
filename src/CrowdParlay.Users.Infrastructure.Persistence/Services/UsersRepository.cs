@@ -33,7 +33,8 @@ internal class UsersRepository : IUsersRepository
     {
         using var connection = await _connectionFactory.CreateConnectionAsync();
         await connection.ExecuteAsync(
-            $@"INSERT INTO {UserSchema.Table} (
+            $"""
+            INSERT INTO {UserSchema.Table} (
                 {UserSchema.Id},
                 {UserSchema.Username},
                 {UserSchema.DisplayName}
@@ -42,7 +43,8 @@ internal class UsersRepository : IUsersRepository
                 @{nameof(User.Id)},
                 @{nameof(User.Username)},
                 @{nameof(User.DisplayName)}
-            )",
+            )
+            """,
             entity);
     }
 
@@ -50,11 +52,13 @@ internal class UsersRepository : IUsersRepository
     {
         using var connection = await _connectionFactory.CreateConnectionAsync();
         await connection.ExecuteAsync(
-            $@"UPDATE {UserSchema.Table} SET
+            $"""
+            UPDATE {UserSchema.Table} SET
             {UserSchema.Id} = @{nameof(User.Id)},
             {UserSchema.Username} = @{nameof(User.Username)},
             {UserSchema.DisplayName} = @{nameof(User.DisplayName)}
-            WHERE {UserSchema.Id} = @{nameof(entity.Id)}",
+            WHERE {UserSchema.Id} = @{nameof(entity.Id)}
+            """,
             entity);
     }
 
