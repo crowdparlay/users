@@ -46,13 +46,15 @@ internal class UsersRepository : IUsersRepository
                 {UserSchema.Id},
                 {UserSchema.Username},
                 {UserSchema.DisplayName},
-                {UserSchema.PasswordHash}
+                {UserSchema.PasswordHash},
+                {UserSchema.CreatedAt}
             )
             VALUES (
                 @{nameof(User.Id)},
                 @{nameof(User.Username)},
                 @{nameof(User.DisplayName)},
-                @{nameof(User.PasswordHash)}
+                @{nameof(User.PasswordHash)},
+                @{nameof(User.CreatedAt)}
             )
             """,
             entity);
@@ -67,7 +69,8 @@ internal class UsersRepository : IUsersRepository
             {UserSchema.Id} = @{nameof(User.Id)},
             {UserSchema.Username} = @{nameof(User.Username)},
             {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
-            {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)}
+            {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
+            {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)},
             WHERE {UserSchema.Id} = @{nameof(entity.Id)}
             """,
             entity);

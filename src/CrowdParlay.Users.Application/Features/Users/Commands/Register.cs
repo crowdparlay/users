@@ -50,7 +50,8 @@ public static class Register
                 Id = new Uuid(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
-                PasswordHash = _hasher.HashPassword(request.Password)
+                PasswordHash = _hasher.HashPassword(request.Password),
+                CreatedAt = DateTimeOffset.UtcNow
             };
 
             await _users.AddAsync(user);
