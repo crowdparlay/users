@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;

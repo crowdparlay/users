@@ -6,7 +6,6 @@ using CrowdParlay.Users.Domain.Entities;
 using Dodo.Primitives;
 using FluentValidation;
 using Mediator;
-using ValidationException = CrowdParlay.Users.Application.Exceptions.ValidationException;
 
 namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
