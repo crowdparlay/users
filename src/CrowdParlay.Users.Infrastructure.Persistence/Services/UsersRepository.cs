@@ -45,12 +45,14 @@ internal class UsersRepository : IUsersRepository
             INSERT INTO {UserSchema.Table} (
                 {UserSchema.Id},
                 {UserSchema.Username},
-                {UserSchema.DisplayName}
+                {UserSchema.DisplayName},
+                {UserSchema.PasswordHash}
             )
             VALUES (
                 @{nameof(User.Id)},
                 @{nameof(User.Username)},
-                @{nameof(User.DisplayName)}
+                @{nameof(User.DisplayName)},
+                @{nameof(User.PasswordHash)}
             )
             """,
             entity);
@@ -64,7 +66,8 @@ internal class UsersRepository : IUsersRepository
             UPDATE {UserSchema.Table} SET
             {UserSchema.Id} = @{nameof(User.Id)},
             {UserSchema.Username} = @{nameof(User.Username)},
-            {UserSchema.DisplayName} = @{nameof(User.DisplayName)}
+            {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
+            {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)}
             WHERE {UserSchema.Id} = @{nameof(entity.Id)}
             """,
             entity);
