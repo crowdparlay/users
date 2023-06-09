@@ -12,8 +12,7 @@ public static class ConfigureServices
     public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
-        typeAdapterConfig.Scan(assembly);
+        TypeAdapterConfig.GlobalSettings.Scan(assembly);
         
         return services
             .AddValidatorsFromAssembly(assembly)
