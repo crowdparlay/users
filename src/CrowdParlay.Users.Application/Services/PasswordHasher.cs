@@ -34,32 +34,32 @@ public class PasswordHasher : IPasswordHasher
     {
         // Source: https://github.com/dotnet/aspnetcore/blob/4963b764e3c03473022c75f13b7f82c531650001/src/Identity/Extensions.Core/src/PasswordHasher.cs#L250
 
-        var decodedHashedPassword = Convert.FromBase64String(hashedPassword);
+        var hashedPasswordBytes = Convert.FromBase64String(hashedPassword);
 
         try
         {
             // Read header information
-            var prf = (KeyDerivationPrf)ReadNetworkByteOrder(decodedHashedPassword, 1);
-            var iterCount = (int)ReadNetworkByteOrder(decodedHashedPassword, 5);
-            var saltLength = (int)ReadNetworkByteOrder(decodedHashedPassword, 9);
+            var prf = (KeyDerivationPrf)ReadNetworkByteOrder(hashedPasswordBytes, 1);
+            var iterationCount = (int)ReadNetworkByteOrder(hashedPasswordBytes, 5);
+            var saltLength = (int)ReadNetworkByteOrder(hashedPasswordBytes, 9);
 
             // Read the salt: must be >= 128 bits
             if (saltLength < 128 / 8)
                 return false;
 
             var salt = new byte[saltLength];
-            Buffer.BlockCopy(decodedHashedPassword, 13, salt, 0, salt.Length);
+            Buffer.BlockCopy(hashedPasswordBytes, 13, salt, 0, salt.Length);
 
             // Read the subkey (the rest of the payload): must be >= 128 bits
-            var subkeyLength = hashedPassword.Length - 13 - salt.Length;
+            var subkeyLength = hashedPasswordBytes.Length - 13 - salt.Length;
             if (subkeyLength < 128 / 8)
                 return false;
 
             var expectedSubkey = new byte[subkeyLength];
-            Buffer.BlockCopy(decodedHashedPassword, 13 + salt.Length, expectedSubkey, 0, expectedSubkey.Length);
+            Buffer.BlockCopy(hashedPasswordBytes, 13 + salt.Length, expectedSubkey, 0, expectedSubkey.Length);
 
             // Hash the incoming password and verify it
-            var actualSubkey = KeyDerivation.Pbkdf2(password, salt, prf, iterCount, subkeyLength);
+            var actualSubkey = KeyDerivation.Pbkdf2(password, salt, prf, iterationCount, subkeyLength);
             return CryptographicOperations.FixedTimeEquals(actualSubkey, expectedSubkey);
         }
         catch
