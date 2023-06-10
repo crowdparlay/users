@@ -15,6 +15,7 @@ public static class ConfigureServices
     public static IServiceCollection ConfigurePersistenceServices(this IServiceCollection services)
     {
         SqlMapper.AddTypeHandler(new DodoUuidTypeHandler());
+        DefaultTypeMap.MatchNamesWithUnderscores = true;
 
         var connectionString = Environment.ExpandEnvironmentVariables(
             """
