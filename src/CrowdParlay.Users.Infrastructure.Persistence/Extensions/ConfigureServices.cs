@@ -3,6 +3,8 @@ using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
+using CrowdParlay.Users.Infrastructure.Persistence.SqlTypeHandlers;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +14,8 @@ public static class ConfigureServices
 {
     public static IServiceCollection ConfigurePersistenceServices(this IServiceCollection services)
     {
+        SqlMapper.AddTypeHandler(new DodoUuidTypeHandler());
+
         var connectionString = Environment.ExpandEnvironmentVariables(
             """
             Host     = %POSTGRES_HOST%;

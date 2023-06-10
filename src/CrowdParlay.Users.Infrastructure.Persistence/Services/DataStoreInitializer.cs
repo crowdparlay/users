@@ -1,3 +1,4 @@
+using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using Dapper;
 using Microsoft.Extensions.Hosting;
@@ -13,14 +14,16 @@ internal class DataStoreInitializer : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             $"""
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
             CREATE TABLE IF NOT EXISTS users (
                 {UserSchema.Id} UUID PRIMARY KEY,
                 {UserSchema.Username} TEXT UNIQUE NOT NULL,
                 {UserSchema.DisplayName} TEXT NOT NULL,
-                {UserSchema.CreatedAt} TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'utc')
+                {UserSchema.PasswordHash} TEXT NOT NULL,
+                {UserSchema.CreatedAt} TIMESTAMP WITHOUT TIME ZONE
             );
             """);
     }

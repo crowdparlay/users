@@ -46,7 +46,7 @@ public static class Register
 
             var user = new User
             {
-                Id = new Uuid(),
+                Id = Uuid.NewTimeBased(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
                 PasswordHash = _hasher.HashPassword(request.Password),

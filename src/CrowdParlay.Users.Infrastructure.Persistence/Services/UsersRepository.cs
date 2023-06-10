@@ -17,7 +17,7 @@ internal class UsersRepository : IUsersRepository
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync();
         return await connection.QuerySingleOrDefaultAsync<User>(
-            $"SELECT TOP 1 * FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
+            $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
     }
     
@@ -25,7 +25,7 @@ internal class UsersRepository : IUsersRepository
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync();
         return await connection.QuerySingleOrDefaultAsync<User>(
-            $"SELECT TOP 1 * FROM {UserSchema.Table} WHERE {UserSchema.Username} = @{nameof(username)}",
+            $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Username} = @{nameof(username)}",
             new { username });
     }
 
