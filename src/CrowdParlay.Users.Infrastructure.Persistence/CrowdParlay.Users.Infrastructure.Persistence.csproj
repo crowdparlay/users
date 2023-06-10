@@ -12,11 +12,16 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Npgsql" Version="7.0.4" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
+      <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.4.0" />
       <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations" />
     </ItemGroup>
 
 </Project>

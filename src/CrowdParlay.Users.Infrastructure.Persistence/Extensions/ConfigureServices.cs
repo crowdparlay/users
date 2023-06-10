@@ -27,7 +27,9 @@ public static class ConfigureServices
             """);
 
         return services
-            .AddDbContext<OpenIddictDbContext>(options => options.UseNpgsql(connectionString))
+            .AddDbContext<OpenIddictDbContext>(options => options
+                .UseNpgsql(connectionString)
+                .UseOpenIddict())
             .AddSingleton<IDbConnectionFactory>(new SqlConnectionFactory(connectionString))
             .AddScoped<IUsersRepository, UsersRepository>()
             .AddScoped<IAuthenticationService, AuthenticationService>()
