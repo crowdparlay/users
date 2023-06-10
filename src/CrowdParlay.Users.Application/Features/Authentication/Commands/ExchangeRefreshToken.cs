@@ -3,7 +3,6 @@ using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
-using FluentValidation;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;

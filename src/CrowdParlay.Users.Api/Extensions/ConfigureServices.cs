@@ -1,4 +1,3 @@
-using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Api.Filters;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
