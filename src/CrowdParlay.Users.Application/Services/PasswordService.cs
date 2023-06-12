@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace CrowdParlay.Users.Application.Services;
 
-public class PasswordHasher : IPasswordHasher
+public class PasswordService : IPasswordService
 {
     public string HashPassword(string password)
     {

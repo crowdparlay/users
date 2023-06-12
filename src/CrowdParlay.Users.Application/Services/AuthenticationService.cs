@@ -5,9 +5,9 @@ namespace CrowdParlay.Users.Application.Services;
 
 public class AuthenticationService : IAuthenticationService
 {
-    private readonly IPasswordHasher _hasher;
+    private readonly IPasswordService _passwordService;
 
-    public AuthenticationService(IPasswordHasher hasher) => _hasher = hasher;
+    public AuthenticationService(IPasswordService passwordService) => _passwordService = passwordService;
 
-    public bool Authenticate(User user, string password) => _hasher.VerifyPassword(user.PasswordHash, password);
+    public bool Authenticate(User user, string password) => _passwordService.VerifyPassword(user.PasswordHash, password);
 }

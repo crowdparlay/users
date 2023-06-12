@@ -26,13 +26,13 @@ public static class Register
     {
         private readonly IUsersRepository _users;
         private readonly IMessageBroker _broker;
-        private readonly IPasswordHasher _hasher;
+        private readonly IPasswordService _passwordService;
 
-        public Handler(IUsersRepository users, IMessageBroker broker, IPasswordHasher hasher)
+        public Handler(IUsersRepository users, IMessageBroker broker, IPasswordService passwordService)
         {
             _users = users;
             _broker = broker;
-            _hasher = hasher;
+            _passwordService = passwordService;
         }
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
@@ -49,7 +49,7 @@ public static class Register
                 Id = Uuid.NewTimeBased(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
-                PasswordHash = _hasher.HashPassword(request.Password),
+                PasswordHash = _passwordService.HashPassword(request.Password),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 

@@ -17,7 +17,7 @@ public static class ConfigureServices
         TypeAdapterConfig.GlobalSettings.Scan(assembly);
 
         return services
-            .AddSingleton<IPasswordHasher, PasswordHasher>()
+            .AddSingleton<IPasswordService, PasswordService>()
             .AddValidatorsFromAssembly(assembly)
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))
