@@ -39,7 +39,7 @@ public static class ExchangePassword
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.GetByUsernameAsync(request.Username)
+                await _users.GetByUsernameAsync(request.Username, cancellationToken)
                 ?? throw new NotFoundException();
 
             if (!_authentication.Authenticate(user, request.Password))

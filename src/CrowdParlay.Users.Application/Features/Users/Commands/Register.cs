@@ -40,7 +40,7 @@ public static class Register
             if (request.IsAuthenticated)
                 throw new ForbiddenException();
 
-            var sameExists = await _users.GetByUsernameAsync(request.Username) is not null;
+            var sameExists = await _users.GetByUsernameAsync(request.Username, cancellationToken) is not null;
             if (sameExists)
                 throw new AlreadyExistsException("User with the specified username already exists.");
 
@@ -53,7 +53,7 @@ public static class Register
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            await _users.AddAsync(user);
+            await _users.AddAsync(user, cancellationToken);
 
             var @event = new UserCreatedEvent(user.Id, user.Username, user.DisplayName);
             await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);

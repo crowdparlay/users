@@ -13,33 +13,33 @@ internal class UsersRepository : IUsersRepository
     public UsersRepository(IDbConnectionFactory connectionFactory) =>
         _connectionFactory = connectionFactory;
 
-    public async Task<User?> GetByIdAsync(Uuid id)
+    public async Task<User?> GetByIdAsync(Uuid id, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
             $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
     }
     
-    public async Task<User?> GetByUsernameAsync(string username)
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
             $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Username} = @{nameof(username)}",
             new { username });
     }
 
-    public async Task<IEnumerable<User>> GetManyAsync(int count, int page = 0)
+    public async Task<IEnumerable<User>> GetManyAsync(int count, int page = 0, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QueryAsync<User>(
             $"SELECT * FROM {UserSchema.Table} LIMIT @{nameof(count)} OFFSET @{nameof(count)} * @{nameof(page)}",
             new { count, page });
     }
 
-    public async Task AddAsync(User entity)
+    public async Task AddAsync(User entity, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             $"""
             INSERT INTO {UserSchema.Table} (
@@ -60,9 +60,9 @@ internal class UsersRepository : IUsersRepository
             entity);
     }
 
-    public async Task UpdateAsync(User entity)
+    public async Task UpdateAsync(User entity, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             $"""
             UPDATE {UserSchema.Table} SET
@@ -76,9 +76,9 @@ internal class UsersRepository : IUsersRepository
             entity);
     }
 
-    public async Task DeleteAsync(Uuid id)
+    public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionFactory.CreateConnectionAsync();
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             $@"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });

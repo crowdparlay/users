@@ -24,7 +24,7 @@ public static class ExchangeRefreshToken
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.GetByIdAsync(request.UserId)
+                await _users.GetByIdAsync(request.UserId, cancellationToken)
                 ?? throw new NotFoundException("The user does not exist.");
 
             var identity = new ClaimsIdentity(
