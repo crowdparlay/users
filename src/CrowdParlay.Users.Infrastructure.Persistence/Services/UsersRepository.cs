@@ -70,7 +70,7 @@ internal class UsersRepository : IUsersRepository
             {UserSchema.Username} = @{nameof(User.Username)},
             {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
             {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
-            {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)},
+            {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)}
             WHERE {UserSchema.Id} = @{nameof(entity.Id)}
             """,
             entity);
@@ -80,7 +80,7 @@ internal class UsersRepository : IUsersRepository
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync();
         await connection.ExecuteAsync(
-            $@"DELETE FROM {UserSchema.Table} WHERE @{UserSchema.Id} = @{nameof(id)}",
+            $@"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
     }
 }
