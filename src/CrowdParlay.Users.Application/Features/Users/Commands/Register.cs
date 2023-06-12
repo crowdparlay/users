@@ -1,7 +1,9 @@
-using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Abstractions.Communication;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Domain.Abstractions;
+using CrowdParlay.Users.Domain.Entities;
+using Dodo.Primitives;
 using FluentValidation;
 using Mediator;
 
@@ -13,48 +15,52 @@ public static class Register
 
     public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator(IPasswordValidator<Command> passwordValidator)
+        public Validator()
         {
             RuleFor(x => x.Username).NotEmpty();
             RuleFor(x => x.DisplayName).NotEmpty();
-            RuleFor(x => x.Password).Apply(passwordValidator);
         }
     }
 
     public sealed class Handler : IRequestHandler<Command, Response>
     {
-        private readonly IUserService _users;
+        private readonly IUsersRepository _users;
         private readonly IMessageBroker _broker;
+        private readonly IPasswordService _passwordService;
 
-        public Handler(IUserService users, IMessageBroker broker)
+        public Handler(IUsersRepository users, IMessageBroker broker, IPasswordService passwordService)
         {
             _users = users;
             _broker = broker;
+            _passwordService = passwordService;
         }
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             if (request.IsAuthenticated)
                 throw new ForbiddenException();
-            
-            var sameExists = await _users.FindByUsernameAsync(request.Username) is not null;
+
+            var sameExists = await _users.GetByUsernameAsync(request.Username, cancellationToken) is not null;
             if (sameExists)
                 throw new AlreadyExistsException("User with the specified username already exists.");
 
-            var errorDescriptions = await _users.CreateAsync(request.Username, request.DisplayName, request.Password);
-            if (errorDescriptions is not null)
-                throw new Exceptions.ValidationException(nameof(request.Password), errorDescriptions);
+            var user = new User
+            {
+                Id = Uuid.NewTimeBased(),
+                Username = request.Username,
+                DisplayName = request.DisplayName,
+                PasswordHash = _passwordService.HashPassword(request.Password),
+                CreatedAt = DateTimeOffset.UtcNow
+            };
 
-            var user =
-                await _users.FindByUsernameAsync(request.Username)
-                ?? throw new InvalidOperationException();
+            await _users.AddAsync(user, cancellationToken);
 
-            var @event = new UserCreatedEvent(user.Id, user.UserName!, user.DisplayName);
+            var @event = new UserCreatedEvent(user.Id, user.Username, user.DisplayName);
             await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);
 
-            return new Response(user.Id, user.UserName!);
+            return new Response(user.Id, user.Username);
         }
     }
 
-    public sealed record Response(Guid Id, string Username);
+    public sealed record Response(Uuid Id, string Username);
 }

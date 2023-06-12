@@ -1,5 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
-using DbContext = CrowdParlay.Users.Infrastructure.Persistence.DbContext;
+using CrowdParlay.Users.Infrastructure.Persistence;
 
 namespace CrowdParlay.Users.Api.Extensions;
 
@@ -12,7 +12,7 @@ public static class ConfigureOpenIddictExtensions
 
         builder.AddCore(options => options
             .UseEntityFrameworkCore()
-            .UseDbContext<DbContext>());
+            .UseDbContext<OpenIddictDbContext>());
 
         builder.AddServer(options =>
         {
@@ -45,7 +45,7 @@ public static class ConfigureOpenIddictExtensions
 
                 var encryptionCertificate = X509Certificate2.CreateFromPemFile(encryptionCertificatePath);
                 var signingCertificate = X509Certificate2.CreateFromPemFile(signingCertificatePath);
-                
+
                 options
                     .AddEncryptionCertificate(encryptionCertificate)
                     .AddSigningCertificate(signingCertificate);

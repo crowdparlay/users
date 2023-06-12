@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Behaviors;
+using CrowdParlay.Users.Application.Services;
 using FluentValidation;
 using Mapster;
 using Mediator;
@@ -12,10 +14,10 @@ public static class ConfigureServices
     public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
-        typeAdapterConfig.Scan(assembly);
-        
+        TypeAdapterConfig.GlobalSettings.Scan(assembly);
+
         return services
+            .AddSingleton<IPasswordService, PasswordService>()
             .AddValidatorsFromAssembly(assembly)
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))

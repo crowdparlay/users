@@ -1,3 +1,5 @@
+using Dodo.Primitives;
+
 namespace CrowdParlay.Users.Application.Abstractions.Communication;
 
 public interface IMessageBroker
@@ -7,6 +9,6 @@ public interface IMessageBroker
     public IMessageDestination<UserDeletedEvent> UserDeletedEvent { get; }
 }
 
-public record UserCreatedEvent(Guid UserId, string Username, string DisplayName);
-public record UserUpdatedEvent(Guid UserId, string Username, string DisplayName);
-public record UserDeletedEvent(Guid UserId);
+public record UserCreatedEvent(Uuid UserId, string Username, string DisplayName);
+public record UserUpdatedEvent(Uuid UserId, string Username, string DisplayName);
+public record UserDeletedEvent(Uuid UserId);

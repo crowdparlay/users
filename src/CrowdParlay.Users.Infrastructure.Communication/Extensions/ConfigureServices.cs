@@ -9,10 +9,23 @@ namespace CrowdParlay.Users.Infrastructure.Communication.Extensions;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection ConfigureCommunicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureCommunicationServices(this IServiceCollection services, IConfiguration configuration) =>
+        configuration.GetValue<bool>("Circumstances:FakeCommunication")
+            ? services.AddFakeCommunication()
+            : services.AddKafkaCommunication(configuration);
+
+    private static IServiceCollection AddFakeCommunication(this IServiceCollection services) => services
+        .AddScoped<IMessageBroker, FakeMessageBroker>();
+
+    private static IServiceCollection AddKafkaCommunication(this IServiceCollection services, IConfiguration configuration)
     {
-        var producerName = configuration["KAFKA_PRODUCER_NAME"]!;
-        var kafkaBootstrapHost = configuration["KAFKA_BOOTSTRAP_SERVER"]!;
+        var producerName =
+            configuration["KAFKA_PRODUCER_NAME"]
+            ?? throw new InvalidOperationException("Missing required configuration 'KAFKA_PRODUCER_NAME'");
+
+        var kafkaBootstrapHost =
+            configuration["KAFKA_BOOTSTRAP_SERVER"]
+            ?? throw new InvalidOperationException("Missing required configuration 'KAFKA_BOOTSTRAP_SERVER'");
 
         services.AddKafka(kafka => kafka
             .UseMicrosoftLog()

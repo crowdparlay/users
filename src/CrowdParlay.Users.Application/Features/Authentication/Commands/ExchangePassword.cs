@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Domain.Abstractions;
 using FluentValidation;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
@@ -18,19 +18,19 @@ public static class ExchangePassword
 
     public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator(IPasswordValidator<Command> passwordValidator)
+        public Validator()
         {
             RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.Password).Apply(passwordValidator);
+            RuleFor(x => x.Password).NotEmpty();
         }
     }
 
     public sealed class Handler : IRequestHandler<Command, Response>
     {
         private readonly IAuthenticationService _authentication;
-        private readonly IUserService _users;
+        private readonly IUsersRepository _users;
 
-        public Handler(IAuthenticationService authentication, IUserService users)
+        public Handler(IAuthenticationService authentication, IUsersRepository users)
         {
             _authentication = authentication;
             _users = users;
@@ -39,11 +39,10 @@ public static class ExchangePassword
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.FindByUsernameAsync(request.Username)
+                await _users.GetByUsernameAsync(request.Username, cancellationToken)
                 ?? throw new NotFoundException();
 
-            var isAuthenticated = await _authentication.AuthenticateAsync(user, request.Password);
-            if (!isAuthenticated)
+            if (!_authentication.Authenticate(user, request.Password))
                 throw new ForbiddenException("The specified credentials are invalid.");
 
             var identity = new ClaimsIdentity(
@@ -52,7 +51,7 @@ public static class ExchangePassword
                 roleType: OpenIddictConstants.Claims.Role);
 
             identity.SetScopes(OpenIddictConstants.Claims.Scope, request.Scope);
-            await identity.InjectClaimsAsync(user, _users);
+            identity.InjectClaims(user, _users);
 
             var ticket = new AuthenticationTicket(
                 new ClaimsPrincipal(identity),

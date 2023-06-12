@@ -20,6 +20,8 @@ builder.Host.UseSerilog();
 
 var app = builder.Build();
 
+app.UseHealthChecks("/health");
+
 app.UseCors(x => x
     .AllowAnyOrigin()
     .AllowAnyHeader()
@@ -31,8 +33,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
