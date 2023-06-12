@@ -11,20 +11,30 @@ public class PasswordHasher : IPasswordHasher
         // Source: https://github.com/dotnet/aspnetcore/blob/4963b764e3c03473022c75f13b7f82c531650001/src/Identity/Extensions.Core/src/PasswordHasher.cs#L141
 
         const int saltSize = 128 / 8;
-        const int iterCount = 100_000;
+        const int subkeyLength = 256 / 8;
+        const int iterationCount = 100_000;
         const KeyDerivationPrf prf = KeyDerivationPrf.HMACSHA512;
 
         var salt = RandomNumberGenerator.GetBytes(saltSize);
-        var subkey = KeyDerivation.Pbkdf2(password, salt, prf, 100_000, 256 / 8);
+        var subkey = KeyDerivation.Pbkdf2(password, salt, prf, iterationCount, subkeyLength);
 
         var outputBytes = new byte[13 + salt.Length + subkey.Length];
+        
+        // Byte [0] is format marker
+        // In this case, 0x01 indicates the password is stored in the v3 format
         outputBytes[0] = 0x01;
-
+        // Bytes [1-4] are PRF which is used for the key derivation
+        // In this case, 2 indicates HMACSHA512
         WriteNetworkByteOrder(outputBytes, 1, (uint)prf);
-        WriteNetworkByteOrder(outputBytes, 5, iterCount);
+        // Bytes [5-8] are number of iterations of the pseudo-random function to apply during the key derivation process
+        // In this case, 100 000
+        WriteNetworkByteOrder(outputBytes, 5, iterationCount);
+        // Bytes [9-12] are salt length in bytes
+        // In this case, 16
         WriteNetworkByteOrder(outputBytes, 9, saltSize);
-
+        // Bytes [13-28] are salt
         Buffer.BlockCopy(salt, 0, outputBytes, 13, salt.Length);
+        // Bytes [29-60] are subkey
         Buffer.BlockCopy(subkey, 0, outputBytes, 13 + saltSize, subkey.Length);
 
         return Convert.ToBase64String(outputBytes);
