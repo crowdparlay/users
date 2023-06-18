@@ -1,6 +1,6 @@
 namespace CrowdParlay.Users.Application.Abstractions.Communication;
 
-public interface IMessageDestination<in TMessage>
+public interface IMessageDestination
 {
-    public Task PublishAsync(string key, TMessage message);
+    public Task PublishAsync(string key, object message);
 }
