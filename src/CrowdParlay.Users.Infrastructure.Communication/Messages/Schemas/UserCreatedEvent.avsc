@@ -1,0 +1,9 @@
+{
+    "type": "record",
+    "name": "UserCreatedEvent",
+    "fields": [
+        { "name": "userId", "type": "string" },
+        { "name": "username", "type": "string", "logicalType": "UUID" },
+        { "name": "displayName", "type": "string" }
+    ]
+}
