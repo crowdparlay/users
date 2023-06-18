@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace CrowdParlay.Users.Infrastructure.Communication.Messages
+namespace CrowdParlay.Users.Application.Communication.Messages
 {
 	using System;
 	using System.Collections.Generic;
@@ -14,11 +14,11 @@ namespace CrowdParlay.Users.Infrastructure.Communication.Messages
 	using global::Avro.Specific;
 	
 	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("avrogen", "1.11.1")]
-	public partial class UserUpdatedEvent : global::Avro.Specific.ISpecificRecord
+	public partial class UserCreatedEvent : global::Avro.Specific.ISpecificRecord
 	{
-		public static global::Avro.Schema _SCHEMA = global::Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"UserUpdatedEvent\",\"namespace\":\"CrowdParlay.Users.Infrast" +
-				"ructure.Communication.Messages\",\"fields\":[{\"name\":\"UserId\",\"type\":\"string\"},{\"na" +
-				"me\":\"Username\",\"type\":\"string\"},{\"name\":\"DisplayName\",\"type\":\"string\"}]}");
+		public static global::Avro.Schema _SCHEMA = global::Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"UserCreatedEvent\",\"namespace\":\"CrowdParlay.Users.Applica" +
+				"tion.Communication.Messages\",\"fields\":[{\"name\":\"UserId\",\"type\":\"string\"},{\"name\"" +
+				":\"Username\",\"type\":\"string\"},{\"name\":\"DisplayName\",\"type\":\"string\"}]}");
 		private string _UserId;
 		private string _Username;
 		private string _DisplayName;
@@ -26,7 +26,7 @@ namespace CrowdParlay.Users.Infrastructure.Communication.Messages
 		{
 			get
 			{
-				return UserUpdatedEvent._SCHEMA;
+				return UserCreatedEvent._SCHEMA;
 			}
 		}
 		public string UserId
