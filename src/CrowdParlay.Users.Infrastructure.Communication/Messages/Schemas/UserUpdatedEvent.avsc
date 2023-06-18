@@ -1,5 +1,5 @@
 {
-    "namespace": "CrowdParlay.Users.Infrastructure.Communication.Messages",
+    "namespace": "CrowdParlay.Users.Application.Communication.Messages",
     "type": "record",
     "name": "UserUpdatedEvent",
     "fields": [
