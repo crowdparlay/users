@@ -1,7 +1,7 @@
 {
     "namespace": "CrowdParlay.Users.Infrastructure.Communication.Messages",
     "type": "record",
-    "name": "UserCreatedEvent",
+    "name": "UserUpdatedEvent",
     "fields": [
         { "name": "UserId", "type": "string", "logicalType": "uuid" },
         { "name": "Username", "type": "string" },
