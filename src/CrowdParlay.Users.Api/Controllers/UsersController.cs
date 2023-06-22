@@ -15,7 +15,7 @@ public class UsersController : ApiControllerBase
         await Mediator.Send(command with { IsAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false });
 
     [HttpDelete, Route("[action]")]
-    public async Task<Unit> Delete([FromBody] Delete.Command command)
+    public async Task Delete([FromBody] Delete.Command command)
     {
         if (User.Identity?.IsAuthenticated != true)
             throw new UnauthorizedException();
@@ -23,8 +23,8 @@ public class UsersController : ApiControllerBase
         var userId = Uuid.Parse(User.GetClaim(OpenIddictConstants.Claims.Subject)!);
 
         if (command.Id == userId)
-            throw new ForbiddenException("The specified ID doesn't equals the ID of the authorized user");
+            throw new ForbiddenException("The specified ID doesn't equals the ID of the authenticated user");
 
-        return await Mediator.Send(command);
+        await Mediator.Send(command);
     }
 }

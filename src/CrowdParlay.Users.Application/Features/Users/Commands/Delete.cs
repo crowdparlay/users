@@ -9,7 +9,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Delete
 {
-    public sealed record Command(Uuid Id) : IRequest<Unit>;
+    public sealed record Command(Uuid Id) : IRequest;
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -33,7 +33,7 @@ public static class Delete
         public async ValueTask<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             _ = await _users.GetByIdAsync(request.Id, cancellationToken)
-                ?? throw new NotFoundException("User with the specified id don't exists.");
+                ?? throw new NotFoundException("User with the specified ID doesn't exist.");
 
             await _users.DeleteAsync(request.Id, cancellationToken);
 
