@@ -1,5 +1,7 @@
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
+using Dodo.Primitives;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
@@ -13,15 +15,14 @@ public class UsersController : ApiControllerBase
         await Mediator.Send(command with { IsAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false });
 
     [HttpDelete, Route("[action]")]
-    public async Task<Delete.Response> Delete([FromBody] Delete.Command command)
+    public async Task<Unit> Delete([FromBody] Delete.Command command)
     {
-        if (HttpContext.User.Identity == null)
-            throw new UnauthorizedAccessException();
+        if (User.Identity?.IsAuthenticated != true)
+            throw new UnauthorizedException();
 
-        if (command.id
-            .ToString()
-            .Equals(HttpContext.User.GetClaim(OpenIddictConstants.Claims.Subject))
-           )
+        var userId = Uuid.Parse(User.GetClaim(OpenIddictConstants.Claims.Subject)!);
+
+        if (command.Id == userId)
             throw new ForbiddenException("The specified ID doesn't equals the ID of the authorized user");
 
         return await Mediator.Send(command);
