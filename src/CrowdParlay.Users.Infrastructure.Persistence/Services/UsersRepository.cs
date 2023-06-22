@@ -80,16 +80,11 @@ internal class UsersRepository : IUsersRepository
     public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-        var isUserExists = await connection.QueryAsync(
-            $"SELECT COUNT(*) FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
-            new { id }  
-        );
 
-        if (!isUserExists.Any())
-            throw new NotFoundException();
-        
-        await connection.ExecuteAsync(
+        var count = await connection.ExecuteAsync(
             $@"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
+        if (count == 0)
+            throw new NotFoundException();
     }
 }
