@@ -22,7 +22,7 @@ public class UsersController : ApiControllerBase
 
         var userId = Uuid.Parse(User.GetClaim(OpenIddictConstants.Claims.Subject)!);
 
-        if (command.Id == userId)
+        if (command.Id != userId)
             throw new ForbiddenException("The specified ID isn't equal to the ID of the authenticated user.");
 
         await Mediator.Send(command);

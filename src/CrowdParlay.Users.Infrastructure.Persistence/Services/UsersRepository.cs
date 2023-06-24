@@ -82,7 +82,7 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
         var count = await connection.ExecuteAsync(
-            $@"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
+            $"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
         if (count == 0)
             throw new NotFoundException();
