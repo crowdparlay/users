@@ -1,3 +1,5 @@
+using Confluent.SchemaRegistry;
+using Confluent.SchemaRegistry.Serdes;
 using CrowdParlay.Users.Application.Abstractions.Communication;
 using CrowdParlay.Users.Infrastructure.Communication.Services;
 using KafkaFlow;
@@ -27,15 +29,23 @@ public static class ConfigureServices
             configuration["KAFKA_BOOTSTRAP_SERVER"]
             ?? throw new InvalidOperationException("Missing required configuration 'KAFKA_BOOTSTRAP_SERVER'");
 
+        var schemaRegistryUrl =
+            configuration["SCHEMA_REGISTRY_URL"]
+            ?? throw new InvalidOperationException("Missing required configuration 'SCHEMA_REGISTRY_URL'");
+
+        var avroSerializerConfig = new AvroSerializerConfig
+        {
+            SubjectNameStrategy = SubjectNameStrategy.TopicRecord
+        };
+
         services.AddKafka(kafka => kafka
             .UseMicrosoftLog()
             .AddCluster(cluster => cluster
                 .WithBrokers(new[] { kafkaBootstrapHost })
+                .WithSchemaRegistry(config => config.Url = schemaRegistryUrl)
                 .AddProducer(producerName, producer => producer
-                    .AddMiddlewares(middlewares => middlewares.AddSerializer<NewtonsoftJsonSerializer>())
-                )
-            )
-        );
+                    .AddMiddlewares(middlewares => middlewares
+                        .AddSchemaRegistryAvroSerializer(avroSerializerConfig)))));
 
         return services
             .AddScoped<IMessageBroker, KafkaMessageBroker>()

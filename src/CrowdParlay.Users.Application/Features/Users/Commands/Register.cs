@@ -1,5 +1,6 @@
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Abstractions.Communication;
+using CrowdParlay.Users.Application.Communication.Messages;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
@@ -55,8 +56,14 @@ public static class Register
 
             await _users.AddAsync(user, cancellationToken);
 
-            var @event = new UserCreatedEvent(user.Id, user.Username, user.DisplayName);
-            await _broker.UserCreatedEvent.PublishAsync(@event.UserId.ToString(), @event);
+            var @event = new UserCreatedEvent
+            {
+                UserId = user.Id.ToString(),
+                Username = user.Username,
+                DisplayName = user.DisplayName
+            };
+            
+            await _broker.UserEvents.PublishAsync(@event.UserId, @event);
 
             return new Response(user.Id, user.Username);
         }
