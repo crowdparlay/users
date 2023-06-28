@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CrowdParlay.Communication.RabbitMq.DependencyInjection" Version="1.0.0" />
         <PackageReference Include="Mediator.Abstractions" Version="2.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.5" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
@@ -26,7 +27,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj" />
-      <ProjectReference Include="..\CrowdParlay.Users.Infrastructure.Communication\CrowdParlay.Users.Infrastructure.Communication.csproj" />
       <ProjectReference Include="..\CrowdParlay.Users.Infrastructure.Persistence\CrowdParlay.Users.Infrastructure.Persistence.csproj" />
     </ItemGroup>
 
