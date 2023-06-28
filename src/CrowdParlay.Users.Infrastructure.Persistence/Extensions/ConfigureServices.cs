@@ -6,26 +6,22 @@ using CrowdParlay.Users.Infrastructure.Persistence.Services;
 using CrowdParlay.Users.Infrastructure.Persistence.SqlTypeHandlers;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection ConfigurePersistenceServices(this IServiceCollection services)
+    public static IServiceCollection ConfigurePersistenceServices(this IServiceCollection services, IConfiguration configuration)
     {
         SqlMapper.AddTypeHandler(new DodoUuidTypeHandler());
         DefaultTypeMap.MatchNamesWithUnderscores = true;
-
-        var connectionString = Environment.ExpandEnvironmentVariables(
-            """
-            Host     = %POSTGRES_HOST%;
-            Port     = %POSTGRES_PORT%;
-            Database = %POSTGRES_DB%;
-            Username = %POSTGRES_USER%;
-            Password = %POSTGRES_PASSWORD%
-            """);
-
+        
+        var connectionString =
+            configuration["POSTGRES_CONNECTION_STRING"]
+            ?? throw new InvalidOperationException("Missing required configuration 'POSTGRES_CONNECTION_STRING'");
+            
         return services
             .AddDbContext<OpenIddictDbContext>(options => options
                 .UseNpgsql(connectionString)
