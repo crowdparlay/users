@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.Infrastructure.Communication", "src\CrowdParlay.Users.Infrastructure.Communication\CrowdParlay.Users.Infrastructure.Communication.csproj", "{00533927-8C13-42D4-B817-1F9E46407C27}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FE01B7BD-6771-4092-A807-0CE12C3BD7A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowdParlay.Users.IntegrationTests", "tests\CrowdParlay.Users.IntegrationTests\CrowdParlay.Users.IntegrationTests.csproj", "{56521F52-B8EC-4B5F-BA14-460AED5A6298}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +27,7 @@ Global
 		{726B5107-1813-4548-B787-93A814E51383} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
 		{9CF5924B-A811-4AB5-8CBD-C4C31B9A5755} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
 		{00533927-8C13-42D4-B817-1F9E46407C27} = {91A1DFEF-4012-459C-B384-3A6C8F8EEA83}
+		{56521F52-B8EC-4B5F-BA14-460AED5A6298} = {FE01B7BD-6771-4092-A807-0CE12C3BD7A5}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1513B10F-B191-49A3-BDA4-A0F17AE2518F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -45,5 +50,9 @@ Global
 		{00533927-8C13-42D4-B817-1F9E46407C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00533927-8C13-42D4-B817-1F9E46407C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00533927-8C13-42D4-B817-1F9E46407C27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56521F52-B8EC-4B5F-BA14-460AED5A6298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56521F52-B8EC-4B5F-BA14-460AED5A6298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56521F52-B8EC-4B5F-BA14-460AED5A6298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56521F52-B8EC-4B5F-BA14-460AED5A6298}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
