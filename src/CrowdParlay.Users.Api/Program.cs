@@ -1,6 +1,6 @@
+using CrowdParlay.Communication.RabbitMq.DependencyInjection;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Application.Extensions;
-using CrowdParlay.Users.Infrastructure.Communication.Extensions;
 using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 
 namespace CrowdParlay.Users.Api;
@@ -49,10 +49,14 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var rabbitMqAmqpServerUrl =
+            _configuration["RABBITMQ_AMQP_SERVER_URL"]
+            ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
+
         services
             .ConfigureApplicationServices()
             .ConfigurePersistenceServices(_configuration)
-            .ConfigureCommunicationServices(_configuration)
+            .ConfigureRabbitMqCommunication(rabbitMqAmqpServerUrl)
             .ConfigureApiServices(_configuration, _environment);
 
         services.AddControllers();

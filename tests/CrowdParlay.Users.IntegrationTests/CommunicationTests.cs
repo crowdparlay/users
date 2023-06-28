@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
-using CrowdParlay.Users.Application.Communication;
-using CrowdParlay.Users.Infrastructure.Communication;
+using CrowdParlay.Communication;
+using CrowdParlay.Communication.RabbitMq;
 using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
 using RabbitMQ.Client;
