@@ -1,8 +1,0 @@
-{
-  "namespace": "CrowdParlay.Users.Application.Communication.Messages",
-  "type": "record",
-  "name": "UserDeletedEvent",
-  "fields": [
-    { "name": "UserId", "type": "string", "logicalType": "uuid" }
-  ]
-}
