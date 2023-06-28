@@ -11,11 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="KafkaFlow" Version="2.3.0" />
-      <PackageReference Include="KafkaFlow.LogHandler.Microsoft" Version="2.3.0" />
-      <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.3.0" />
-      <PackageReference Include="KafkaFlow.Serializer" Version="2.3.0" />
-      <PackageReference Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentAvro" Version="2.3.0" />
+      <PackageReference Include="RabbitMQ.Client" Version="6.5.0" />
     </ItemGroup>
 
 </Project>
