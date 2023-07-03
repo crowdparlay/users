@@ -3,7 +3,7 @@ using CrowdParlay.Users.IntegrationTests.Services;
 
 namespace CrowdParlay.Users.IntegrationTests.Setups;
 
-public class TestServerSetup : ICustomization
+public class ServerSetup : ICustomization
 {
     public void Customize(IFixture fixture)
     {

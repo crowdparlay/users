@@ -2,6 +2,8 @@ using System.Text;
 using System.Text.Json;
 using CrowdParlay.Communication;
 using CrowdParlay.Communication.RabbitMq;
+using CrowdParlay.Users.IntegrationTests.Attribute;
+using CrowdParlay.Users.IntegrationTests.Props;
 using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
 using RabbitMQ.Client;
@@ -19,8 +21,8 @@ public class UsersControllerSetup : AutoDataAttribute
 
 public class CommunicationTests
 {
-    [Theory, UsersControllerSetup]
-    public async Task RegisterUser_ShouldProduce_UserCreatedEvent(HttpClient client, EventingBasicConsumer consumer, IModel channel)
+    [Theory, Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
+    public async Task RegisterUser_ShouldProduce_UserCreatedEvent(HttpClient client, RabbitMqMessageBroker broker)
     {
         // Arrange
         channel.ExchangeDeclare(RabbitMqConstants.Exchanges.Users, ExchangeType.Topic);

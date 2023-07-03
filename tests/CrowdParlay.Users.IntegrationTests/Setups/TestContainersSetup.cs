@@ -1,4 +1,6 @@
+using CrowdParlay.Communication.RabbitMq;
 using Nito.AsyncEx;
+using RabbitMQ.Client;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 
@@ -8,37 +10,38 @@ public class TestContainersSetup : ICustomization
 {
     public void Customize(IFixture fixture)
     {
-        var postgresConfiguration = CustomizePostgres();
-        var rabbitMqConfiguration = CustomizeRabbitMq();
-        
-        fixture.Inject(postgresConfiguration);
-        fixture.Inject(rabbitMqConfiguration);
+        CustomizePostgres(fixture);
+        CustomizeRabbitMq(fixture);
     }
 
-    private PostgresContainerConfiguration CustomizePostgres()
+    private void CustomizePostgres(IFixture fixture)
     {
-        var postgresContainer = new PostgreSqlBuilder()
+        var container = new PostgreSqlBuilder()
             .WithExposedPort(5432)
             .WithPortBinding(5432, true)
             .Build();
-        
-        AsyncContext.Run(async () => await postgresContainer.StartAsync());
 
-        return new PostgresContainerConfiguration
+        AsyncContext.Run(async () => await container.StartAsync());
+
+        fixture.Inject(new PostgresContainerConfiguration
         {
-            ConnectionString = postgresContainer.GetConnectionString()
-        };
+            ConnectionString = container.GetConnectionString()
+        });
     }
-    
-    private RabbitMqContainerConfiguration CustomizeRabbitMq()
+
+    private void CustomizeRabbitMq(IFixture fixture)
     {
-        var rabbitMqContainer = new RabbitMqBuilder().Build();
+        var container = new RabbitMqBuilder().Build();
+        AsyncContext.Run(async () => await container.StartAsync());
+
+        var amqpServerUrl = container.GetConnectionString();
+        var connectionFactory = new ConnectionFactory { Uri = new Uri(amqpServerUrl) };
+        var broker = new RabbitMqMessageBroker(connectionFactory);
         
-        AsyncContext.Run(async () => await rabbitMqContainer.StartAsync());
-        
-        return new RabbitMqContainerConfiguration
+        fixture.Inject(broker);
+        fixture.Inject(new RabbitMqContainerConfiguration
         {
-            AmqpServerUrl = rabbitMqContainer.GetConnectionString()
-        };
+            AmqpServerUrl = container.GetConnectionString()
+        });
     }
 }
