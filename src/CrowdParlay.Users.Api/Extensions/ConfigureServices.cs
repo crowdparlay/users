@@ -2,7 +2,6 @@ using CrowdParlay.Users.Api.Filters;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Serilog;
 
 namespace CrowdParlay.Users.Api.Extensions;
 
@@ -19,12 +18,6 @@ public static class ConfigureServices
         services
             .AddEndpointsApiExplorer()
             .AddHealthChecks();
-
-        // Logging (Serilog)
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
-            .Enrich.With<ActivityLoggingEnricher>()
-            .CreateLogger();
 
         // Controllers, naming conventions and request filtering
         services.AddControllers(options =>
