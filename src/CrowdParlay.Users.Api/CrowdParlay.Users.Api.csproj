@@ -18,6 +18,7 @@
         </PackageReference>
         <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.5.0" />
         <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="4.5.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
