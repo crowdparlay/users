@@ -2,6 +2,7 @@ using CrowdParlay.Communication.RabbitMq.DependencyInjection;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
+using Serilog;
 
 namespace CrowdParlay.Users.Api;
 
@@ -10,7 +11,8 @@ public class Program
     public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
 
     private static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(builder => builder.UseStartup<Startup>());
+        .ConfigureWebHostDefaults(builder => builder.UseStartup<Startup>())
+        .UseSerilog();
 }
 
 public class Startup
@@ -26,6 +28,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
     {
+        app.UseSerilogRequestLogging();
         app.UseHealthChecks("/health");
 
         app.UseCors(builder => builder
