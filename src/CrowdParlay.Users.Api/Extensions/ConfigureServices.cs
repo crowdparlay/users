@@ -1,6 +1,5 @@
 using CrowdParlay.Users.Api.Filters;
 using CrowdParlay.Users.Api.Routing;
-using CrowdParlay.Users.Api.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace CrowdParlay.Users.Api.Extensions;
