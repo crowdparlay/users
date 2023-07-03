@@ -21,13 +21,11 @@ public static class ConfigureServices
             .AddEndpointsApiExplorer()
             .AddHealthChecks();
 
-        // Logging (Serilog)
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .Enrich.With<ActivityLoggingEnricher>()
             .CreateLogger();
 
-        // Controllers, naming conventions and request filtering
         services.AddControllers(options =>
         {
             var transformer = new KebabCaseParameterPolicy();
@@ -35,7 +33,6 @@ public static class ConfigureServices
             options.Filters.Add<ApiExceptionFilterAttribute>();
         });
 
-        // Communication (RabbitMQ)
         var rabbitMqAmqpServerUrl =
             configuration["RABBITMQ_AMQP_SERVER_URL"]
             ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
