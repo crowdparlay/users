@@ -56,8 +56,9 @@ public class Startup
         services
             .ConfigureApplicationServices()
             .ConfigurePersistenceServices(_configuration)
-            .ConfigureRabbitMqCommunication(rabbitMqAmqpServerUrl)
-            .ConfigureApiServices(_configuration, _environment);
+            .ConfigureApiServices(_configuration, _environment)
+            .AddRabbitMqCommunication(options => options
+                .UseAmqpServer(rabbitMqAmqpServerUrl));
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
