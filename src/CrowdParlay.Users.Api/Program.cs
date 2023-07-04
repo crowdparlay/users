@@ -1,41 +1,63 @@
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
-using CrowdParlay.Users.Infrastructure.Communication.Extensions;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace CrowdParlay.Users.Api;
 
-builder.Services
-    .ConfigureApplicationServices()
-    .ConfigurePersistenceServices()
-    .ConfigureCommunicationServices(builder.Configuration)
-    .ConfigureApiServices(builder.Configuration, builder.Environment);
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Host.UseSerilog();
-
-var app = builder.Build();
-
-app.UseHealthChecks("/health");
-
-app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyHeader()
-    .AllowAnyMethod());
-
-if (app.Environment.IsDevelopment())
+public class Program
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
+
+    private static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(builder => builder.UseStartup<Startup>())
+        .UseSerilog();
 }
 
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+public class Startup
+{
+    private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _environment;
 
-app.Run();
+    public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+    {
+        _configuration = configuration;
+        _environment = environment;
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
+    {
+        app.UseSerilogRequestLogging();
+        app.UseHealthChecks("/health");
+
+        app.UseCors(builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+
+        if (environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseRouting();
+        app.UseEndpoints(builder => builder.MapControllers());
+    }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services
+            .ConfigureApplicationServices()
+            .ConfigurePersistenceServices(_configuration)
+            .ConfigureApiServices(_configuration, _environment);
+
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+    }
+}
