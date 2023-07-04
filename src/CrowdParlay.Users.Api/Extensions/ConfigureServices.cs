@@ -17,9 +17,9 @@ public static class ConfigureServices
             .ConfigureOpenIddict(configuration, environment)
             .ConfigureSwagger(configuration);
 
-        services
-            .AddEndpointsApiExplorer()
-            .AddHealthChecks();
+        services.AddEndpointsApiExplorer();
+        
+        services.AddHealthChecks();
 
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
