@@ -19,7 +19,11 @@ public static class ConfigureServices
 
         services.AddEndpointsApiExplorer();
         
-        services.AddHealthChecks();
+        var connectionString = configuration["POSTGRES_CONNECTION_STRING"]
+            ?? throw new InvalidOperationException("Missing required configuration 'POSTGRES_CONNECTION_STRING'");
+        
+        services.AddHealthChecks()
+            .AddNpgSql(connectionString);
 
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
