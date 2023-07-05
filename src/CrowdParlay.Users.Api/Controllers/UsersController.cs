@@ -27,4 +27,7 @@ public class UsersController : ApiControllerBase
 
         await Mediator.Send(command);
     }
+
+    [HttpGet, Route("[action]/{id}"), AllowAnonymous]
+    public async Task<Read.Response> Read([FromRoute] Uuid id) => await Mediator.Send(new Read.Command(id));
 }
