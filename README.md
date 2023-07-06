@@ -1,9 +1,13 @@
 # Crowd Parlay's *users* microservice
 
 ### Technologies
-`C#` `ASP.NET Core` `EF Core` `Kafka` `PostgeSQL` `Docker` `Swashbuckle` `Mediator` `FluentValidation` `OpenIddict`
+- Languages `C#` `SQL`
+- Frameworks `.NET 7` `ASP.NET Core`
+- Persistence `PostgreSQL` `Dapper` `EF Core` `FluentMigrator`
+- Testing `xUnit` `Testcontainers` `AutoFixture`
+- Other `RabbitMQ` `OpenIddict` `Mediator` `FluentValidation` `Mapster` `Swashbuckle`
 
 ### Responsibilities
-- User identity persistence (indexes, usernames, password hashing, etc.)
-- User profile and personal preferences management
-- User authentication via OpenID Connect and JWT
+- User profiles
+- Personal preferences management
+- OpenID Connect authentication
