@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations
+namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations.EfCore
 {
     [DbContext(typeof(OpenIddictDbContext))]
     partial class OpenIddictDbContextModelSnapshot : ModelSnapshot
