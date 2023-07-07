@@ -15,6 +15,6 @@ public class HealthChecksTests
         // Assert
         var content = await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode();
-        content.Should().Contain("Healthy");
+        content.Should().BeEquivalentTo("healthy");
     }
 }
