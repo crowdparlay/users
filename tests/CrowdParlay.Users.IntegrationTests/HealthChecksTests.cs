@@ -1,4 +1,3 @@
-using CrowdParlay.Communication.RabbitMq;
 using CrowdParlay.Users.IntegrationTests.Attribute;
 using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
@@ -10,8 +9,6 @@ public class HealthChecksTests
     [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
     public async Task HealthCheck_DatabaseAvailable_ShouldBeHealthy(HttpClient client)
     {
-        // Arrange
-        
         // Act
         var response = await client.GetAsync("/health");
         
