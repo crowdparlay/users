@@ -1,5 +1,4 @@
-﻿using CrowdParlay.Communication.Abstractions;
-using CrowdParlay.Users.Application.Exceptions;
+﻿using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
 using FluentValidation;
