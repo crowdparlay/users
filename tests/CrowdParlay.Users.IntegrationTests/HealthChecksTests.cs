@@ -1,12 +1,13 @@
-using CrowdParlay.Users.IntegrationTests.Attribute;
-using CrowdParlay.Users.IntegrationTests.Setups;
+using System.Net;
+using CrowdParlay.Users.IntegrationTests.Attributes;
 using FluentAssertions;
+using Testcontainers.PostgreSql;
 
 namespace CrowdParlay.Users.IntegrationTests;
 
 public class HealthChecksTests
 {
-    [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
+    [Theory(Timeout = 5000), ApiSetup]
     public async Task HealthCheck_DatabaseAvailable_ShouldBeHealthy(HttpClient client)
     {
         // Act
@@ -14,7 +15,7 @@ public class HealthChecksTests
         
         // Assert
         var content = await response.Content.ReadAsStringAsync();
-        response.EnsureSuccessStatusCode();
+        response.Should().HaveStatusCode(HttpStatusCode.OK);
         content.Should().BeEquivalentTo("healthy");
     }
 }
