@@ -1,17 +1,17 @@
+using System.Net;
 using System.Net.Mime;
 using System.Text;
 using CrowdParlay.Communication;
 using CrowdParlay.Communication.RabbitMq;
-using CrowdParlay.Users.IntegrationTests.Attribute;
+using CrowdParlay.Users.IntegrationTests.Attributes;
 using CrowdParlay.Users.IntegrationTests.Props;
-using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests;
 
 public class CommunicationTests
 {
-    [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
+    [Theory(Timeout = 5000), ApiSetup]
     public async Task RegisterUser_ShouldProduce_UserCreatedEvent(HttpClient client, RabbitMqMessageBroker broker)
     {
         // Arrange
@@ -27,11 +27,11 @@ public class CommunicationTests
                 "password": "qwerty123!"
             }
             """, Encoding.UTF8, MediaTypeNames.Application.Json));
-        
+
         var @event = await consumer.ConsumeOne();
 
         // Assert
-        response.EnsureSuccessStatusCode();
+        response.Should().HaveStatusCode(HttpStatusCode.OK);
 
         @event.Should().NotBeNull();
         @event.UserId.Should().NotBeEmpty();
