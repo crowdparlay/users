@@ -24,6 +24,9 @@ public static class ConfigureServices
             configuration["POSTGRES_CONNECTION_STRING"]
             ?? throw new InvalidOperationException("Missing required configuration 'POSTGRES_CONNECTION_STRING'");
 
+        services.AddHealthChecks()
+            .AddNpgSql(connectionString);
+        
         return services
             .AddFluentMigratorCore()
             .ConfigureRunner(builder => builder.AddPostgres()
