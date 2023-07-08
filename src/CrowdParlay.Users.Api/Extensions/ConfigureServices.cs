@@ -1,3 +1,4 @@
+using CrowdParlay.Communication.RabbitMq.DependencyInjection;
 using CrowdParlay.Users.Api.Filters;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
@@ -20,13 +21,11 @@ public static class ConfigureServices
             .AddEndpointsApiExplorer()
             .AddHealthChecks();
 
-        // Logging (Serilog)
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .Enrich.With<ActivityLoggingEnricher>()
             .CreateLogger();
 
-        // Controllers, naming conventions and request filtering
         services.AddControllers(options =>
         {
             var transformer = new KebabCaseParameterPolicy();
@@ -34,6 +33,11 @@ public static class ConfigureServices
             options.Filters.Add<ApiExceptionFilterAttribute>();
         });
 
-        return services;
+        var rabbitMqAmqpServerUrl =
+            configuration["RABBITMQ_AMQP_SERVER_URL"]
+            ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
+
+        return services.AddRabbitMqCommunication(options => options
+            .UseAmqpServer(rabbitMqAmqpServerUrl));
     }
 }
