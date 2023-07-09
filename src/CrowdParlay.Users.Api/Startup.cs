@@ -40,15 +40,8 @@ public class Startup
         app.UseEndpoints(builder => builder.MapControllers());
     }
 
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services
-            .ConfigureApplicationServices()
-            .ConfigurePersistenceServices(_configuration)
-            .ConfigureApiServices(_configuration, _environment);
-
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-    }
+    public void ConfigureServices(IServiceCollection services) => services
+        .ConfigureApplicationServices()
+        .ConfigurePersistenceServices(_configuration)
+        .ConfigureApiServices(_configuration, _environment);
 }
