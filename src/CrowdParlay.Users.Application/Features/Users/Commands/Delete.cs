@@ -1,4 +1,5 @@
-using CrowdParlay.Users.Application.Abstractions.Communication;
+using CrowdParlay.Communication;
+using CrowdParlay.Communication.Abstractions;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
@@ -29,7 +30,7 @@ public static class Delete
             _users = users;
             _broker = broker;
         }
-        
+
         public async ValueTask<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
             _ = await _users.GetByIdAsync(request.Id, cancellationToken)
@@ -37,9 +38,8 @@ public static class Delete
 
             await _users.DeleteAsync(request.Id, cancellationToken);
 
-            var @event = new UserDeletedEvent(request.Id);
-
-            await _broker.UserDeletedEvent.PublishAsync(@event.UserId.ToString(), @event);
+            var @event = new UserDeletedEvent(request.Id.ToString());
+            _broker.Users.Publish(@event);
 
             return Unit.Value;
         }
