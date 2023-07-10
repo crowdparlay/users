@@ -28,10 +28,10 @@ public class UsersController : ApiControllerBase
         await Mediator.Send(command);
     }
 
-    [HttpGet, Route("[action]/{id}"), AllowAnonymous]
-    public async Task<Read.Response> Read([FromRoute] Uuid id) => await Mediator.Send(new Read.Command(id));
+    [HttpGet, Route("{userId}"), AllowAnonymous]
+    public async Task<Read.Response> Read([FromRoute] Uuid userId) => await Mediator.Send(new Read.Command(userId));
 
-    [HttpPost, Route("[action]/{id}")]
-    public async Task<Update.Response> Update([FromRoute] Uuid id, [FromBody] Update.Command command) =>
-        await Mediator.Send(command with { Id = id });
+    [HttpPut, Route("{userId}")]
+    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] Update.Command command) =>
+        await Mediator.Send(command with { Id = userId });
 }
