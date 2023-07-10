@@ -38,10 +38,8 @@ public static class Update
         
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await _users.GetByIdAsync(request.Id);
-            if (user is null)
-                throw new NotFoundException("User with the specified ID doesn't exist.");
-            
+            var user = await _users.GetByIdAsync(request.Id) ??
+            throw new NotFoundException("User with the specified ID doesn't exist.");
             
             if (_password.VerifyPassword(user.PasswordHash, request.OldPassword) == false)
                 throw new ForbiddenException("The specified password isn't equal to the password of the user.");
