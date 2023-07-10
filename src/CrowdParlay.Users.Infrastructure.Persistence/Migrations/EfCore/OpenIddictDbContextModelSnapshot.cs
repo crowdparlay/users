@@ -3,20 +3,17 @@ using System;
 using CrowdParlay.Users.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations
+namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations.EfCore
 {
     [DbContext(typeof(OpenIddictDbContext))]
-    [Migration("20230610151706_Initial")]
-    partial class Initial
+    partial class OpenIddictDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
