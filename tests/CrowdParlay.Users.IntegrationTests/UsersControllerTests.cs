@@ -15,7 +15,7 @@ public class UsersControllerTests
     [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
     public async Task ReadUser_ShouldResponse(HttpClient client)
     {
-        var registrationResponse = await client.PostAsync("/api/users/register", new StringContent(
+        var registration = await client.PostAsync("/api/users/register", new StringContent(
             """
             {
                 "username": "undrcrxwn123",
@@ -23,35 +23,31 @@ public class UsersControllerTests
                 "password": "qwerty123!"
             }
             """, Encoding.UTF8, MediaTypeNames.Application.Json));
-        var registerDto = JsonConvert.DeserializeObject<Register.Response>(
-            await registrationResponse.Content.ReadAsStringAsync()
+        var register = JsonConvert.DeserializeObject<Register.Response>(
+            await registration.Content.ReadAsStringAsync()
             );
-        if(registerDto is null)
-            Assert.Fail("Response from /api/users/register is null.");
+        register.Should().NotBeNull();
         
-        var readResponse = await client.GetAsync($"/api/users/read/{registerDto.Id}");
+        var response = await client.GetAsync($"/api/users/read/{register!.Id}");
+        var user = await response.Content.ReadAsStringAsync();
         var dto = JsonConvert.DeserializeObject<Read.Response>(
-            await readResponse.Content.ReadAsStringAsync()
+            user
         );
-        
-        if(dto is null)
-            Assert.Fail("Response from /api/users/read is null.");
 
-        readResponse.EnsureSuccessStatusCode();
-        readResponse.Should().HaveStatusCode(HttpStatusCode.OK);
+        response.EnsureSuccessStatusCode();
+        response.Should().HaveStatusCode(HttpStatusCode.OK);
         
         dto.Should().NotBeNull();
-        dto.UserId.Should().Be(registerDto.Id);
-        dto.Username.Should().Be(registerDto.Username);
-        dto.DisplayName.Should()
-            .Be("Степной ишак"); // Не имеем DisplayName в ответе от Register, поэтому использую строку
+        dto.Id.Should().Be(register.Id);
+        dto.Username.Should().Be(register.Username);
+        dto.DisplayName.Should().Be("Степной ишак"); // Не имеем DisplayName в ответе от Register, поэтому использую строку
     }
 
     
     [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
     public async Task UpdateUser_ShouldResponseUpdatedUser(HttpClient client)
     {
-        var registrationResponse = await client.PostAsync("/api/users/register", new StringContent(
+        var registration = await client.PostAsync("/api/users/register", new StringContent(
             """
             {
                 "username": "undrcrxwn123",
@@ -59,13 +55,13 @@ public class UsersControllerTests
                 "password": "qwerty123!"
             }
             """, Encoding.UTF8, MediaTypeNames.Application.Json));
-        var registerDto = JsonConvert.DeserializeObject<Register.Response>(
-            await registrationResponse.Content.ReadAsStringAsync()
-            );
-        if(registerDto is null)
-            Assert.Fail("Response from /api/users/register is null.");
+        var createdUser = await registration.Content.ReadAsStringAsync();
+        var register = JsonConvert.DeserializeObject<Register.Response>(
+            createdUser
+        );
+        register.Should().NotBeNull();
         
-        var updateResponse = await client.PostAsync($"/api/users/update/{registerDto.Id}", new StringContent(
+        var update = await client.PostAsync($"/api/users/update/{register.Id}", new StringContent(
             """     
             {
                 "username": "akavi",
@@ -74,19 +70,16 @@ public class UsersControllerTests
                 "newPassword": "someNewItem!"
             }
             """, Encoding.UTF8, MediaTypeNames.Application.Json));
+        var updatedUser = await update.Content.ReadAsStringAsync();
         var dto = JsonConvert.DeserializeObject<Update.Response>(
-            await updateResponse.Content.ReadAsStringAsync()
+            updatedUser
         );
-        
-        if(dto is null)
-            Assert.Fail("Response from /api/users/update is null.");
 
-        updateResponse.EnsureSuccessStatusCode();
-        updateResponse.Should().HaveStatusCode(HttpStatusCode.OK);
+        update.EnsureSuccessStatusCode();
+        update.Should().HaveStatusCode(HttpStatusCode.OK);
         
         dto.Should().NotBeNull();
         dto.Username.Should().Be("akavi");
-        dto.DisplayName.Should()
-            .Be("Akavi");
+        dto.DisplayName.Should().Be("Akavi");
     }
 }
