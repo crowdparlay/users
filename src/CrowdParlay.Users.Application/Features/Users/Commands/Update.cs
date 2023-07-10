@@ -41,13 +41,10 @@ public static class Update
             var user = await _users.GetByIdAsync(request.Id) ??
             throw new NotFoundException("User with the specified ID doesn't exist.");
             
-            if (_password.VerifyPassword(user.PasswordHash, request.OldPassword) == false)
-                throw new ForbiddenException("The specified password isn't equal to the password of the user.");
-
             user.Username = request.Username ?? user.Username;
             user.DisplayName = request.DisplayName ?? user.DisplayName;
             user.CreatedAt = user.CreatedAt.ToUniversalTime();
-            if (request.NewPassword is not null)
+            if (request.NewPassword is not null && _password.VerifyPassword(user.PasswordHash, request.OldPassword))
                 user.PasswordHash = _password.HashPassword(request.NewPassword);
 
             await _users.UpdateAsync(user, cancellationToken);
