@@ -28,7 +28,7 @@ public class UsersControllerTests
             );
         register.Should().NotBeNull();
         
-        var response = await client.GetAsync($"/api/users/read/{register!.Id}");
+        var response = await client.GetAsync($"/api/users/{register!.Id}");
         var user = await response.Content.ReadAsStringAsync();
         var dto = JsonConvert.DeserializeObject<Read.Response>(
             user
@@ -61,7 +61,7 @@ public class UsersControllerTests
         );
         register.Should().NotBeNull();
         
-        var update = await client.PostAsync($"/api/users/update/{register.Id}", new StringContent(
+        var update = await client.PutAsync($"/api/users/{register.Id}", new StringContent(
             """     
             {
                 "username": "akavi",
