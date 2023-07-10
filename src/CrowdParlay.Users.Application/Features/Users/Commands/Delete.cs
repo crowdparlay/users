@@ -37,7 +37,6 @@ public static class Delete
                 ?? throw new NotFoundException("User with the specified ID doesn't exist.");
 
             await _users.DeleteAsync(request.Id, cancellationToken);
-
             var @event = new UserDeletedEvent(request.Id.ToString());
 
             _broker.Users.Publish(@event);
