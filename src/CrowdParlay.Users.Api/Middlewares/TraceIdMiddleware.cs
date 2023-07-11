@@ -7,11 +7,8 @@ public class TraceIdMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public TraceIdMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
+    public TraceIdMiddleware(RequestDelegate next) => _next = next;
+    
     public async Task InvokeAsync(HttpContext context)
     {
         var traceId = Activity.Current?.GetTraceId() ?? context.TraceIdentifier;
