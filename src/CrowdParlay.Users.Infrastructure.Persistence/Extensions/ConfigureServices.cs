@@ -1,3 +1,4 @@
+using System.Reflection;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
@@ -5,6 +6,7 @@ using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
 using CrowdParlay.Users.Infrastructure.Persistence.SqlTypeHandlers;
 using Dapper;
+using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,18 +19,25 @@ public static class ConfigureServices
     {
         SqlMapper.AddTypeHandler(new DodoUuidTypeHandler());
         DefaultTypeMap.MatchNamesWithUnderscores = true;
-        
+
         var connectionString =
             configuration["POSTGRES_CONNECTION_STRING"]
             ?? throw new InvalidOperationException("Missing required configuration 'POSTGRES_CONNECTION_STRING'");
-            
+
+        services.AddHealthChecks()
+            .AddNpgSql(connectionString);
+        
         return services
+            .AddFluentMigratorCore()
+            .ConfigureRunner(builder => builder.AddPostgres()
+                .WithGlobalConnectionString(connectionString)
+                .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
             .AddDbContext<OpenIddictDbContext>(options => options
                 .UseNpgsql(connectionString)
                 .UseOpenIddict())
             .AddSingleton<IDbConnectionFactory>(new SqlConnectionFactory(connectionString))
             .AddScoped<IUsersRepository, UsersRepository>()
             .AddScoped<IAuthenticationService, AuthenticationService>()
-            .AddHostedService<DataStoreInitializer>();
+            .AddHostedService<DatabaseInitializer>();
     }
 }

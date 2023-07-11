@@ -12,19 +12,16 @@ public static class ConfigureServices
     public static IServiceCollection ConfigureApiServices(
         this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
-        services
-            .ConfigureAuthentication()
-            .ConfigureOpenIddict(configuration, environment)
-            .ConfigureSwagger(configuration);
-
-        services
-            .AddEndpointsApiExplorer()
-            .AddHealthChecks();
-
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .Enrich.With<ActivityLoggingEnricher>()
             .CreateLogger();
+
+        services
+            .ConfigureAuthentication()
+            .ConfigureOpenIddict(configuration, environment)
+            .ConfigureSwagger(configuration)
+            .AddEndpointsApiExplorer();
 
         services.AddControllers(options =>
         {

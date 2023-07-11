@@ -48,6 +48,7 @@ public static class Register
                 Id = Uuid.NewTimeBased(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
+                AvatarUrl = null,
                 PasswordHash = _passwordService.HashPassword(request.Password),
                 CreatedAt = DateTimeOffset.UtcNow
             };
@@ -57,9 +58,9 @@ public static class Register
             var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName);
             _broker.Users.Publish(@event);
 
-            return new Response(user.Id, user.Username);
+            return new Response(user.Id, user.Username, user.DisplayName);
         }
     }
 
-    public sealed record Response(Uuid Id, string Username);
+    public sealed record Response(Uuid Id, string Username, string DisplayName);
 }
