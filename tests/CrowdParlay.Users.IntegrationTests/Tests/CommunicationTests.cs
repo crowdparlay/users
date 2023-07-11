@@ -7,7 +7,7 @@ using CrowdParlay.Users.IntegrationTests.Props;
 using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
 
-namespace CrowdParlay.Users.IntegrationTests;
+namespace CrowdParlay.Users.IntegrationTests.Tests;
 
 public class CommunicationTests
 {
