@@ -1,9 +1,7 @@
 using System.Net.Http.Json;
-using System.Text;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.IntegrationTests.Attributes;
 using FluentAssertions;
-using Newtonsoft.Json;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
@@ -21,7 +19,7 @@ public class TraceIdMiddlewareTests
         var response = await client.PostAsJsonAsync("/api/users/register", command);
         
         // Assert
-        response.Headers.Should().Contain(header => header.Key == "X-TraceId");
+        response.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
     }
 
     [Theory(Timeout = 5000), ApiSetup]
