@@ -1,6 +1,5 @@
 using CrowdParlay.Communication;
 using CrowdParlay.Communication.Abstractions;
-using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
 using FluentValidation;
@@ -14,10 +13,7 @@ public static class Delete
 
     public sealed class Validator : AbstractValidator<Command>
     {
-        public Validator()
-        {
-            RuleFor(x => x.Id).NotEmpty();
-        }
+        public Validator() => RuleFor(x => x.Id).NotEmpty();
     }
 
     public sealed class Handler : IRequestHandler<Command>
@@ -33,9 +29,6 @@ public static class Delete
 
         public async ValueTask<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            _ = await _users.GetByIdAsync(request.Id, cancellationToken)
-                ?? throw new NotFoundException("User with the specified ID doesn't exist.");
-
             await _users.DeleteAsync(request.Id, cancellationToken);
 
             var @event = new UserDeletedEvent(request.Id.ToString());
