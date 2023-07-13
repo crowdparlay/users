@@ -44,9 +44,6 @@ public static class Update
 
             user.Username = request.Username ?? user.Username;
             user.DisplayName = request.DisplayName ?? user.DisplayName;
-            
-            // TODO: fix time zones being preserved when UTC is supposed
-            user.CreatedAt = user.CreatedAt.ToUniversalTime();
 
             if (request.OldPassword is not null && _passwords.VerifyPassword(user.PasswordHash, request.OldPassword))
                 user.PasswordHash = _passwords.HashPassword(request.NewPassword!);
