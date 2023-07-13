@@ -1,4 +1,5 @@
 using CrowdParlay.Users.Api.Extensions;
+using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 using Serilog;
@@ -18,6 +19,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
     {
+        app.UseMiddleware<TraceIdMiddleware>();
         app.UseSerilogRequestLogging();
         app.UseHealthChecks("/health");
 

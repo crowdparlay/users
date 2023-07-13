@@ -4,7 +4,7 @@ using CrowdParlay.Communication;
 using CrowdParlay.Communication.RabbitMq;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
-using CrowdParlay.Users.IntegrationTests.Attribute;
+using CrowdParlay.Users.IntegrationTests.Attributes;
 using CrowdParlay.Users.IntegrationTests.Props;
 using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace CrowdParlay.Users.IntegrationTests.Tests;
 
 public class UsersControllerTests
 {
-    [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
+    [Theory(Timeout = 5000), ApiSetup]
     public async Task GetByIdRequest_ShouldReturn_SuccessResponse(HttpClient client, RabbitMqMessageBroker broker)
     {
         // Arrange
@@ -43,7 +43,7 @@ public class UsersControllerTests
             registerRequest.DisplayName));
     }
 
-    [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
+    [Theory(Timeout = 5000), ApiSetup]
     public async Task UpdateUser_ShouldChange_User(HttpClient client, RabbitMqMessageBroker broker)
     {
         // Arrange
@@ -80,7 +80,7 @@ public class UsersControllerTests
             updateResponse.DisplayName!));
     }
 
-    [Theory(Timeout = 5000), Setups(typeof(TestContainersSetup), typeof(ServerSetup))]
+    [Theory(Timeout = 5000), ApiSetup]
     public async Task UpdatePassword_ShouldChange_OnlyPassword(HttpClient client, RabbitMqMessageBroker broker)
     {
         // Arrange

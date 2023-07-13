@@ -13,7 +13,7 @@ public class TraceIdMiddlewareTests
     public async Task SuccessResponse_ShouldContain_TraceIdHeader(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command("username", "display name", "password", false);
+        var command = new Register.Command("username", "display name", "password");
 
         // Act
         var response = await client.PostAsJsonAsync("/api/users/register", command);
@@ -26,7 +26,7 @@ public class TraceIdMiddlewareTests
     public async Task FailureResponse_ShouldContain_TraceIdHeader(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command(string.Empty, string.Empty, string.Empty, false);
+        var command = new Register.Command(string.Empty, string.Empty, string.Empty);
 
         // Act
         var response = await client.PostAsJsonAsync("/api/users/register", command);
@@ -40,7 +40,7 @@ public class TraceIdMiddlewareTests
     public async Task MultipleResponses_ShouldContain_UniqueTraceIdHeaders(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command("username", "display name", "password", false);
+        var command = new Register.Command("username", "display name", "password");
 
         // Act
         var postResponse = await client.PostAsJsonAsync("/api/users/register", command);
