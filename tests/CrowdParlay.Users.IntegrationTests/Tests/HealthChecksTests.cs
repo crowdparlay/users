@@ -3,7 +3,7 @@ using CrowdParlay.Users.IntegrationTests.Attributes;
 using FluentAssertions;
 using Testcontainers.PostgreSql;
 
-namespace CrowdParlay.Users.IntegrationTests;
+namespace CrowdParlay.Users.IntegrationTests.Tests;
 
 public class HealthChecksTests
 {
