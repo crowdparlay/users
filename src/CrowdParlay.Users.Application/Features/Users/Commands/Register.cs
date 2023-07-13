@@ -12,7 +12,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Register
 {
-    public sealed record Command(string Username, string DisplayName, string Password, bool IsAuthenticated) : IRequest<Response>;
+    public sealed record Command(string Username, string DisplayName, string Password) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -20,6 +20,7 @@ public static class Register
         {
             RuleFor(x => x.Username).NotEmpty();
             RuleFor(x => x.DisplayName).NotEmpty();
+            RuleFor(x => x.Password).NotEmpty();
         }
     }
 
@@ -38,9 +39,6 @@ public static class Register
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            if (request.IsAuthenticated)
-                throw new ForbiddenException();
-
             var sameExists = await _users.GetByUsernameAsync(request.Username, cancellationToken) is not null;
             if (sameExists)
                 throw new AlreadyExistsException("User with the specified username already exists.");
@@ -50,6 +48,7 @@ public static class Register
                 Id = Uuid.NewTimeBased(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
+                AvatarUrl = null,
                 PasswordHash = _passwordService.HashPassword(request.Password),
                 CreatedAt = DateTimeOffset.UtcNow
             };
@@ -59,9 +58,9 @@ public static class Register
             var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName);
             _broker.Users.Publish(@event);
 
-            return new Response(user.Id, user.Username);
+            return new Response(user.Id, user.Username, user.DisplayName);
         }
     }
 
-    public sealed record Response(Uuid Id, string Username);
+    public sealed record Response(Uuid Id, string Username, string DisplayName);
 }

@@ -15,7 +15,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         [typeof(ValidationException)] = HandleValidationException,
         [typeof(FluentValidation.ValidationException)] = HandleFluentValidationException,
         [typeof(NotFoundException)] = HandleNotFoundException,
-        [typeof(UnauthorizedAccessException)] = HandleUnauthorizedAccessException,
+        [typeof(UnauthorizedException)] = HandleUnauthorizedAccessException,
         [typeof(ForbiddenException)] = HandleAccessDeniedException,
         [typeof(AlreadyExistsException)] = HandleAlreadyExistsException
     };

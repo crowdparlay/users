@@ -1,3 +1,4 @@
+using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
@@ -46,6 +47,7 @@ internal class UsersRepository : IUsersRepository
                 {UserSchema.Id},
                 {UserSchema.Username},
                 {UserSchema.DisplayName},
+                {UserSchema.AvatarUrl},
                 {UserSchema.PasswordHash},
                 {UserSchema.CreatedAt}
             )
@@ -53,6 +55,7 @@ internal class UsersRepository : IUsersRepository
                 @{nameof(User.Id)},
                 @{nameof(User.Username)},
                 @{nameof(User.DisplayName)},
+                @{nameof(User.AvatarUrl)},
                 @{nameof(User.PasswordHash)},
                 @{nameof(User.CreatedAt)}
             )
@@ -69,6 +72,7 @@ internal class UsersRepository : IUsersRepository
             {UserSchema.Id} = @{nameof(User.Id)},
             {UserSchema.Username} = @{nameof(User.Username)},
             {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
+            {UserSchema.AvatarUrl} = @{nameof(User.AvatarUrl)},
             {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
             {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)}
             WHERE {UserSchema.Id} = @{nameof(entity.Id)}
@@ -79,8 +83,11 @@ internal class UsersRepository : IUsersRepository
     public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-        await connection.ExecuteAsync(
-            $@"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
+
+        var count = await connection.ExecuteAsync(
+            $"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
+        if (count == 0)
+            throw new NotFoundException();
     }
 }
