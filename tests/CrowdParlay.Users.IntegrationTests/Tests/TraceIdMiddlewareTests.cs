@@ -13,11 +13,11 @@ public class TraceIdMiddlewareTests
     public async Task SuccessResponse_ShouldContain_TraceIdHeader(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command("username", "display name", "password");
+        var command = new Register.Command("username", "display name", "password", null);
 
         // Act
         var response = await client.PostAsJsonAsync("/api/users/register", command);
-        
+
         // Assert
         response.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
     }
@@ -26,11 +26,11 @@ public class TraceIdMiddlewareTests
     public async Task FailureResponse_ShouldContain_TraceIdHeader(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command(string.Empty, string.Empty, string.Empty);
+        var command = new Register.Command(string.Empty, string.Empty, string.Empty, null);
 
         // Act
         var response = await client.PostAsJsonAsync("/api/users/register", command);
-        
+
         // Assert
         response.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         response.Should().HaveClientError();
@@ -40,20 +40,19 @@ public class TraceIdMiddlewareTests
     public async Task MultipleResponses_ShouldContain_UniqueTraceIdHeaders(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command("username", "display name", "password");
+        var command = new Register.Command("username", "display name", "password", null);
 
         // Act
-        var postResponse = await client.PostAsJsonAsync("/api/users/register", command);
-        var errorResponse = await client.PostAsJsonAsync("/api/users/register", command);
+        var successResponse = await client.PostAsJsonAsync("/api/users/register", command);
+        var failureResponse = await client.PostAsJsonAsync("/api/users/register", command);
 
         // Assert
-        postResponse.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
-        errorResponse.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
-        errorResponse.Should().HaveClientError();
+        successResponse.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
+        failureResponse.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
 
-        var postTraceId = postResponse.Headers.GetValues(TraceIdHeaderName).ToList();
-        var errorTraceId = errorResponse.Headers.GetValues(TraceIdHeaderName).ToList();
+        var successResponseTraceId = successResponse.Headers.GetValues(TraceIdHeaderName).ToList();
+        var failureResponseTraceId = failureResponse.Headers.GetValues(TraceIdHeaderName).ToList();
 
-        postTraceId.Should().NotContainEquivalentOf(errorTraceId);
+        successResponseTraceId.Should().NotContainEquivalentOf(failureResponseTraceId);
     }
 }

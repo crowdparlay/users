@@ -6,7 +6,6 @@ using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.IntegrationTests.Attributes;
 using CrowdParlay.Users.IntegrationTests.Props;
-using CrowdParlay.Users.IntegrationTests.Setups;
 using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
@@ -20,7 +19,7 @@ public class UsersControllerTests
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!");
+        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
@@ -39,8 +38,9 @@ public class UsersControllerTests
 
         userCreatedEvent.Should().Be(new UserCreatedEvent(
             registerResponse.Id.ToString(),
-            registerRequest.Username,
-            registerRequest.DisplayName));
+            registerResponse.Username,
+            registerResponse.DisplayName,
+            registerResponse.AvatarUrl));
     }
 
     [Theory(Timeout = 5000), ApiSetup]
@@ -50,7 +50,7 @@ public class UsersControllerTests
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!");
+        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!", null);
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -58,6 +58,7 @@ public class UsersControllerTests
             Id: registerResponse!.Id,
             Username: "akavi",
             DisplayName: "Akavi",
+            AvatarUrl: "https://example.com/avatar.jpg",
             OldPassword: null,
             NewPassword: null);
 
@@ -72,12 +73,14 @@ public class UsersControllerTests
         updateResponse.Should().Be(new Update.Response(
             registerResponse.Id,
             updateRequest.Username!,
-            updateRequest.DisplayName!));
+            updateRequest.DisplayName!,
+            updateRequest.AvatarUrl));
 
         userUpdatedEvent.Should().Be(new UserUpdatedEvent(
             updateResponse!.Id.ToString(),
-            updateResponse.Username!,
-            updateResponse.DisplayName!));
+            updateResponse.Username,
+            updateResponse.DisplayName,
+            updateResponse.AvatarUrl));
     }
 
     [Theory(Timeout = 5000), ApiSetup]
@@ -87,7 +90,7 @@ public class UsersControllerTests
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!");
+        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -95,6 +98,7 @@ public class UsersControllerTests
             Id: registerResponse!.Id,
             Username: null,
             DisplayName: null,
+            AvatarUrl: null,
             OldPassword: registerRequest.Password,
             NewPassword: "someNewPassword!");
 
@@ -109,11 +113,13 @@ public class UsersControllerTests
         updateResponse.Should().Be(new Update.Response(
             registerResponse.Id,
             registerRequest.Username,
-            registerRequest.DisplayName));
+            registerRequest.DisplayName,
+            registerRequest.AvatarUrl));
 
         userUpdatedEvent.Should().Be(new UserUpdatedEvent(
             updateResponse!.Id.ToString(),
             updateResponse.Username,
-            updateResponse.DisplayName));
+            updateResponse.DisplayName,
+            updateResponse.AvatarUrl));
     }
 }
