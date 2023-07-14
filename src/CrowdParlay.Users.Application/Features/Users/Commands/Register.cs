@@ -12,7 +12,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Register
 {
-    public sealed record Command(string Username, string DisplayName, string Password) : IRequest<Response>;
+    public sealed record Command(string Username, string DisplayName, string Password, string? AvatarUrl) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -48,19 +48,19 @@ public static class Register
                 Id = Uuid.NewTimeBased(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
-                AvatarUrl = null,
+                AvatarUrl = request.AvatarUrl,
                 PasswordHash = _passwordService.HashPassword(request.Password),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
             await _users.AddAsync(user, cancellationToken);
 
-            var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName);
+            var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
             _broker.Users.Publish(@event);
 
-            return new Response(user.Id, user.Username, user.DisplayName);
+            return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName);
+    public sealed record Response(Uuid Id, string Username, string DisplayName, string? AvatarUrl);
 }
