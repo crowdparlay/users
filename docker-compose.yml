@@ -1,6 +1,6 @@
 version: '3.8'
 
-services: 
+services:
   postgres:
     container_name: postgres-13
     image: postgres:13
@@ -22,7 +22,7 @@ services:
         condition: service_healthy
       postgres:
         condition: service_started
-    build: 
+    build:
       context: .
     environment:
       RABBITMQ_AMQP_SERVER_URL: "amqp://$RABBITMQ_USER:$RABBITMQ_PASSWORD@rabbitmq:5672"
