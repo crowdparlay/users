@@ -64,5 +64,9 @@ public static class Update
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName, string? AvatarUrl);
+    public sealed record Response(
+        Uuid Id,
+        string Username,
+        string DisplayName,
+        string? AvatarUrl);
 }
