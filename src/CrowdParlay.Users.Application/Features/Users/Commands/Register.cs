@@ -13,7 +13,21 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Register
 {
-    public sealed record Command(string Username, string DisplayName, string Password, string? AvatarUrl) : IRequest<Response>;
+    public sealed record Command : IRequest<Response>
+    {
+        public string Username { get; }
+        public string DisplayName { get; }
+        public string Password { get; }
+        public string? AvatarUrl { get; }
+
+        public Command(string username, string displayName, string password, string? avatarUrl)
+        {
+            Username = username;
+            DisplayName = displayName.Trim();
+            Password = password;
+            AvatarUrl = avatarUrl;
+        }
+    }
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -50,7 +64,7 @@ public static class Register
                 Username = request.Username,
                 DisplayName = request.DisplayName,
                 AvatarUrl = request.AvatarUrl,
-                PasswordHash = _passwordService.HashPassword(request.Password),
+                PasswordHash = _passwordService.HashPassword(request.Password.Trim()),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
