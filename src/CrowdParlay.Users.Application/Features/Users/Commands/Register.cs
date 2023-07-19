@@ -2,6 +2,7 @@ using CrowdParlay.Communication;
 using CrowdParlay.Communication.Abstractions;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using Dodo.Primitives;
@@ -18,9 +19,9 @@ public static class Register
     {
         public Validator()
         {
-            RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.DisplayName).NotEmpty();
-            RuleFor(x => x.Password).NotEmpty();
+            RuleFor(x => x.Username).Username();
+            RuleFor(x => x.DisplayName).DisplayName();
+            RuleFor(x => x.Password).Password();
         }
     }
 
