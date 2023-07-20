@@ -32,10 +32,10 @@ public class AddUsernameNormalized_202307190001 : Migration
 CREATE OR REPLACE FUNCTION normalize_username()
 RETURNS TRIGGER AS $$
 DECLARE
-    result NVARCHAR := '';
-    lastChar NVARCHAR := '';
+    result VARCHAR := '';
+    lastChar VARCHAR := '';
     i INT;
-    c NVARCHAR;
+    c VARCHAR;
     characterReplacements JSON := '{
         "0": "O",
         "1": "L",
@@ -58,8 +58,8 @@ BEGIN
     -- replace chars and remove duplicates
     FOR i IN 1..LENGTH(NEW.username) LOOP
         c := SUBSTRING(NEW.username FROM i FOR 1);
-        IF c IN (SELECT key FROM json_object_keys(characterReplacements::json)) THEN
-            c := (characterReplacements->c)::NVARCHAR;
+        IF characterReplacements ? c THEN
+            c := (characterReplacements ->> c)::VARCHAR;
         END IF;
         IF c <> lastChar THEN
             result := result || c;
