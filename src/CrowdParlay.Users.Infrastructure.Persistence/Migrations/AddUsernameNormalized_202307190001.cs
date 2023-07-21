@@ -8,7 +8,7 @@ public class AddUsernameNormalized_202307190001 : Migration
 {
     public override void Up()
     {
-        Create.Column("username_normalized").OnTable("users").AsString().Nullable();
+        Create.Column("username_normalized").OnTable("users").AsString().Nullable().Unique();
         
         Execute.Sql(Procedure);
         Execute.Sql(Trigger);
