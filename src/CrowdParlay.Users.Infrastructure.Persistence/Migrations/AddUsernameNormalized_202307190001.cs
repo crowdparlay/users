@@ -28,28 +28,28 @@ public class AddUsernameNormalized_202307190001 : Migration
     }
 
     
-    private string Procedure = """
+    private string Procedure = $@"
 CREATE OR REPLACE FUNCTION normalize_username()
 RETURNS TRIGGER AS $$
 DECLARE
     result VARCHAR := '';
     lastChar VARCHAR := '';
     i INT;
-    c VARCHAR;
-    characterReplacements JSON := '{
-        "0": "O",
-        "1": "L",
-        "I": "L",
-        "3": "E",
-        "4": "A",
-        "5": "S",
-        "6": "B",
-        "8": "B",
-        "9": "G",
-        "W": "V",
-        "Q": "P",
-        "D": "B"
-    }';
+    c TEXT;
+    characterReplacements JSONB := '{{
+        ""0"": ""O"",
+        ""1"": ""L"",
+        ""I"": ""L"",
+        ""3"": ""E"",
+        ""4"": ""A"",
+        ""5"": ""S"",
+        ""6"": ""B"",
+        ""8"": ""B"",
+        ""9"": ""G"",
+        ""W"": ""V"",
+        ""Q"": ""P"",
+        ""D"": ""B""
+    }}';
 BEGIN
     IF NEW.username = OLD.username THEN
         RETURN NEW;
@@ -58,8 +58,8 @@ BEGIN
     -- replace chars and remove duplicates
     FOR i IN 1..LENGTH(NEW.username) LOOP
         c := SUBSTRING(NEW.username FROM i FOR 1);
-        IF characterReplacements ? c THEN
-            c := (characterReplacements ->> c)::VARCHAR;
+        IF characterReplacements::JSONB ? c THEN
+            c := (characterReplacements ->> c)::TEXT;
         END IF;
         IF c <> lastChar THEN
             result := result || c;
@@ -71,7 +71,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-""";
+";
 
     private string Trigger = """
 CREATE TRIGGER normalize_username_trigger
