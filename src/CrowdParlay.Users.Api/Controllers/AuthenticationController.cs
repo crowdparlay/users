@@ -13,7 +13,7 @@ public class AuthenticationController : ApiControllerBase
 {
     [HttpPost("~/connect/token"), IgnoreAntiforgeryToken]
     [Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
-    public async Task<IActionResult> Exchange([FromForm] OAuth2ExchangeDto request)
+    public async Task<IActionResult> Exchange([FromForm] OAuth2ExchangeRequest request)
     {
         switch (request.GrantType)
         {

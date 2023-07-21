@@ -13,12 +13,12 @@ namespace CrowdParlay.Users.Api.Controllers;
 public class UsersController : ApiControllerBase
 {
     [HttpPost, Route("[action]"), AllowAnonymous]
-    public async Task<Register.Response> Register([FromBody] UsersRegisterDto body)
+    public async Task<Register.Response> Register([FromBody] UsersRegisterRequest request)
     {
         if (HttpContext.User.Identity?.IsAuthenticated == true)
             throw new ForbiddenException();
 
-        return await Mediator.Send(body.Adapt<Register.Command>());
+        return await Mediator.Send(request.Adapt<Register.Command>());
     }
 
     [HttpDelete, Route("{userId}")]
@@ -39,6 +39,6 @@ public class UsersController : ApiControllerBase
         await Mediator.Send(new GetById.Query(userId));
 
     [HttpPut, Route("{userId}")]
-    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateDto body) =>
-        await Mediator.Send(body.Adapt<Update.Command>() with { Id = userId });
+    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request) =>
+        await Mediator.Send(request.Adapt<Update.Command>() with { Id = userId });
 }

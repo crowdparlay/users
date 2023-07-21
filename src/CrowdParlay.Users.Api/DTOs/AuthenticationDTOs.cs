@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CrowdParlay.Users.Api.DTOs;
 
-public record OAuth2ExchangeDto(
+public record OAuth2ExchangeRequest(
     [property: ModelBinder(Name = "grant_type")]
     string GrantType,
     [property: ModelBinder(Name = "scope")]
