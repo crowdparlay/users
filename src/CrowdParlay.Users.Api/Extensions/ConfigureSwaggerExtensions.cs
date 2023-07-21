@@ -1,3 +1,4 @@
+using Dodo.Primitives;
 using Microsoft.OpenApi.Models;
 
 namespace CrowdParlay.Users.Api.Extensions;
@@ -13,6 +14,9 @@ public static class ConfigureSwaggerExtensions
 
         options.CustomSchemaIds(type =>
         {
+            if (!type.Namespace!.StartsWith("CrowdParlay.Users.Application.Features"))
+                return type.Name;
+
             // Ignored parts of namespaces, generally CQRS-conventional names,
             // such as 'Queries' and 'Commands'. These are skipped when generating
             // Swagger names for the public DTOs.
