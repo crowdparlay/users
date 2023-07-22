@@ -11,7 +11,7 @@ public class UsernameNormalizedTests
     public async Task SameNormalizedUsernames_ShouldReturn_Exception(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command("username", "display name", "password", null);
+        var command = new Register.Command("username", "display name", "password3", null);
         var badCommand = new Register.Command("us55e3rn44me3333e", "display name 2", "password123", null);
 
         // Act
