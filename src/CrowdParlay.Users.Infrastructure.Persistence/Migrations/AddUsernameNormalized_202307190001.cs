@@ -10,7 +10,8 @@ public class AddUsernameNormalized_202307190001 : Migration
     {
         Create.Column("username_normalized").OnTable("users").AsString().Nullable().Unique();
         
-        Execute.Sql(Procedure);
+        Execute.Sql(StoredFunction);
+        Execute.Sql(TriggerFunction);
         Execute.Sql(Trigger);
         
         Create.Index("UQ_username_normalized").OnTable("users").OnColumn("username_normalized").Unique();
@@ -28,36 +29,34 @@ public class AddUsernameNormalized_202307190001 : Migration
     }
 
     
-    private string Procedure = $@"
-CREATE OR REPLACE FUNCTION normalize_username()
-RETURNS TRIGGER AS $$
+    private string StoredFunction = """
+CREATE OR REPLACE FUNCTION normalize_username(username TEXT) RETURNS TEXT as $$
 DECLARE
     result VARCHAR := '';
     lastChar VARCHAR := '';
+    username_normalized TEXT;
     i INT;
     c TEXT;
-    characterReplacements JSONB := '{{
-        ""0"": ""O"",
-        ""1"": ""L"",
-        ""I"": ""L"",
-        ""3"": ""E"",
-        ""4"": ""A"",
-        ""5"": ""S"",
-        ""6"": ""B"",
-        ""8"": ""B"",
-        ""9"": ""G"",
-        ""W"": ""V"",
-        ""Q"": ""P"",
-        ""D"": ""B""
-    }}';
+    characterReplacements JSONB := '{
+        "0": "O",
+        "1": "L",
+        "I": "L",
+        "3": "E",
+        "4": "A",
+        "5": "S",
+        "6": "B",
+        "8": "B",
+        "9": "G",
+        "W": "V",
+        "Q": "P",
+        "D": "B"
+    }';
 BEGIN
-    IF NEW.username = OLD.username THEN
-        RETURN NEW;
-    END IF;
-
+    username := UPPER(username);
+    
     -- replace chars and remove duplicates
-    FOR i IN 1..LENGTH(NEW.username) LOOP
-        c := SUBSTRING(NEW.username FROM i FOR 1);
+    FOR i IN 0..LENGTH(username) LOOP
+        c := SUBSTRING(username FROM i FOR 1);
         IF characterReplacements::JSONB ? c THEN
             c := (characterReplacements ->> c)::TEXT;
         END IF;
@@ -67,16 +66,34 @@ BEGIN
         lastChar := c;
     END LOOP;
 
-    NEW.username_normalized := result;
-    RETURN NEW;
+    username_normalized := result;
+    RETURN username_normalized;
 END;
 $$ LANGUAGE plpgsql;
-";
+""";
+
+    private string TriggerFunction = """
+CREATE OR REPLACE FUNCTION normalize_username_trigger_function()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        NEW.username_normalized := normalize_username(NEW.username);
+    ELSIF TG_OP = 'UPDATE' THEN
+        IF NEW.username <> OLD.username THEN
+            NEW.username_normalized := normalize_username(NEW.username);
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+""";
 
     private string Trigger = """
 CREATE TRIGGER normalize_username_trigger
 BEFORE INSERT OR UPDATE ON users
 FOR EACH ROW
-EXECUTE FUNCTION normalize_username();
+EXECUTE FUNCTION normalize_username_trigger_function();
 """;
 }
