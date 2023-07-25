@@ -26,4 +26,13 @@
       <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Migrations\SQLScripts\NormalizeUsername.sql" />
+      <EmbeddedResource Include="Migrations\Scripts\NormalizeUsername.sql" />
+      <None Remove="Migrations\SQLScripts\NormalizeUsernameTrigger.sql" />
+      <EmbeddedResource Include="Migrations\Scripts\NormalizeUsernameTrigger.sql" />
+      <None Remove="Migrations\SQLScripts\NormalizeUsernameTriggerFunction.sql" />
+      <EmbeddedResource Include="Migrations\Scripts\NormalizeUsernameTriggerFunction.sql" />
+    </ItemGroup>
+
 </Project>
