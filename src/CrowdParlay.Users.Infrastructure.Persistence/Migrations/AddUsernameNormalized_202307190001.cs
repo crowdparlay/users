@@ -9,12 +9,11 @@ public class AddUsernameNormalized_202307190001 : Migration
     public override void Up()
     {
         Create.Column("username_normalized").OnTable("users").AsString(25);
-        
-        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.NormalizeUsername.sql");
-        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.NormalizeUsernameTrigger.sql");
-        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.NormalizeUsernameTriggerFunction.sql");
-        
         Create.Index("users_username_normalized_idx").OnTable("users").OnColumn("username_normalized").Unique();
+        
+        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.Scripts.NormalizeUsername.sql");
+        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.Scripts.NormalizeUsernameTrigger.sql");
+        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.Scripts.NormalizeUsernameTriggerFunction.sql");
     }
 
     public override void Down()
