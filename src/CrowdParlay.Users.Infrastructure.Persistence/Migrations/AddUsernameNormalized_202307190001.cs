@@ -13,8 +13,6 @@ public class AddUsernameNormalized_202307190001 : Migration
         Execute.Sql(StoredFunction);
         Execute.Sql(TriggerFunction);
         Execute.Sql(Trigger);
-        
-        Create.Index("UQ_username_normalized").OnTable("users").OnColumn("username_normalized").Unique();
     }
 
     public override void Down()
@@ -30,14 +28,14 @@ public class AddUsernameNormalized_202307190001 : Migration
 
     
     private string StoredFunction = """
-CREATE OR REPLACE FUNCTION normalize_username(username TEXT) RETURNS TEXT as $$
+CREATE OR REPLACE FUNCTION normalize_username(username TEXT) 
+RETURNS TEXT as $$
 DECLARE
-    result VARCHAR := '';
-    lastChar VARCHAR := '';
-    username_normalized TEXT;
+    last_char VARCHAR := '';
+    username_normalized VARCHAR := '';
     i INT;
-    c TEXT;
-    characterReplacements JSONB := '{
+    current_char TEXT;
+    char_map JSONB := '{
         "0": "O",
         "1": "L",
         "I": "L",
@@ -55,18 +53,17 @@ BEGIN
     username := UPPER(username);
     
     -- replace chars and remove duplicates
-    FOR i IN 0..LENGTH(username) LOOP
-        c := SUBSTRING(username FROM i FOR 1);
-        IF characterReplacements::JSONB ? c THEN
-            c := (characterReplacements ->> c)::TEXT;
+    FOR i IN 1..LENGTH(username) LOOP
+        current_char := SUBSTRING(username FROM i FOR 1);
+        IF char_map ? current_char THEN
+            current_char := (char_map ->> current_char)::TEXT;
         END IF;
-        IF c <> lastChar THEN
-            result := result || c;
+        IF current_char <> last_char THEN
+            username_normalized := username_normalized || current_char;
         END IF;
-        lastChar := c;
+        last_char := current_char;
     END LOOP;
 
-    username_normalized := result;
     RETURN username_normalized;
 END;
 $$ LANGUAGE plpgsql;
