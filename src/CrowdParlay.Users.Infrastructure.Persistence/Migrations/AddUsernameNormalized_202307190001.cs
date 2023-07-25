@@ -10,9 +10,9 @@ public class AddUsernameNormalized_202307190001 : Migration
     {
         Create.Column("username_normalized").OnTable("users").AsString(25);
         
-        Execute.Sql(StoredFunction);
-        Execute.Sql(TriggerFunction);
-        Execute.Sql(Trigger);
+        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.NormalizeUsername.sql");
+        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.NormalizeUsernameTrigger.sql");
+        Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Migrations.NormalizeUsernameTriggerFunction.sql");
         
         Create.Index("users_username_normalized_idx").OnTable("users").OnColumn("username_normalized").Unique();
     }
