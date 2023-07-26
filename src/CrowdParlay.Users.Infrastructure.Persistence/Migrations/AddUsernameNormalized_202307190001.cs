@@ -19,13 +19,10 @@ public class AddUsernameNormalized_202307190001 : Migration
     public override void Down()
     {
         Delete.Index("users_username_normalized_idx").OnTable("users");
-        
         Delete.Column("username_normalized").FromTable("users");
         
-        Execute.Sql("DROP TRIGGER IF EXISTS normalize_username_trigger ON users;");
-
+        Execute.Sql("DROP TRIGGER IF EXISTS normalize_username_trigger ON users");
         Execute.Sql("DROP FUNCTION IF EXISTS normalize_username(TEXT)");
-        
         Execute.Sql("DROP FUNCTION IF EXISTS normalize_username_trigger_function()");
     }
 }
