@@ -11,7 +11,13 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Update
 {
-    public sealed record Command(Uuid Id, string? Username, string? DisplayName, string? OldPassword, string? NewPassword) : IRequest<Response>;
+    public sealed record Command(
+        Uuid Id,
+        string? Username,
+        string? DisplayName,
+        string? AvatarUrl,
+        string? OldPassword,
+        string? NewPassword) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -44,18 +50,23 @@ public static class Update
 
             user.Username = request.Username ?? user.Username;
             user.DisplayName = request.DisplayName ?? user.DisplayName;
+            user.AvatarUrl = request.AvatarUrl ?? user.AvatarUrl;
 
             if (request.OldPassword is not null && _passwords.VerifyPassword(user.PasswordHash, request.OldPassword))
                 user.PasswordHash = _passwords.HashPassword(request.NewPassword!);
 
             await _users.UpdateAsync(user, cancellationToken);
 
-            var @event = new UserUpdatedEvent(user.Id.ToString(), user.Username, user.DisplayName);
+            var @event = new UserUpdatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
             _broker.Users.Publish(@event);
 
-            return new Response(user.Id, user.Username, user.DisplayName);
+            return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName);
+    public sealed record Response(
+        Uuid Id,
+        string Username,
+        string DisplayName,
+        string? AvatarUrl);
 }

@@ -23,12 +23,15 @@ public static class ConfigureServices
             .ConfigureSwagger(configuration)
             .AddEndpointsApiExplorer();
 
-        services.AddControllers(options =>
+        var mvcBuilder = services.AddControllers(options =>
         {
             var transformer = new KebabCaseParameterPolicy();
             options.Conventions.Add(new RouteTokenTransformerConvention(transformer));
             options.Filters.Add<ApiExceptionFilterAttribute>();
         });
+
+        mvcBuilder.AddJsonOptions(options =>
+            options.JsonSerializerOptions.PropertyNamingPolicy = SnakeCasePropertyNamingPolicy.Instance);
 
         var rabbitMqAmqpServerUrl =
             configuration["RABBITMQ_AMQP_SERVER_URL"]

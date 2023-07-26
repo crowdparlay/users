@@ -2,6 +2,7 @@ using CrowdParlay.Communication;
 using CrowdParlay.Communication.Abstractions;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using Dodo.Primitives;
@@ -12,15 +13,29 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Register
 {
-    public sealed record Command(string Username, string DisplayName, string Password) : IRequest<Response>;
+    public sealed record Command : IRequest<Response>
+    {
+        public string Username { get; }
+        public string DisplayName { get; }
+        public string Password { get; }
+        public string? AvatarUrl { get; }
+
+        public Command(string username, string displayName, string password, string? avatarUrl)
+        {
+            Username = username;
+            DisplayName = displayName.Trim();
+            Password = password;
+            AvatarUrl = avatarUrl;
+        }
+    }
 
     public sealed class Validator : AbstractValidator<Command>
     {
         public Validator()
         {
-            RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.DisplayName).NotEmpty();
-            RuleFor(x => x.Password).NotEmpty();
+            RuleFor(x => x.Username).Username();
+            RuleFor(x => x.DisplayName).DisplayName();
+            RuleFor(x => x.Password).Password();
         }
     }
 
@@ -48,19 +63,23 @@ public static class Register
                 Id = Uuid.NewTimeBased(),
                 Username = request.Username,
                 DisplayName = request.DisplayName,
-                AvatarUrl = null,
-                PasswordHash = _passwordService.HashPassword(request.Password),
+                AvatarUrl = request.AvatarUrl,
+                PasswordHash = _passwordService.HashPassword(request.Password.Trim()),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
             await _users.AddAsync(user, cancellationToken);
 
-            var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName);
+            var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
             _broker.Users.Publish(@event);
 
-            return new Response(user.Id, user.Username, user.DisplayName);
+            return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName);
+    public sealed record Response(
+        Uuid Id,
+        string Username,
+        string DisplayName,
+        string? AvatarUrl);
 }

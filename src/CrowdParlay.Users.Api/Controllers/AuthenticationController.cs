@@ -1,3 +1,4 @@
+using CrowdParlay.Users.Api.DTOs;
 using CrowdParlay.Users.Application.Features.Authentication.Commands;
 using Dodo.Primitives;
 using Microsoft.AspNetCore;
@@ -10,12 +11,10 @@ namespace CrowdParlay.Users.Api.Controllers;
 
 public class AuthenticationController : ApiControllerBase
 {
-    [HttpPost("~/connect/token"), IgnoreAntiforgeryToken, Produces("application/json")]
-    public async Task<IActionResult> Exchange()
+    [HttpPost("~/connect/token"), IgnoreAntiforgeryToken]
+    [Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
+    public async Task<IActionResult> Exchange([FromForm] OAuth2ExchangeRequest request)
     {
-        var request = HttpContext.GetOpenIddictServerRequest()!;
-        request.Scope ??= string.Empty;
-
         switch (request.GrantType)
         {
             case OpenIddictConstants.GrantTypes.Password:
