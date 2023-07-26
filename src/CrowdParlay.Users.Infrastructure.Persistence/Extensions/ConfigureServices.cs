@@ -31,7 +31,7 @@ public static class ConfigureServices
             .AddFluentMigratorCore()
             .ConfigureRunner(builder => builder.AddPostgres()
                 .WithGlobalConnectionString(connectionString)
-                .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
+                .ScanIn(Assembly.GetExecutingAssembly()).For.All())
             .AddDbContext<OpenIddictDbContext>(options => options
                 .UseNpgsql(connectionString)
                 .UseOpenIddict())
