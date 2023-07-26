@@ -27,9 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Scripts\NormalizeUsername.sql"/>
-        <EmbeddedResource Include="Scripts\NormalizeUsernameTrigger.sql"/>
-        <EmbeddedResource Include="Scripts\NormalizeUsernameTriggerFunction.sql"/>
+        <EmbeddedResource Include="Scripts\*.sql"/>
     </ItemGroup>
 
 </Project>
