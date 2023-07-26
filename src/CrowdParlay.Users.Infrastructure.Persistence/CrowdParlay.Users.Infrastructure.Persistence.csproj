@@ -7,32 +7,29 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
-      <PackageReference Include="Dapper" Version="2.0.143" />
-      <PackageReference Include="FluentMigrator" Version="3.3.2" />
-      <PackageReference Include="FluentMigrator.Console" Version="3.3.2" />
-      <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
-      <PackageReference Include="FluentMigrator.Runner.Core" Version="3.3.2" />
-      <PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.3.2" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.8" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-      <PackageReference Include="Npgsql" Version="7.0.4" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
-      <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.5.0" />
-      <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2"/>
+        <PackageReference Include="Dapper" Version="2.0.143"/>
+        <PackageReference Include="FluentMigrator" Version="3.3.2"/>
+        <PackageReference Include="FluentMigrator.Console" Version="3.3.2"/>
+        <PackageReference Include="FluentMigrator.Runner" Version="3.3.2"/>
+        <PackageReference Include="FluentMigrator.Runner.Core" Version="3.3.2"/>
+        <PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.3.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.8"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
+        <PackageReference Include="Npgsql" Version="7.0.4"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4"/>
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.5.0"/>
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.5"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj" />
+        <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Migrations\SQLScripts\NormalizeUsername.sql" />
-      <EmbeddedResource Include="Migrations\Scripts\NormalizeUsername.sql" />
-      <None Remove="Migrations\SQLScripts\NormalizeUsernameTrigger.sql" />
-      <EmbeddedResource Include="Migrations\Scripts\NormalizeUsernameTrigger.sql" />
-      <None Remove="Migrations\SQLScripts\NormalizeUsernameTriggerFunction.sql" />
-      <EmbeddedResource Include="Migrations\Scripts\NormalizeUsernameTriggerFunction.sql" />
+        <EmbeddedResource Include="Scripts\NormalizeUsername.sql"/>
+        <EmbeddedResource Include="Scripts\NormalizeUsernameTrigger.sql"/>
+        <EmbeddedResource Include="Scripts\NormalizeUsernameTriggerFunction.sql"/>
     </ItemGroup>
 
 </Project>
