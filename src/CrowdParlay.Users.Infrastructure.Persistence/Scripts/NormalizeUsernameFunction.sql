@@ -1,11 +1,12 @@
 CREATE OR REPLACE FUNCTION normalize_username(username TEXT)
-    RETURNS TEXT as $$
+    RETURNS TEXT as
+$$
 DECLARE
-    last_char VARCHAR := '';
+    i                   INT;
+    current_char        TEXT;
+    last_char           VARCHAR := '';
     username_normalized VARCHAR := '';
-    i INT;
-    current_char TEXT;
-    char_map JSONB := '{
+    char_map            JSONB   := '{
         "0": "O",
         "1": "L",
         "I": "L",
@@ -22,8 +23,9 @@ DECLARE
 BEGIN
     username := UPPER(username);
 
-    -- replace chars and remove duplicates
-    FOR i IN 1..LENGTH(username) LOOP
+    -- Replace chars and remove duplicates
+    FOR i IN 1..LENGTH(username)
+        LOOP
             current_char := SUBSTRING(username FROM i FOR 1);
             IF char_map ? current_char THEN
                 current_char := (char_map ->> current_char)::TEXT;
@@ -35,5 +37,5 @@ BEGIN
         END LOOP;
 
     RETURN username_normalized;
-END;
+END
 $$ LANGUAGE plpgsql;
