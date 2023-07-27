@@ -5,14 +5,20 @@ namespace CrowdParlay.Users.IntegrationTests.Setups;
 
 public class PostgresSetup : ICustomization
 {
-    public void Customize(IFixture fixture)
-    {
-        var container = new PostgreSqlBuilder()
-            .WithExposedPort(5432)
-            .WithPortBinding(5432, true)
-            .Build();
+    private PostgreSqlContainer? _container;
 
-        AsyncContext.Run(async () => await container.StartAsync());
-        fixture.Inject(container);
-    }
+    public void Customize(IFixture fixture) => fixture.Register(() =>
+    {
+        if (_container is null)
+        {
+            _container = new PostgreSqlBuilder()
+                .WithExposedPort(5432)
+                .WithPortBinding(5432, true)
+                .Build();
+            
+            AsyncContext.Run(async () => await _container.StartAsync());
+        }
+
+        return _container;
+    });
 }
