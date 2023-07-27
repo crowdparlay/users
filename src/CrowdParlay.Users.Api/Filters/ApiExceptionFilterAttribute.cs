@@ -37,7 +37,12 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         }
 
         if (!context.ModelState.IsValid)
+        {
             HandleInvalidModelStateException(context);
+            return;
+        }
+
+        HandleGenericException(context);
     }
 
     private static void HandleValidationException(ExceptionContext context)
@@ -144,7 +149,24 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         {
             Status = StatusCodes.Status409Conflict,
             Title = "Already exists",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1"
+        };
+
+        context.Result = new ObjectResult(details)
+        {
+            StatusCode = StatusCodes.Status409Conflict
+        };
+
+        context.ExceptionHandled = true;
+    }
+
+    private static void HandleGenericException(ExceptionContext context)
+    {
+        var details = new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Server error",
+            Type = "https://datatracker.ietf.org/doc/html/rfc7231#autoid-95"
         };
 
         context.Result = new ObjectResult(details)
