@@ -20,21 +20,16 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     [Fact(Timeout = 5000)]
     public async Task GetByIdRequest_ShouldReturn_SuccessResponse()
     {
-        // Arrange
         var client = _fixture.Create<HttpClient>();
         var broker = _fixture.Create<RabbitMqMessageBroker>();
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
-        // Act
         var getByIdMessage = await client.GetAsync($"/api/users/{registerResponse!.Id}");
-        var userCreatedEvent = await consumer.ConsumeOne();
-
-        // Assert
         getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>();
@@ -44,26 +39,23 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             registerRequest.DisplayName,
             registerRequest.AvatarUrl));
 
+        var userCreatedEvent = await consumer.ConsumeOne();
         userCreatedEvent.Should().Be(new UserCreatedEvent(
             registerResponse.Id.ToString(),
             registerRequest.Username,
             registerRequest.DisplayName,
             registerResponse.AvatarUrl));
-
-        // Teardown
-        await client.DeleteAsync($"/api/users/{registerResponse.Id}");
     }
 
     [Fact(Timeout = 5000)]
     public async Task UpdateUser_ShouldChange_User()
     {
-        // Arrange
         var client = _fixture.Create<HttpClient>();
         var broker = _fixture.Create<RabbitMqMessageBroker>();
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!", null);
+        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", null);
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -75,39 +67,33 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: null,
             NewPassword: null);
 
-        // Act
         var updateMessage = await client.PutAsJsonAsync($"/api/users/{updateRequest.Id}", updateRequest);
-        var userUpdatedEvent = await consumer.ConsumeOne();
-
-        // Assert
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>();
         updateResponse.Should().Be(new Update.Response(
             registerResponse.Id,
             updateRequest.Username!,
-            updateRequest.DisplayName!));
+            updateRequest.DisplayName!,
+            updateRequest.AvatarUrl));
 
+        var userUpdatedEvent = await consumer.ConsumeOne();
         userUpdatedEvent.Should().Be(new UserUpdatedEvent(
             updateResponse!.Id.ToString(),
             updateResponse.Username,
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
-        
-        // Teardown
-        await client.DeleteAsync($"/api/users/{registerResponse.Id}");
     }
 
     [Fact(Timeout = 5000)]
     public async Task UpdatePassword_ShouldChange_OnlyPassword()
     {
-        // Arrange
         var client = _fixture.Create<HttpClient>();
         var broker = _fixture.Create<RabbitMqMessageBroker>();
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undrcrxwn123", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -119,11 +105,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: registerRequest.Password,
             NewPassword: "someNewPassword!");
 
-        // Act
         var updateMessage = await client.PutAsJsonAsync($"/api/users/{updateRequest.Id}", updateRequest);
-        var userUpdatedEvent = await consumer.ConsumeOne();
-
-        // Assert
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>();
@@ -133,13 +115,11 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             registerRequest.DisplayName,
             registerRequest.AvatarUrl));
 
+        var userUpdatedEvent = await consumer.ConsumeOne();
         userUpdatedEvent.Should().Be(new UserUpdatedEvent(
             updateResponse!.Id.ToString(),
             updateResponse.Username,
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
-        
-        // Teardown
-        await client.DeleteAsync($"/api/users/{registerResponse.Id}");
     }
 }
