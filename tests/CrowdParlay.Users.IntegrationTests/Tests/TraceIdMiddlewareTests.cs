@@ -18,7 +18,7 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
     {
         // Arrange
         var client = _fixture.Create<HttpClient>();
-        var registerRequest = new Register.Command("username", "display name", "password");
+        var registerRequest = new Register.Command("username", "display name", "password", null);
 
         // Act
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
@@ -36,7 +36,7 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
     {
         // Arrange
         var client = _fixture.Create<HttpClient>();
-        var command = new Register.Command(string.Empty, string.Empty, string.Empty);
+        var command = new Register.Command(string.Empty, string.Empty, string.Empty, null);
 
         // Act
         var response = await client.PostAsJsonAsync("/api/users/register", command);
@@ -51,7 +51,7 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
     {
         // Arrange
         var client = _fixture.Create<HttpClient>();
-        var registerRequest = new Register.Command("username", "display name", "password");
+        var registerRequest = new Register.Command("username", "display name", "password", null);
 
         // Act
         var successMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
