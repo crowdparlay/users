@@ -10,6 +10,7 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
+[Collection("RabbitMqAffective")]
 public class UsersControllerTests : IClassFixture<WebApplicationContext>
 {
     private readonly IFixture _fixture;

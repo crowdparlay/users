@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
+[Collection("RabbitMqAffective")]
 public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
 {
     private const string TraceIdHeaderName = "X-TraceId";
