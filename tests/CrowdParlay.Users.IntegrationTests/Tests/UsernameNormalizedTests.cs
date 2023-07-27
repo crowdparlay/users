@@ -12,14 +12,14 @@ public class UsernameNormalizedTests
     public async Task SameNormalizedUsernames_ShouldReturn_Exception(HttpClient client)
     {
         // Arrange
-        var command = new Register.Command("username", "display name", "password3", null);
-        var badCommand = new Register.Command("us55e3rn44me3333e", "display name 2", "password123", null);
+        var registerRequest = new Register.Command("username", "display name", "password3", null);
+        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "password123", null);
 
         // Act
-        await client.PostAsJsonAsync("/api/users/register", command);
-        var response = await client.PostAsJsonAsync("/api/users/register", badCommand);
+        await client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var duplicateMessage = await client.PostAsJsonAsync("/api/users/register", registerRequestDuplicate);
         
         // Assert
-        response.Should().HaveError();
+        duplicateMessage.Should().HaveError();
     }
 }
