@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
+[Collection("RabbitMqAffective")]
 public class UsernameNormalizedTests
 {
     [Theory(Timeout = 5000), ApiSetup]
