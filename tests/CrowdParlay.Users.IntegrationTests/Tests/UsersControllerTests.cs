@@ -40,7 +40,8 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         getByIdResponse.Should().Be(new GetById.Response(
             registerResponse.Id,
             registerRequest.Username,
-            registerRequest.DisplayName));
+            registerRequest.DisplayName,
+            registerRequest.AvatarUrl));
 
         userCreatedEvent.Should().Be(new UserCreatedEvent(
             registerResponse.Id.ToString(),
