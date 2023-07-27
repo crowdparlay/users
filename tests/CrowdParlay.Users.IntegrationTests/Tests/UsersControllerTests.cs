@@ -4,18 +4,24 @@ using CrowdParlay.Communication;
 using CrowdParlay.Communication.RabbitMq;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
-using CrowdParlay.Users.IntegrationTests.Attributes;
+using CrowdParlay.Users.IntegrationTests.Fixtures;
 using CrowdParlay.Users.IntegrationTests.Props;
 using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-public class UsersControllerTests
+public class UsersControllerTests : IClassFixture<WebApplicationContext>
 {
-    [Theory(Timeout = 5000), ApiSetup]
-    public async Task GetByIdRequest_ShouldReturn_SuccessResponse(HttpClient client, RabbitMqMessageBroker broker)
+    private readonly IFixture _fixture;
+
+    public UsersControllerTests(WebApplicationContext context) => _fixture = context.Fixture;
+
+    [Fact(Timeout = 5000)]
+    public async Task GetByIdRequest_ShouldReturn_SuccessResponse()
     {
         // Arrange
+        var client = _fixture.Create<HttpClient>();
+        var broker = _fixture.Create<RabbitMqMessageBroker>();
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
@@ -38,15 +44,20 @@ public class UsersControllerTests
 
         userCreatedEvent.Should().Be(new UserCreatedEvent(
             registerResponse.Id.ToString(),
-            registerResponse.Username,
-            registerResponse.DisplayName,
+            registerRequest.Username,
+            registerRequest.DisplayName,
             registerResponse.AvatarUrl));
+
+        // Teardown
+        await client.DeleteAsync($"/api/users/{registerResponse.Id}");
     }
 
-    [Theory(Timeout = 5000), ApiSetup]
-    public async Task UpdateUser_ShouldChange_User(HttpClient client, RabbitMqMessageBroker broker)
+    [Fact(Timeout = 5000)]
+    public async Task UpdateUser_ShouldChange_User()
     {
         // Arrange
+        var client = _fixture.Create<HttpClient>();
+        var broker = _fixture.Create<RabbitMqMessageBroker>();
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
@@ -73,20 +84,24 @@ public class UsersControllerTests
         updateResponse.Should().Be(new Update.Response(
             registerResponse.Id,
             updateRequest.Username!,
-            updateRequest.DisplayName!,
-            updateRequest.AvatarUrl));
+            updateRequest.DisplayName!));
 
         userUpdatedEvent.Should().Be(new UserUpdatedEvent(
             updateResponse!.Id.ToString(),
             updateResponse.Username,
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
+        
+        // Teardown
+        await client.DeleteAsync($"/api/users/{registerResponse.Id}");
     }
 
-    [Theory(Timeout = 5000), ApiSetup]
-    public async Task UpdatePassword_ShouldChange_OnlyPassword(HttpClient client, RabbitMqMessageBroker broker)
+    [Fact(Timeout = 5000)]
+    public async Task UpdatePassword_ShouldChange_OnlyPassword()
     {
         // Arrange
+        var client = _fixture.Create<HttpClient>();
+        var broker = _fixture.Create<RabbitMqMessageBroker>();
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
@@ -121,5 +136,8 @@ public class UsersControllerTests
             updateResponse.Username,
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
+        
+        // Teardown
+        await client.DeleteAsync($"/api/users/{registerResponse.Id}");
     }
 }
