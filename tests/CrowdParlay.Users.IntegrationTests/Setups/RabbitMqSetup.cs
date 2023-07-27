@@ -7,16 +7,32 @@ namespace CrowdParlay.Users.IntegrationTests.Setups;
 
 public class RabbitMqSetup : ICustomization
 {
+    private RabbitMqContainer? _container;
+    private RabbitMqMessageBroker? _broker;
+
     public void Customize(IFixture fixture)
     {
-        var container = new RabbitMqBuilder().Build();
-        AsyncContext.Run(async () => await container.StartAsync());
+        fixture.Register(() =>
+        {
+            if (_container is null)
+            {
+                _container = new RabbitMqBuilder().Build();
+                AsyncContext.Run(async () => await _container.StartAsync());
+            }
 
-        var amqpServerUrl = container.GetConnectionString();
-        var connectionFactory = new ConnectionFactory { Uri = new Uri(amqpServerUrl) };
-        var broker = new RabbitMqMessageBroker(connectionFactory);
+            return _container!;
+        });
         
-        fixture.Inject(broker);
-        fixture.Inject(container);
+        fixture.Register((RabbitMqContainer container) =>
+        {
+            if (_broker is null)
+            {
+                var amqpServerUrl = container.GetConnectionString();
+                var connectionFactory = new ConnectionFactory { Uri = new Uri(amqpServerUrl) };
+                _broker = new RabbitMqMessageBroker(connectionFactory);
+            }
+
+            return _broker!;
+        });
     }
 }

@@ -87,6 +87,7 @@ internal class UsersRepository : IUsersRepository
         var count = await connection.ExecuteAsync(
             $"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
+        
         if (count == 0)
             throw new NotFoundException();
     }
