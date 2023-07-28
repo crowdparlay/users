@@ -22,7 +22,7 @@ public static class ConfigureServices
             .ConfigureOpenIddict(configuration, environment)
             .ConfigureSwagger(configuration)
             .AddEndpointsApiExplorer()
-            .AddTransient<ExceptionHandlingMiddleware>();
+            .AddSingleton<ExceptionHandlingMiddleware>();
 
         var mvcBuilder = services.AddControllers(options =>
         {
