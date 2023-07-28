@@ -30,6 +30,8 @@ public static class ConfigureServices
             options.Conventions.Add(new RouteTokenTransformerConvention(transformer));
         });
 
+        mvcBuilder.AddNewtonsoftJson();
+
         var rabbitMqAmqpServerUrl =
             configuration["RABBITMQ_AMQP_SERVER_URL"]
             ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
