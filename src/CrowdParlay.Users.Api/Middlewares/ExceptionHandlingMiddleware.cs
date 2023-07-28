@@ -1,7 +1,7 @@
 using System.Net;
-using System.Text.Json;
 using CrowdParlay.Users.Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CrowdParlay.Users.Api.Middlewares;
 
@@ -56,7 +56,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        context.Response.WriteAsync(JsonSerializer.Serialize(details));
+        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
     }
 
     private static void HandleFluentValidationException(Exception exception, HttpContext context)
@@ -73,12 +73,13 @@ public class ExceptionHandlingMiddleware : IMiddleware
         
         var details = new ValidationProblemDetails(failuresByProperty)
         {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Detail = "One or more validation errors occured."
         };
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        context.Response.WriteAsync(JsonSerializer.Serialize(details));
+        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
     }
 
     private static void HandleNotFoundException(Exception exception, HttpContext context)
@@ -92,7 +93,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
         
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-        context.Response.WriteAsync(JsonSerializer.Serialize(details));
+        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
     }
 
     private static void HandleUnauthorizedAccessException(Exception exception, HttpContext context)
@@ -106,7 +107,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
         
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-        context.Response.WriteAsync(JsonSerializer.Serialize(details));
+        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
     }
 
     private static void HandleAccessDeniedException(Exception exception, HttpContext context)
@@ -120,7 +121,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
         
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-        context.Response.WriteAsync(JsonSerializer.Serialize(details));
+        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
     }
 
     private static void HandleAlreadyExistsException(Exception exception, HttpContext context)
@@ -134,6 +135,6 @@ public class ExceptionHandlingMiddleware : IMiddleware
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-        context.Response.WriteAsync(JsonSerializer.Serialize(details));
+        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
     }
 }
