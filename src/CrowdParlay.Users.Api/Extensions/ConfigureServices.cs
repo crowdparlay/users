@@ -1,5 +1,5 @@
 using CrowdParlay.Communication.RabbitMq.DependencyInjection;
-using CrowdParlay.Users.Api.Filters;
+using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -21,14 +21,16 @@ public static class ConfigureServices
             .ConfigureAuthentication()
             .ConfigureOpenIddict(configuration, environment)
             .ConfigureSwagger(configuration)
-            .AddEndpointsApiExplorer();
+            .AddEndpointsApiExplorer()
+            .AddSingleton<ExceptionHandlingMiddleware>();
 
         var mvcBuilder = services.AddControllers(options =>
         {
             var transformer = new KebabCaseParameterPolicy();
             options.Conventions.Add(new RouteTokenTransformerConvention(transformer));
-            options.Filters.Add<ApiExceptionFilterAttribute>();
         });
+
+        mvcBuilder.AddNewtonsoftJson();
 
         var rabbitMqAmqpServerUrl =
             configuration["RABBITMQ_AMQP_SERVER_URL"]
