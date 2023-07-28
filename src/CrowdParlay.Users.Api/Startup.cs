@@ -19,6 +19,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
     {
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseMiddleware<TraceIdMiddleware>();
         app.UseSerilogRequestLogging();
         app.UseHealthChecks("/health");
