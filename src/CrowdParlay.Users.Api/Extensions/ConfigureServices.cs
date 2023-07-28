@@ -1,5 +1,4 @@
 using CrowdParlay.Communication.RabbitMq.DependencyInjection;
-using CrowdParlay.Users.Api.Filters;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -27,7 +26,6 @@ public static class ConfigureServices
         {
             var transformer = new KebabCaseParameterPolicy();
             options.Conventions.Add(new RouteTokenTransformerConvention(transformer));
-            options.Filters.Add<ApiExceptionFilterAttribute>();
         });
 
         mvcBuilder.AddJsonOptions(options =>
