@@ -35,17 +35,17 @@ public class ExceptionHandlingMiddleware : IMiddleware
         }
     }
 
-    private static void HandleGenericException(Exception ex, HttpContext context)
+    private static void HandleGenericException(Exception exception, HttpContext context)
     {
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         context.Response.WriteAsync("An unexpected error occurred.");
     }
     
-    private static void HandleValidationException(Exception ex, HttpContext context)
+    private static void HandleValidationException(Exception exception, HttpContext context)
     {
-        var exception = (ValidationException)ex;
+        var validationException = (ValidationException)exception;
 
-        var errors = exception.Errors.ToDictionary(
+        var errors = validationException.Errors.ToDictionary(
             error => error.Key,
             error => error.Value.ToArray());
         
@@ -59,11 +59,11 @@ public class ExceptionHandlingMiddleware : IMiddleware
         context.Response.WriteAsync(JsonSerializer.Serialize(details));
     }
 
-    private static void HandleFluentValidationException(Exception ex, HttpContext context)
+    private static void HandleFluentValidationException(Exception exception, HttpContext context)
     {
-        var exception = (FluentValidation.ValidationException)ex;
+        var validationException = (FluentValidation.ValidationException)exception;
 
-        var failuresByProperty = exception.Errors
+        var failuresByProperty = validationException.Errors
             .GroupBy(error => error.PropertyName)
             .ToDictionary(
                 group => group.Key,
@@ -81,10 +81,8 @@ public class ExceptionHandlingMiddleware : IMiddleware
         context.Response.WriteAsync(JsonSerializer.Serialize(details));
     }
 
-    private static void HandleNotFoundException(Exception ex, HttpContext context)
+    private static void HandleNotFoundException(Exception exception, HttpContext context)
     {
-        var exception = (NotFoundException)ex;
-
         var details = new ProblemDetails
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
@@ -97,7 +95,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
         context.Response.WriteAsync(JsonSerializer.Serialize(details));
     }
 
-    private static void HandleUnauthorizedAccessException(Exception ex, HttpContext context)
+    private static void HandleUnauthorizedAccessException(Exception exception, HttpContext context)
     {
         var details = new ProblemDetails
         {
@@ -111,7 +109,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
         context.Response.WriteAsync(JsonSerializer.Serialize(details));
     }
 
-    private static void HandleAccessDeniedException(Exception ex, HttpContext context)
+    private static void HandleAccessDeniedException(Exception exception, HttpContext context)
     {
         var details = new ProblemDetails
         {
@@ -125,7 +123,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
         context.Response.WriteAsync(JsonSerializer.Serialize(details));
     }
 
-    private static void HandleAlreadyExistsException(Exception ex, HttpContext context)
+    private static void HandleAlreadyExistsException(Exception exception, HttpContext context)
     {
         var details = new ProblemDetails
         {
