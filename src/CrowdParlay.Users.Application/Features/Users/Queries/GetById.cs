@@ -27,9 +27,9 @@ public static class GetById
                 await _users.GetByIdAsync(request.Id, cancellationToken)
                 ?? throw new NotFoundException("User with the specified ID doesn't exist.");
 
-            return new Response(user.Id, user.Username, user.DisplayName);
+            return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName);
+    public sealed record Response(Uuid Id, string Username, string DisplayName, string? AvatarUrl);
 }

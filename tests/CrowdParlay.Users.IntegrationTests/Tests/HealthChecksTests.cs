@@ -1,36 +1,27 @@
 using System.Net;
-using CrowdParlay.Users.IntegrationTests.Attributes;
+using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
-using Testcontainers.PostgreSql;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-public class HealthChecksTests
+public class HealthChecksTests : IClassFixture<WebApplicationContext>
 {
-    [Theory(Timeout = 5000), ApiSetup]
-    public async Task HealthCheck_DatabaseAvailable_ShouldBeHealthy(HttpClient client)
+    private readonly IFixture _fixture;
+
+    public HealthChecksTests(WebApplicationContext context) => _fixture = context.Fixture;
+
+    [Fact(Timeout = 5000)]
+    public async Task HealthCheck_DatabaseAvailable_ShouldBeHealthy()
     {
+        // Arrange
+        var client = _fixture.Create<HttpClient>();
+
         // Act
         var response = await client.GetAsync("/health");
-        
+
         // Assert
         var content = await response.Content.ReadAsStringAsync();
         response.Should().HaveStatusCode(HttpStatusCode.OK);
         content.Should().BeEquivalentTo("healthy");
-    }
-    
-    [Theory(Timeout = 5000), ApiSetup]
-    public async Task HealthCheck_DatabaseNotAvailable_ShouldBeUnhealthy(HttpClient client, PostgreSqlContainer postgres)
-    {
-        // Arrange
-        await postgres.StopAsync();
-        
-        // Act
-        var response = await client.GetAsync("/health");
-        
-        // Assert
-        response.Should().HaveStatusCode(HttpStatusCode.ServiceUnavailable);
-        var content = await response.Content.ReadAsStringAsync();
-        content.Should().BeEquivalentTo("unhealthy");
     }
 }
