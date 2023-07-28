@@ -1,4 +1,5 @@
 using CrowdParlay.Communication.RabbitMq.DependencyInjection;
+using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -20,7 +21,8 @@ public static class ConfigureServices
             .ConfigureAuthentication()
             .ConfigureOpenIddict(configuration, environment)
             .ConfigureSwagger(configuration)
-            .AddEndpointsApiExplorer();
+            .AddEndpointsApiExplorer()
+            .AddTransient<ExceptionHandlingMiddleware>();
 
         var mvcBuilder = services.AddControllers(options =>
         {
