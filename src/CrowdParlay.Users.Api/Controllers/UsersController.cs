@@ -37,15 +37,12 @@ public class UsersController : ApiControllerBase
     [HttpGet, Route("{slug}"), AllowAnonymous]
     public async Task<IActionResult> Read([FromRoute] string slug)
     {
-        var isUuid = Uuid.TryParse(slug, out _);
-        if (isUuid)
-            return Ok(
-                await Mediator.Send(new GetById.Query(Uuid.Parse(slug)))
-            );
-        else
-            return Ok(
-                await Mediator.Send(new GetByUsername.Query(slug))
-            );
+        object request = Uuid.TryParse(slug, out var userId)
+            ? new GetById.Query(userId)
+            : new GetByUsername.Query(slug);
+
+        var response = await Mediator.Send(request);
+        return Ok(response);
     }
 
     [HttpPut, Route("{userId}")]
