@@ -22,15 +22,7 @@ internal class UsersRepository : IUsersRepository
             new { id });
     }
     
-    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
-    {
-        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-        return await connection.QuerySingleOrDefaultAsync<User>(
-            $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Username} = @{nameof(username)}",
-            new { username });
-    }
-
-    public async Task<User?> GetByNormalizedUsernameAsync(string username,
+    public async Task<User?> GetByUsernameAsync(string username,
         CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);

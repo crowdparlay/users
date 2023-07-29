@@ -24,7 +24,7 @@ public static class GetByUsername
         public async ValueTask<Response> Handle(Query request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.GetByNormalizedUsernameAsync(request.Username, cancellationToken)
+                await _users.GetByUsernameAsync(request.Username, cancellationToken)
                 ?? throw new NotFoundException("User with the specified username doesn't exist.");
 
             return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
