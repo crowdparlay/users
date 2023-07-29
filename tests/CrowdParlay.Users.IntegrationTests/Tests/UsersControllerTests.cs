@@ -59,7 +59,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
-        var getByUsernameMessage = await client.GetAsync($"/api/users/{registerResponse!.Username}");
+        var getByUsernameMessage = await client.GetAsync($"/api/users/resolve?username={registerResponse!.Username}");
         getByUsernameMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>();
