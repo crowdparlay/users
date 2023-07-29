@@ -152,4 +152,20 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
     }
+    
+    [Fact(Timeout = 5000)]
+    public async Task SameNormalizedUsernames_ShouldReturn_Exception()
+    {
+        // Arrange
+        var client = _fixture.Create<HttpClient>();
+        var registerRequest = new Register.Command("USSERname", "display name", "password3", null);
+        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "password123", null);
+
+        // Act
+        await client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var duplicateMessage = await client.PostAsJsonAsync("/api/users/register", registerRequestDuplicate);
+        
+        // Assert
+        duplicateMessage.Should().HaveError();
+    }
 }
