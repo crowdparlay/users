@@ -46,7 +46,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             registerRequest.DisplayName,
             registerResponse.AvatarUrl));
     }
-    
+
     [Fact(Timeout = 5000)]
     public async Task GetByUsernameRequest_ShouldReturn_SuccessResponse()
     {
@@ -76,7 +76,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             registerRequest.DisplayName,
             registerResponse.AvatarUrl));
     }
-    
+
     [Fact(Timeout = 5000)]
     public async Task UpdateUser_ShouldChange_User()
     {
@@ -152,20 +152,17 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
     }
-    
+
     [Fact(Timeout = 5000)]
-    public async Task SameNormalizedUsernames_ShouldReturn_Exception()
+    public async Task NormalizedUsernameDuplication_ShouldReturn_Conflict()
     {
-        // Arrange
         var client = _fixture.Create<HttpClient>();
         var registerRequest = new Register.Command("USSERname", "display name", "password3", null);
         var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "password123", null);
 
-        // Act
         await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var duplicateMessage = await client.PostAsJsonAsync("/api/users/register", registerRequestDuplicate);
-        
-        // Assert
-        duplicateMessage.Should().HaveError();
+
+        duplicateMessage.Should().HaveStatusCode(HttpStatusCode.Conflict);
     }
 }
