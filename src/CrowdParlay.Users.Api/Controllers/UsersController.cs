@@ -34,9 +34,19 @@ public class UsersController : ApiControllerBase
         await Mediator.Send(new Delete.Command(userId));
     }
 
-    [HttpGet, Route("{userId}"), AllowAnonymous]
-    public async Task<GetById.Response> Read([FromRoute] Uuid userId) =>
-        await Mediator.Send(new GetById.Query(userId));
+    [HttpGet, Route("{slug}"), AllowAnonymous]
+    public async Task<IActionResult> Read([FromRoute] string slug)
+    {
+        var isUuid = Uuid.TryParse(slug, out _);
+        if (isUuid)
+            return Ok(
+                await Mediator.Send(new GetById.Query(Uuid.Parse(slug)))
+            );
+        else
+            return Ok(
+                await Mediator.Send(new GetByUsername.Query(slug))
+            );
+    }
 
     [HttpPut, Route("{userId}")]
     public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request) =>
