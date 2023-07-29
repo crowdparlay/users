@@ -25,7 +25,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undrcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
@@ -55,7 +55,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command("undcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("compartmental", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
@@ -85,7 +85,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", null);
+        var registerRequest = new Register.Command("zanli_0", "Степной ишак", "qwerty123!", null);
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -123,7 +123,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("zen_mode", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
