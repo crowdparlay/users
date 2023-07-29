@@ -25,7 +25,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
@@ -46,7 +46,37 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             registerRequest.DisplayName,
             registerResponse.AvatarUrl));
     }
+    
+    [Fact(Timeout = 5000)]
+    public async Task GetByUsernameRequest_ShouldReturn_SuccessResponse()
+    {
+        var client = _fixture.Create<HttpClient>();
+        var broker = _fixture.Create<RabbitMqMessageBroker>();
+        var consumer = new AwaitableConsumer<UserCreatedEvent>();
+        broker.Users.Subscribe(consumer);
 
+        var registerRequest = new Register.Command("undcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
+
+        var getByUsernameMessage = await client.GetAsync($"/api/users/{registerResponse!.Username}");
+        getByUsernameMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+
+        var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>();
+        getByUsernameResponse.Should().Be(new GetByUsername.Response(
+            registerResponse.Id,
+            registerRequest.Username,
+            registerRequest.DisplayName,
+            registerRequest.AvatarUrl));
+
+        var userCreatedEvent = await consumer.ConsumeOne();
+        userCreatedEvent.Should().Be(new UserCreatedEvent(
+            registerResponse.Id.ToString(),
+            registerRequest.Username,
+            registerRequest.DisplayName,
+            registerResponse.AvatarUrl));
+    }
+    
     [Fact(Timeout = 5000)]
     public async Task UpdateUser_ShouldChange_User()
     {
