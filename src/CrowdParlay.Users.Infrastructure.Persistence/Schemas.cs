@@ -9,4 +9,5 @@ public static class UserSchema
     public const string AvatarUrl = "avatar_url";
     public const string PasswordHash = "password_hash";
     public const string CreatedAt = "created_at";
+    public const string UsernameNormalized = "username_normalized";
 }

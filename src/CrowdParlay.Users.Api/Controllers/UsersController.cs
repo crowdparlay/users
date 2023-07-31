@@ -21,6 +21,18 @@ public class UsersController : ApiControllerBase
         return await Mediator.Send(request.Adapt<Register.Command>());
     }
 
+    [HttpGet, Route("{userId}"), AllowAnonymous]
+    public async Task<GetById.Response> GetById([FromRoute] Uuid userId) =>
+        await Mediator.Send(new GetById.Query(userId));
+
+    [HttpGet, Route("[action]"), AllowAnonymous]
+    public async Task<GetByUsername.Response> Resolve([FromQuery] string username) =>
+        await Mediator.Send(new GetByUsername.Query(username));
+
+    [HttpPut, Route("{userId}")]
+    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request) =>
+        await Mediator.Send(request.Adapt<Update.Command>() with { Id = userId });
+
     [HttpDelete, Route("{userId}")]
     public async Task Delete([FromRoute] Uuid userId)
     {
@@ -33,12 +45,4 @@ public class UsersController : ApiControllerBase
 
         await Mediator.Send(new Delete.Command(userId));
     }
-
-    [HttpGet, Route("{userId}"), AllowAnonymous]
-    public async Task<GetById.Response> Read([FromRoute] Uuid userId) =>
-        await Mediator.Send(new GetById.Query(userId));
-
-    [HttpPut, Route("{userId}")]
-    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request) =>
-        await Mediator.Send(request.Adapt<Update.Command>() with { Id = userId });
 }

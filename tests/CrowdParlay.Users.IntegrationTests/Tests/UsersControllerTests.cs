@@ -25,7 +25,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserCreatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undrcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
@@ -48,6 +48,36 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     }
 
     [Fact(Timeout = 5000)]
+    public async Task GetByUsernameRequest_ShouldReturn_SuccessResponse()
+    {
+        var client = _fixture.Create<HttpClient>();
+        var broker = _fixture.Create<RabbitMqMessageBroker>();
+        var consumer = new AwaitableConsumer<UserCreatedEvent>();
+        broker.Users.Subscribe(consumer);
+
+        var registerRequest = new Register.Command("compartmental", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
+
+        var getByUsernameMessage = await client.GetAsync($"/api/users/resolve?username={registerResponse!.Username}");
+        getByUsernameMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+
+        var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>();
+        getByUsernameResponse.Should().Be(new GetByUsername.Response(
+            registerResponse.Id,
+            registerRequest.Username,
+            registerRequest.DisplayName,
+            registerRequest.AvatarUrl));
+
+        var userCreatedEvent = await consumer.ConsumeOne();
+        userCreatedEvent.Should().Be(new UserCreatedEvent(
+            registerResponse.Id.ToString(),
+            registerRequest.Username,
+            registerRequest.DisplayName,
+            registerResponse.AvatarUrl));
+    }
+
+    [Fact(Timeout = 5000)]
     public async Task UpdateUser_ShouldChange_User()
     {
         var client = _fixture.Create<HttpClient>();
@@ -55,7 +85,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", null);
+        var registerRequest = new Register.Command("zanli_0", "Степной ишак", "qwerty123!", null);
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -93,7 +123,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var consumer = new AwaitableConsumer<UserUpdatedEvent>();
         broker.Users.Subscribe(consumer);
 
-        var registerRequest = new Register.Command(_fixture.Create<string>(), "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("zen_mode", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
@@ -121,5 +151,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             updateResponse.Username,
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task NormalizedUsernameDuplication_ShouldReturn_Conflict()
+    {
+        var client = _fixture.Create<HttpClient>();
+        var registerRequest = new Register.Command("USSERname", "display name", "password3", null);
+        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "password123", null);
+
+        await client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var duplicateMessage = await client.PostAsJsonAsync("/api/users/register", registerRequestDuplicate);
+
+        duplicateMessage.Should().HaveStatusCode(HttpStatusCode.Conflict);
     }
 }
