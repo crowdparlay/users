@@ -1,10 +1,10 @@
 ﻿using CrowdParlay.Communication;
-using CrowdParlay.Communication.Abstractions;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
 using FluentValidation;
+using MassTransit;
 using Mediator;
 
 namespace CrowdParlay.Users.Application.Features.Users.Commands;
@@ -33,9 +33,9 @@ public static class Update
     {
         private readonly IUsersRepository _users;
         private readonly IPasswordService _passwords;
-        private readonly IMessageBroker _broker;
+        private readonly IPublishEndpoint _broker;
 
-        public Handler(IUsersRepository users, IPasswordService passwords, IMessageBroker broker)
+        public Handler(IUsersRepository users, IPasswordService passwords, IPublishEndpoint broker)
         {
             _users = users;
             _passwords = passwords;
@@ -58,7 +58,7 @@ public static class Update
             await _users.UpdateAsync(user, cancellationToken);
 
             var @event = new UserUpdatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
-            _broker.Users.Publish(@event);
+            await _broker.Publish(@event, cancellationToken);
 
             return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
         }

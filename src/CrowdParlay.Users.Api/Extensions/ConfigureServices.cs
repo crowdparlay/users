@@ -1,7 +1,8 @@
-using CrowdParlay.Communication.RabbitMq.DependencyInjection;
+using CrowdParlay.Communication;
 using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Serilog;
 
@@ -32,11 +33,15 @@ public static class ConfigureServices
 
         mvcBuilder.AddNewtonsoftJson();
 
-        var rabbitMqAmqpServerUrl =
-            configuration["RABBITMQ_AMQP_SERVER_URL"]
-            ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
+        return services.AddMassTransit(bus => bus.UsingRabbitMq((context, configurator) =>
+        {
+            var amqpServerUrl =
+                configuration["RABBITMQ_AMQP_SERVER_URL"]
+                ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
 
-        return services.AddRabbitMqCommunication(options => options
-            .UseAmqpServer(rabbitMqAmqpServerUrl));
+            configurator.Host(amqpServerUrl);
+            configurator.ConfigureEndpoints(context);
+            configurator.ConfigureTopology();
+        }));
     }
 }
