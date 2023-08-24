@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Net;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
@@ -6,22 +7,17 @@ namespace CrowdParlay.Users.IntegrationTests.Tests;
 
 public class HealthChecksTests : IClassFixture<WebApplicationContext>
 {
-    private readonly IFixture _fixture;
+    private readonly HttpClient _client;
 
-    public HealthChecksTests(WebApplicationContext context) => _fixture = context.Fixture;
+    public HealthChecksTests(WebApplicationContext context) => _client = context.Client;
 
-    [Fact(Timeout = 5000)]
-    public async Task HealthCheck_DatabaseAvailable_ShouldBeHealthy()
+    [Fact(DisplayName = "Get health returns healthy", Timeout = 5000)]
+    public async Task GetHealth_ReturnsHealthy()
     {
-        // Arrange
-        var client = _fixture.Create<HttpClient>();
-
-        // Act
-        var response = await client.GetAsync("/health");
-
-        // Assert
-        var content = await response.Content.ReadAsStringAsync();
+        var response = await _client.GetAsync("/health");
         response.Should().HaveStatusCode(HttpStatusCode.OK);
+
+        var content = await response.Content.ReadAsStringAsync();
         content.Should().BeEquivalentTo("healthy");
     }
 }

@@ -1,5 +1,4 @@
 using CrowdParlay.Communication;
-using CrowdParlay.Communication.Abstractions;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Extensions;
@@ -7,6 +6,7 @@ using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using Dodo.Primitives;
 using FluentValidation;
+using MassTransit;
 using Mediator;
 
 namespace CrowdParlay.Users.Application.Features.Users.Commands;
@@ -42,10 +42,10 @@ public static class Register
     public sealed class Handler : IRequestHandler<Command, Response>
     {
         private readonly IUsersRepository _users;
-        private readonly IMessageBroker _broker;
+        private readonly IPublishEndpoint _broker;
         private readonly IPasswordService _passwordService;
 
-        public Handler(IUsersRepository users, IMessageBroker broker, IPasswordService passwordService)
+        public Handler(IUsersRepository users, IPublishEndpoint broker, IPasswordService passwordService)
         {
             _users = users;
             _broker = broker;
@@ -71,7 +71,7 @@ public static class Register
             await _users.AddAsync(user, cancellationToken);
 
             var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
-            _broker.Users.Publish(@event);
+            await _broker.Publish(@event, cancellationToken);
 
             return new Response(user.Id, user.Username, user.DisplayName, user.AvatarUrl);
         }

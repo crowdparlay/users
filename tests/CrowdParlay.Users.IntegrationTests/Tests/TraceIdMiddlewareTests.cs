@@ -5,59 +5,41 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-[Collection("RabbitMqAffective")]
+[Collection("CommunicationAffective")]
 public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
 {
     private const string TraceIdHeaderName = "X-TraceId";
-    private readonly IFixture _fixture;
+    private readonly HttpClient _client;
 
-    public TraceIdMiddlewareTests(WebApplicationContext context) => _fixture = context.Fixture;
+    public TraceIdMiddlewareTests(WebApplicationContext context) => _client = context.Client;
 
-    [Fact(Timeout = 5000)]
-    public async Task SuccessResponse_ShouldContain_TraceIdHeader()
+    [Fact(DisplayName = "Register user returns trace ID on success", Timeout = 5000)]
+    public async Task RegisterUserOnSuccess_ReturnsTraceId()
     {
-        // Arrange
-        var client = _fixture.Create<HttpClient>();
         var registerRequest = new Register.Command("username", "display name", "password", null);
+        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
 
-        // Act
-        var registerMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
-
-        // Assert
         registerMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
-        
-        // Teardown
-        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
-        await client.DeleteAsync($"/api/users/{registerResponse!.Id}");
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task FailureResponse_ShouldContain_TraceIdHeader()
+    [Fact(DisplayName = "Register user returns trace ID on failure", Timeout = 5000)]
+    public async Task RegisterUserOnFailure_ReturnsTraceId()
     {
-        // Arrange
-        var client = _fixture.Create<HttpClient>();
         var command = new Register.Command(string.Empty, string.Empty, string.Empty, null);
+        var response = await _client.PostAsJsonAsync("/api/users/register", command);
 
-        // Act
-        var response = await client.PostAsJsonAsync("/api/users/register", command);
-
-        // Assert
         response.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         response.Should().HaveClientError();
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task MultipleResponses_ShouldContain_UniqueTraceIdHeaders()
+    [Fact(DisplayName = "Register users returns unique trace IDs", Timeout = 5000)]
+    public async Task RegisterUser_ReturnsUniqueTraceIds()
     {
-        // Arrange
-        var client = _fixture.Create<HttpClient>();
         var registerRequest = new Register.Command("username", "display name", "password", null);
 
-        // Act
-        var successMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
-        var failureMessage = await client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var successMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var failureMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
 
-        // Assert
         successMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         failureMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         failureMessage.Should().HaveClientError();
@@ -66,9 +48,5 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
         var failureMessageTraceId = failureMessage.Headers.GetValues(TraceIdHeaderName).ToList();
 
         successMessageTraceId.Should().NotContainEquivalentOf(failureMessageTraceId);
-        
-        // Teardown
-        var registerResponse = await successMessage.Content.ReadFromJsonAsync<Register.Response>();
-        await client.DeleteAsync($"/api/users/{registerResponse!.Id}");
     }
 }
