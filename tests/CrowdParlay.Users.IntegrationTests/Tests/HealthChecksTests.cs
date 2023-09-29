@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Net;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
