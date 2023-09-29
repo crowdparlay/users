@@ -25,9 +25,8 @@ public static class ConfigureSwaggerExtensions
 
         options.MapType<Uuid>(() => new OpenApiSchema
         {
-            Format = "uuid",
             Type = "string",
-            Pattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+            Format = "uuid"
         });
 
         options.CustomSchemaIds(type =>
