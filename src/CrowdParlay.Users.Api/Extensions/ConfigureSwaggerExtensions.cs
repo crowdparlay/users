@@ -5,7 +5,16 @@ namespace CrowdParlay.Users.Api.Extensions;
 
 public static class ConfigureSwaggerExtensions
 {
-    private const string IgnoredNamespaceIdentifiersKey = "Swagger:IgnoredNamespaceIdentifiers";
+    ///<summary>
+    /// Ignored parts of namespaces, generally CQRS-conventional names,
+    /// such as 'Queries' and 'Commands'. These are skipped when generating
+    /// Swagger names for the public DTOs.
+    /// </summary>
+    private static readonly IEnumerable<string> IgnoredNamespaceIdentifiers = new[]
+    {
+        "Commands",
+        "Queries"
+    };
 
     public static IServiceCollection ConfigureSwagger(
         this IServiceCollection services, IConfiguration configuration) => services.AddSwaggerGen(options =>
@@ -26,17 +35,10 @@ public static class ConfigureSwaggerExtensions
             if (!type.Namespace!.StartsWith("CrowdParlay.Users.Application.Features"))
                 return type.Name;
 
-            // Ignored parts of namespaces, generally CQRS-conventional names,
-            // such as 'Queries' and 'Commands'. These are skipped when generating
-            // Swagger names for the public DTOs.
-            var ignoredIdentifiers = configuration
-                .GetSection(IgnoredNamespaceIdentifiersKey)
-                .Get<HashSet<string>>()!;
-
             // Generates unique and user-friendly names for CQRS entities.
             // For example, 'Features.Accounts.Commands.Create.Command' gets turned into 'AccountsCreateCommand'.
             var lastNames = type.FullName!.Split('.', '+')
-                .Where(identifier => !ignoredIdentifiers.Contains(identifier))
+                .Where(identifier => !IgnoredNamespaceIdentifiers.Contains(identifier))
                 .TakeLast(3);
 
             return string.Join(string.Empty, lastNames);

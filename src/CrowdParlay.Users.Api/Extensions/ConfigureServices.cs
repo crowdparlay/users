@@ -21,7 +21,6 @@ public static class ConfigureServices
         services
             .ConfigureAuthentication()
             .ConfigureOpenIddict(configuration, environment)
-            .ConfigureSwagger(configuration)
             .AddEndpointsApiExplorer()
             .AddSingleton<ExceptionHandlingMiddleware>();
 
