@@ -1,7 +1,8 @@
 openapi: 3.0.1
 info:
   title: Crowd Parlay Users API
-  version: v1
+  description: RESTful API of the Crowd Parlay's Users service.
+  version: '1.0'
 paths:
   /api/v1/connect/token:
     post:

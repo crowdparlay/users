@@ -1,14 +1,14 @@
 using CrowdParlay.Users.Api.Extensions;
 using Dodo.Primitives;
 using Microsoft.AspNetCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace CrowdParlay.Users.Api;
+namespace CrowdParlay.Users.Api.Swagger;
 
 public class SwaggerWebHostFactory
 {
-    private const string SwaggerVersion = "v1";
-
     ///<summary>
     /// Ignored parts of namespaces, generally CQRS-conventional names,
     /// such as 'Queries' and 'Commands'. These are skipped when generating
@@ -25,14 +25,9 @@ public class SwaggerWebHostFactory
         .ConfigureServices(services =>
         {
             services.ConfigureEndpoints();
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc(SwaggerVersion, new OpenApiInfo
-                {
-                    Title = "Crowd Parlay Users API",
-                    Version = SwaggerVersion
-                });
-
                 options.SupportNonNullableReferenceTypes();
 
                 options.MapType<Uuid>(() => new OpenApiSchema
