@@ -3,7 +3,7 @@ info:
   title: Crowd Parlay Users API
   version: v1
 paths:
-  /connect/token:
+  /api/v1/connect/token:
     post:
       tags:
         - Authentication
@@ -37,7 +37,7 @@ paths:
       responses:
         '200':
           description: Success
-  /api/users/register:
+  /api/v1/users/register:
     post:
       tags:
         - Users
@@ -65,7 +65,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UsersRegisterResponse'
-  '/api/users/{userId}':
+  '/api/v1/users/{userId}':
     get:
       tags:
         - Users
@@ -139,7 +139,7 @@ paths:
       responses:
         '200':
           description: Success
-  /api/users/resolve:
+  /api/v1/users/resolve:
     get:
       tags:
         - Users

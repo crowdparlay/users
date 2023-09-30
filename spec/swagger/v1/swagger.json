@@ -5,7 +5,7 @@
     "version": "v1"
   },
   "paths": {
-    "/connect/token": {
+    "/api/v1/connect/token": {
       "post": {
         "tags": [
           "Authentication"
@@ -60,7 +60,7 @@
         }
       }
     },
-    "/api/users/register": {
+    "/api/v1/users/register": {
       "post": {
         "tags": [
           "Users"
@@ -108,7 +108,7 @@
         }
       }
     },
-    "/api/users/{userId}": {
+    "/api/v1/users/{userId}": {
       "get": {
         "tags": [
           "Users"
@@ -229,7 +229,7 @@
         }
       }
     },
-    "/api/users/resolve": {
+    "/api/v1/users/resolve": {
       "get": {
         "tags": [
           "Users"

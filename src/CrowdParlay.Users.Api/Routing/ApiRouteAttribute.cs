@@ -5,14 +5,11 @@ namespace CrowdParlay.Users.Api.Routing;
 
 /// <summary>
 /// A route attribute responsible for applying a default template containing prefix to the given controller or endpoint route.
-/// The default pattern is /api/{route}
-/// If a route that starts with '~/' is provided, adds the default '/api' prefix to the beginning.
+/// The default pattern is <c>/api/v{version}/{route}</c>.
 /// </summary>
 public class ApiRouteAttribute : RouteAttribute
 {
-    private const string Prefix = "api";
-
-    public ApiRouteAttribute() : base(Prefix) { }
+    private const string Prefix = "api/v{version:apiVersion}";
 
     public ApiRouteAttribute(
         [StringSyntax("Route")] string template)

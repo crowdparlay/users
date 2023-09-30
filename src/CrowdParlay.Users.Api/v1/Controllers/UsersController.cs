@@ -1,4 +1,4 @@
-using CrowdParlay.Users.Api.DTOs;
+using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 
-namespace CrowdParlay.Users.Api.Controllers;
+namespace CrowdParlay.Users.Api.v1.Controllers;
 
+[ApiVersion("1.0")]
 public class UsersController : ApiControllerBase
 {
     [HttpPost, Route("[action]"), AllowAnonymous]
