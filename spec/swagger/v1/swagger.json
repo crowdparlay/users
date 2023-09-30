@@ -11,6 +11,7 @@
         "tags": [
           "Authentication"
         ],
+        "summary": "Produces an OAuth 2.0 access token.",
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -66,6 +67,7 @@
         "tags": [
           "Users"
         ],
+        "summary": "Creates a user.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -114,6 +116,7 @@
         "tags": [
           "Users"
         ],
+        "summary": "Returns user with the specified ID.",
         "parameters": [
           {
             "name": "userId",
@@ -153,6 +156,7 @@
         "tags": [
           "Users"
         ],
+        "summary": "Updates user with the specified ID.",
         "parameters": [
           {
             "name": "userId",
@@ -211,6 +215,7 @@
         "tags": [
           "Users"
         ],
+        "summary": "Deletes user with the specified ID.",
         "parameters": [
           {
             "name": "userId",
@@ -235,6 +240,7 @@
         "tags": [
           "Users"
         ],
+        "summary": "Returns user with the specified username.",
         "parameters": [
           {
             "name": "username",

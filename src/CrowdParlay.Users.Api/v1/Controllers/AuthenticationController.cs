@@ -12,6 +12,11 @@ namespace CrowdParlay.Users.Api.v1.Controllers;
 [ApiVersion("1.0"), ApiRoute("")]
 public class AuthenticationController : ApiControllerBase
 {
+    /// <summary>
+    /// Produces an OAuth 2.0 access token.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("connect/token"), IgnoreAntiforgeryToken]
     [Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
     public async Task<IActionResult> Exchange([FromForm] OAuth2ExchangeRequest request)

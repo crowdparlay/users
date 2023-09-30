@@ -1,3 +1,4 @@
+using System.Reflection;
 using CrowdParlay.Users.Api.Extensions;
 using Dodo.Primitives;
 using Microsoft.AspNetCore;
@@ -28,6 +29,9 @@ public class SwaggerWebHostFactory
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddSwaggerGen(options =>
             {
+                var xmlDocsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlDocsFileName));
+
                 options.SupportNonNullableReferenceTypes();
 
                 options.MapType<Uuid>(() => new OpenApiSchema

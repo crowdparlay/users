@@ -13,6 +13,9 @@ namespace CrowdParlay.Users.Api.v1.Controllers;
 [ApiVersion("1.0")]
 public class UsersController : ApiControllerBase
 {
+    /// <summary>
+    /// Creates a user.
+    /// </summary>
     [HttpPost, Route("[action]"), AllowAnonymous]
     public async Task<Register.Response> Register([FromBody] UsersRegisterRequest request)
     {
@@ -22,18 +25,30 @@ public class UsersController : ApiControllerBase
         return await Mediator.Send(request.Adapt<Register.Command>());
     }
 
+    /// <summary>
+    /// Returns user with the specified ID.
+    /// </summary>
     [HttpGet, Route("{userId}"), AllowAnonymous]
     public async Task<GetById.Response> GetById([FromRoute] Uuid userId) =>
         await Mediator.Send(new GetById.Query(userId));
 
+    /// <summary>
+    /// Returns user with the specified username.
+    /// </summary>
     [HttpGet, Route("[action]"), AllowAnonymous]
     public async Task<GetByUsername.Response> Resolve([FromQuery] string username) =>
         await Mediator.Send(new GetByUsername.Query(username));
 
+    /// <summary>
+    /// Updates user with the specified ID.
+    /// </summary>
     [HttpPut, Route("{userId}")]
     public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request) =>
         await Mediator.Send(request.Adapt<Update.Command>() with { Id = userId });
 
+    /// <summary>
+    /// Deletes user with the specified ID.
+    /// </summary>
     [HttpDelete, Route("{userId}")]
     public async Task Delete([FromRoute] Uuid userId)
     {
