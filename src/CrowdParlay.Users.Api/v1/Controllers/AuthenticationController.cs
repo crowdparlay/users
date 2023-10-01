@@ -13,10 +13,8 @@ namespace CrowdParlay.Users.Api.v1.Controllers;
 public class AuthenticationController : ApiControllerBase
 {
     /// <summary>
-    /// Produces an OAuth 2.0 access token.
+    /// An OpenID Connect token endpoint mainly used to produce JWT.
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPost("connect/token"), IgnoreAntiforgeryToken]
     [Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
     public async Task<IActionResult> Exchange([FromForm] OAuth2ExchangeRequest request)
