@@ -16,7 +16,7 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
     public async Task RegisterUserOnSuccess_ReturnsTraceId()
     {
         var registerRequest = new Register.Command("username", "display name", "password", null);
-        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
 
         registerMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
     }
@@ -25,7 +25,7 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
     public async Task RegisterUserOnFailure_ReturnsTraceId()
     {
         var command = new Register.Command(string.Empty, string.Empty, string.Empty, null);
-        var response = await _client.PostAsJsonAsync("/api/users/register", command);
+        var response = await _client.PostAsJsonAsync("/api/v1/users/register", command);
 
         response.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         response.Should().HaveClientError();
@@ -36,8 +36,8 @@ public class TraceIdMiddlewareTests : IClassFixture<WebApplicationContext>
     {
         var registerRequest = new Register.Command("username", "display name", "password", null);
 
-        var successMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
-        var failureMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var successMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
+        var failureMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
 
         successMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         failureMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);

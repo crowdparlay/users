@@ -26,7 +26,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task Register_Positive()
     {
         var registerRequest = new Register.Command("undrcrxwnkkkj", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
         registerResponse.Should().Be(new Register.Response(
@@ -47,10 +47,10 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task Register_Negative()
     {
         var registerRequest = new Register.Command("username", "display name 1", "password1", "https://example.com/avatar1.jpg");
-        await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
 
         var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "password2", "https://example.com/avatar2.jpg");
-        var duplicateMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequestDuplicate);
+        var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate);
 
         duplicateMessage.Should().HaveStatusCode(HttpStatusCode.Conflict);
     }
@@ -59,10 +59,10 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task GetById_Positive()
     {
         var registerRequest = new Register.Command("undrcrxwn", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
-        var getByIdMessage = await _client.GetAsync($"/api/users/{registerResponse!.Id}");
+        var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse!.Id}");
         getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>();
@@ -77,10 +77,10 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task GetByUsername_Positive()
     {
         var registerRequest = new Register.Command("compartmental", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>();
 
-        var getByUsernameMessage = await _client.GetAsync($"/api/users/resolve?username={registerResponse!.Username}");
+        var getByUsernameMessage = await _client.GetAsync($"/api/v1/users/resolve?username={registerResponse!.Username}");
         getByUsernameMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>();
@@ -95,7 +95,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task Update_Positive()
     {
         var registerRequest = new Register.Command("zanli_0", "Степной ишак", "qwerty123!", avatarUrl: null);
-        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
         var updateRequest = new Update.Command(
@@ -106,7 +106,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: null,
             NewPassword: null);
 
-        var updateMessage = await _client.PutAsJsonAsync($"/api/users/{updateRequest.Id}", updateRequest);
+        var updateMessage = await _client.PutAsJsonAsync($"/api/v1/users/{updateRequest.Id}", updateRequest);
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>();
@@ -123,7 +123,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             updateResponse.DisplayName,
             updateResponse.AvatarUrl));
 
-        var getByIdMessage = await _client.GetAsync($"/api/users/{registerResponse.Id}");
+        var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse.Id}");
         getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>();
@@ -138,7 +138,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task UpdatePassword_Positive()
     {
         var registerRequest = new Register.Command("zen_mode", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/users/register", registerRequest);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>()!;
 
         var updateRequest = new Update.Command(
@@ -149,7 +149,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: registerRequest.Password,
             NewPassword: "someNewPassword!");
 
-        var updateMessage = await _client.PutAsJsonAsync($"/api/users/{updateRequest.Id}", updateRequest);
+        var updateMessage = await _client.PutAsJsonAsync($"/api/v1/users/{updateRequest.Id}", updateRequest);
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>();
