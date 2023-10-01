@@ -1,4 +1,4 @@
-namespace CrowdParlay.Users.Api.DTOs;
+namespace CrowdParlay.Users.Api.v1.DTOs;
 
 public record UsersRegisterRequest(
     string Username,

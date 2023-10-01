@@ -19,9 +19,9 @@ public static class ConfigureServices
             .CreateLogger();
 
         services
+            .ConfigureEndpoints()
             .ConfigureAuthentication()
             .ConfigureOpenIddict(configuration, environment)
-            .AddEndpointsApiExplorer()
             .AddSingleton<ExceptionHandlingMiddleware>();
 
         var mvcBuilder = services.AddControllers(options =>

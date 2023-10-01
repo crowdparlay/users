@@ -1,12 +1,14 @@
 openapi: 3.0.1
 info:
   title: Crowd Parlay Users API
-  version: v1
+  description: RESTful API of the Crowd Parlay's Users service.
+  version: '1.0'
 paths:
-  /connect/token:
+  /api/v1/connect/token:
     post:
       tags:
         - Authentication
+      summary: An OpenID Connect token endpoint mainly used to produce JWT.
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -37,10 +39,11 @@ paths:
       responses:
         '200':
           description: Success
-  /api/users/register:
+  /api/v1/users/register:
     post:
       tags:
         - Users
+      summary: Creates a user.
       requestBody:
         content:
           application/json:
@@ -65,10 +68,11 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UsersRegisterResponse'
-  '/api/users/{userId}':
+  '/api/v1/users/{userId}':
     get:
       tags:
         - Users
+      summary: Returns user with the specified ID.
       parameters:
         - name: userId
           in: path
@@ -93,6 +97,7 @@ paths:
     put:
       tags:
         - Users
+      summary: Updates user with the specified ID.
       parameters:
         - name: userId
           in: path
@@ -128,6 +133,7 @@ paths:
     delete:
       tags:
         - Users
+      summary: Deletes user with the specified ID.
       parameters:
         - name: userId
           in: path
@@ -139,10 +145,11 @@ paths:
       responses:
         '200':
           description: Success
-  /api/users/resolve:
+  /api/v1/users/resolve:
     get:
       tags:
         - Users
+      summary: Returns user with the specified username.
       parameters:
         - name: username
           in: query

@@ -1,4 +1,5 @@
-using CrowdParlay.Users.Api.DTOs;
+using CrowdParlay.Users.Api.Routing;
+using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Features.Authentication.Commands;
 using Dodo.Primitives;
 using Microsoft.AspNetCore.Authentication;
@@ -6,11 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 
-namespace CrowdParlay.Users.Api.Controllers;
+namespace CrowdParlay.Users.Api.v1.Controllers;
 
+[ApiVersion("1.0"), ApiRoute("")]
 public class AuthenticationController : ApiControllerBase
 {
-    [HttpPost("~/connect/token"), IgnoreAntiforgeryToken]
+    /// <summary>
+    /// An OpenID Connect token endpoint mainly used to produce JWT.
+    /// </summary>
+    [HttpPost("connect/token"), IgnoreAntiforgeryToken]
     [Consumes("application/x-www-form-urlencoded"), Produces("application/json")]
     public async Task<IActionResult> Exchange([FromForm] OAuth2ExchangeRequest request)
     {

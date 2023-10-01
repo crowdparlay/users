@@ -5,35 +5,39 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CrowdParlay.Communication" Version="2.0.0" />
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.16" />
-        <PackageReference Include="Mediator.Abstractions" Version="2.1.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9" />
+        <PackageReference Include="CrowdParlay.Communication" Version="2.0.0"/>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.16"/>
+        <PackageReference Include="Mediator.Abstractions" Version="2.1.5"/>
+        <PackageReference Include="Microsoft.AspNet.WebApi.Versioning" Version="5.1.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.9"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.9"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.6.0" />
-        <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="4.6.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
-        <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
-        <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.6.0"/>
+        <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="4.6.0"/>
+        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0"/>
+        <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0"/>
+        <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj" />
-        <ProjectReference Include="..\CrowdParlay.Users.Infrastructure.Persistence\CrowdParlay.Users.Infrastructure.Persistence.csproj" />
+        <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj"/>
+        <ProjectReference Include="..\CrowdParlay.Users.Infrastructure.Persistence\CrowdParlay.Users.Infrastructure.Persistence.csproj"/>
     </ItemGroup>
 
     <Target Name="OpenApiSpecificationTarget" AfterTargets="Build" Condition="$(Configuration)=='Debug'">
-        <Exec Command="scripts\swagger_spec.bat $(ProjectDir)$(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(SolutionDir)" />
+        <Exec Command="scripts\swagger_spec.bat $(ProjectDir)$(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(SolutionDir)"/>
     </Target>
 
 </Project>

@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
