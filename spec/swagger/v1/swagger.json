@@ -288,10 +288,10 @@
           "username": {
             "type": "string"
           },
-          "displayName": {
+          "display_name": {
             "type": "string"
           },
-          "avatarUrl": {
+          "avatar_url": {
             "type": "string",
             "nullable": true
           }
@@ -308,10 +308,10 @@
           "username": {
             "type": "string"
           },
-          "displayName": {
+          "display_name": {
             "type": "string"
           },
-          "avatarUrl": {
+          "avatar_url": {
             "type": "string",
             "nullable": true
           }
@@ -324,13 +324,13 @@
           "username": {
             "type": "string"
           },
-          "displayName": {
+          "display_name": {
             "type": "string"
           },
           "password": {
             "type": "string"
           },
-          "avatarUrl": {
+          "avatar_url": {
             "type": "string",
             "nullable": true
           }
@@ -347,10 +347,10 @@
           "username": {
             "type": "string"
           },
-          "displayName": {
+          "display_name": {
             "type": "string"
           },
-          "avatarUrl": {
+          "avatar_url": {
             "type": "string",
             "nullable": true
           }
@@ -364,19 +364,19 @@
             "type": "string",
             "nullable": true
           },
-          "displayName": {
+          "display_name": {
             "type": "string",
             "nullable": true
           },
-          "avatarUrl": {
+          "avatar_url": {
             "type": "string",
             "nullable": true
           },
-          "oldPassword": {
+          "old_password": {
             "type": "string",
             "nullable": true
           },
-          "newPassword": {
+          "new_password": {
             "type": "string",
             "nullable": true
           }
@@ -393,10 +393,10 @@
           "username": {
             "type": "string"
           },
-          "displayName": {
+          "display_name": {
             "type": "string"
           },
-          "avatarUrl": {
+          "avatar_url": {
             "type": "string",
             "nullable": true
           }

@@ -1,4 +1,3 @@
-using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Features.Authentication.Commands;
 using Dodo.Primitives;

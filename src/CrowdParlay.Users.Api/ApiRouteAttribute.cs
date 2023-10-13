@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CrowdParlay.Users.Api.Routing;
+namespace CrowdParlay.Users.Api;
 
 /// <summary>
 /// A route attribute responsible for applying a default template containing prefix to the given controller or endpoint route.

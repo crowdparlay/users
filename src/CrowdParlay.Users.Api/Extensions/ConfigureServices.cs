@@ -1,9 +1,7 @@
 using CrowdParlay.Communication;
 using CrowdParlay.Users.Api.Middlewares;
-using CrowdParlay.Users.Api.Routing;
 using CrowdParlay.Users.Api.Services;
 using MassTransit;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Serilog;
 
 namespace CrowdParlay.Users.Api.Extensions;
@@ -23,14 +21,6 @@ public static class ConfigureServices
             .ConfigureAuthentication()
             .ConfigureOpenIddict(configuration, environment)
             .AddSingleton<ExceptionHandlingMiddleware>();
-
-        var mvcBuilder = services.AddControllers(options =>
-        {
-            var transformer = new KebabCaseParameterPolicy();
-            options.Conventions.Add(new RouteTokenTransformerConvention(transformer));
-        });
-
-        mvcBuilder.AddNewtonsoftJson();
 
         return services.AddMassTransit(bus => bus.UsingRabbitMq((context, configurator) =>
         {
