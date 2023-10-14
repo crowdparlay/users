@@ -6,62 +6,6 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/v1/connect/token": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "An OpenID Connect token endpoint mainly used to produce JWT.",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "grant_type": {
-                    "type": "string"
-                  },
-                  "scope": {
-                    "type": "string"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "refresh_token": {
-                    "type": "string"
-                  }
-                }
-              },
-              "encoding": {
-                "grant_type": {
-                  "style": "form"
-                },
-                "scope": {
-                  "style": "form"
-                },
-                "username": {
-                  "style": "form"
-                },
-                "password": {
-                  "style": "form"
-                },
-                "refresh_token": {
-                  "style": "form"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/v1/users/register": {
       "post": {
         "tags": [
@@ -403,6 +347,21 @@
         },
         "additionalProperties": false
       }
+    },
+    "securitySchemes": {
+      "OIDC": {
+        "type": "openIdConnect",
+        "description": "OpenID Connect authentication scheme.",
+        "openIdConnectUrl": "/.well-known/openid-configuration"
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "OIDC": [
+        "users_read",
+        "users_write"
+      ]
+    }
+  ]
 }

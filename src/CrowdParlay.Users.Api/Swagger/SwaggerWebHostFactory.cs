@@ -3,6 +3,7 @@ using CrowdParlay.Users.Api.Extensions;
 using Dodo.Primitives;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -10,6 +11,8 @@ namespace CrowdParlay.Users.Api.Swagger;
 
 public class SwaggerWebHostFactory
 {
+    private const string OpenIdConnectSecuritySchemeName = "OIDC";
+
     ///<summary>
     /// Ignored parts of namespaces, generally CQRS-conventional names,
     /// such as 'Queries' and 'Commands'. These are skipped when generating
@@ -52,6 +55,44 @@ public class SwaggerWebHostFactory
                         .TakeLast(3);
 
                     return string.Join(string.Empty, lastNames);
+                });
+
+                options.AddSecurityDefinition(
+                    OpenIdConnectSecuritySchemeName,
+                    new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.OpenIdConnect,
+                        Description = "OpenID Connect authentication scheme.",
+                        In = ParameterLocation.Header,
+                        Name = HeaderNames.Authorization,
+                        OpenIdConnectUrl = new Uri("/.well-known/openid-configuration", UriKind.Relative),
+                        Flows = new OpenApiOAuthFlows
+                        {
+                            Password = new OpenApiOAuthFlow
+                            {
+                                AuthorizationUrl = new Uri("/connect/token", UriKind.Relative),
+                                TokenUrl = new Uri("/connect/token", UriKind.Relative)
+                            }
+                        }
+                    }
+                );
+
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = OpenIdConnectSecuritySchemeName
+                    }
+                };
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    [securityScheme] = new[]
+                    {
+                        "users_read",
+                        "users_write"
+                    }
                 });
             });
         })
