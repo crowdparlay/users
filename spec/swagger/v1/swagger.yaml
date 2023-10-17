@@ -4,41 +4,6 @@ info:
   description: RESTful API of the Crowd Parlay's Users service.
   version: '1.0'
 paths:
-  /api/v1/connect/token:
-    post:
-      tags:
-        - Authentication
-      summary: An OpenID Connect token endpoint mainly used to produce JWT.
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                grant_type:
-                  type: string
-                scope:
-                  type: string
-                username:
-                  type: string
-                password:
-                  type: string
-                refresh_token:
-                  type: string
-            encoding:
-              grant_type:
-                style: form
-              scope:
-                style: form
-              username:
-                style: form
-              password:
-                style: form
-              refresh_token:
-                style: form
-      responses:
-        '200':
-          description: Success
   /api/v1/users/register:
     post:
       tags:
@@ -179,9 +144,9 @@ components:
           format: uuid
         username:
           type: string
-        displayName:
+        display_name:
           type: string
-        avatarUrl:
+        avatar_url:
           type: string
           nullable: true
       additionalProperties: false
@@ -193,9 +158,9 @@ components:
           format: uuid
         username:
           type: string
-        displayName:
+        display_name:
           type: string
-        avatarUrl:
+        avatar_url:
           type: string
           nullable: true
       additionalProperties: false
@@ -204,11 +169,11 @@ components:
       properties:
         username:
           type: string
-        displayName:
+        display_name:
           type: string
         password:
           type: string
-        avatarUrl:
+        avatar_url:
           type: string
           nullable: true
       additionalProperties: false
@@ -220,9 +185,9 @@ components:
           format: uuid
         username:
           type: string
-        displayName:
+        display_name:
           type: string
-        avatarUrl:
+        avatar_url:
           type: string
           nullable: true
       additionalProperties: false
@@ -232,16 +197,16 @@ components:
         username:
           type: string
           nullable: true
-        displayName:
+        display_name:
           type: string
           nullable: true
-        avatarUrl:
+        avatar_url:
           type: string
           nullable: true
-        oldPassword:
+        old_password:
           type: string
           nullable: true
-        newPassword:
+        new_password:
           type: string
           nullable: true
       additionalProperties: false
@@ -253,9 +218,14 @@ components:
           format: uuid
         username:
           type: string
-        displayName:
+        display_name:
           type: string
-        avatarUrl:
+        avatar_url:
           type: string
           nullable: true
       additionalProperties: false
+  securitySchemes:
+    OIDC:
+      type: openIdConnect
+      description: OpenID Connect authentication scheme.
+      openIdConnectUrl: /.well-known/openid-configuration

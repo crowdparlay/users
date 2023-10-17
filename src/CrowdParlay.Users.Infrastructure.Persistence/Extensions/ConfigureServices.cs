@@ -26,7 +26,7 @@ public static class ConfigureServices
 
         services.AddHealthChecks()
             .AddNpgSql(connectionString);
-        
+
         return services
             .AddFluentMigratorCore()
             .ConfigureRunner(builder => builder.AddPostgres()
