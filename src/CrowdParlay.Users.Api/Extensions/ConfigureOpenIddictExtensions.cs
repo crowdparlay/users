@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using CrowdParlay.Users.Infrastructure.Persistence;
+using OpenIddict.Validation.AspNetCore;
 
 namespace CrowdParlay.Users.Api.Extensions;
 
@@ -61,7 +62,15 @@ public static class ConfigureOpenIddictExtensions
         {
             options.UseLocalServer();
             options.UseAspNetCore();
+            options.Configure(x =>
+            {
+                x.TokenValidationParameters.ValidateIssuer = false;
+                x.TokenValidationParameters.ValidateAudience = false;
+                x.TokenValidationParameters.ValidateLifetime = false;
+            });
         });
+
+        services.AddAuthentication(options => options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
         return services;
     }

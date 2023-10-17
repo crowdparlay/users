@@ -22,7 +22,7 @@ public class Startup
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseMiddleware<TraceIdMiddleware>();
         app.UseSerilogRequestLogging();
-        app.UseHealthChecks("/health");
+        app.UseHealthChecks("/healthz");
 
         app.UseCors(builder => builder
             .AllowAnyOrigin()

@@ -1,7 +1,6 @@
 using System.Net;
 using CrowdParlay.Users.Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace CrowdParlay.Users.Api.Middlewares;
 
@@ -20,35 +19,35 @@ public class ExceptionHandlingMiddleware : IMiddleware
         catch (Exception exception)
         {
             _logger.LogError(exception, "{ExceptionMessage}", exception.Message);
-            Action<Exception, HttpContext> handler = exception switch
+
+            Func<Exception, HttpContext, Task> handler = exception switch
             {
-                ValidationException => HandleValidationException,
-                FluentValidation.ValidationException => HandleFluentValidationException,
-                NotFoundException => HandleNotFoundException,
-                UnauthorizedException => HandleUnauthorizedAccessException,
-                ForbiddenException => HandleAccessDeniedException,
-                AlreadyExistsException => HandleAlreadyExistsException,
-                _ => HandleGenericException
+                ValidationException => HandleValidationExceptionAsync,
+                FluentValidation.ValidationException => HandleFluentValidationExceptionAsync,
+                NotFoundException => HandleNotFoundExceptionAsync,
+                ForbiddenException => HandleAccessDeniedExceptionAsync,
+                AlreadyExistsException => HandleAlreadyExistsExceptionAsync,
+                _ => HandleGenericExceptionAsync
             };
-            
-            handler.Invoke(exception, context);
+
+            await handler.Invoke(exception, context);
         }
     }
 
-    private static void HandleGenericException(Exception exception, HttpContext context)
+    private static async Task HandleGenericExceptionAsync(Exception exception, HttpContext context)
     {
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.WriteAsync("An unexpected error occurred.");
+        await context.Response.WriteAsync("An unexpected error occurred.");
     }
-    
-    private static void HandleValidationException(Exception exception, HttpContext context)
+
+    private static async Task HandleValidationExceptionAsync(Exception exception, HttpContext context)
     {
         var validationException = (ValidationException)exception;
 
         var errors = validationException.Errors.ToDictionary(
             error => error.Key,
             error => error.Value.ToArray());
-        
+
         var details = new ValidationProblemDetails(errors)
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
@@ -56,10 +55,10 @@ public class ExceptionHandlingMiddleware : IMiddleware
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
+        await context.Response.WriteAsJsonAsync(details);
     }
 
-    private static void HandleFluentValidationException(Exception exception, HttpContext context)
+    private static async Task HandleFluentValidationExceptionAsync(Exception exception, HttpContext context)
     {
         var validationException = (FluentValidation.ValidationException)exception;
 
@@ -70,7 +69,7 @@ public class ExceptionHandlingMiddleware : IMiddleware
                 group => group
                     .Select(failure => failure.ErrorMessage)
                     .ToArray());
-        
+
         var details = new ValidationProblemDetails(failuresByProperty)
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
@@ -79,10 +78,10 @@ public class ExceptionHandlingMiddleware : IMiddleware
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
+        await context.Response.WriteAsJsonAsync(details);
     }
 
-    private static void HandleNotFoundException(Exception exception, HttpContext context)
+    private static async Task HandleNotFoundExceptionAsync(Exception exception, HttpContext context)
     {
         var details = new ProblemDetails
         {
@@ -90,27 +89,13 @@ public class ExceptionHandlingMiddleware : IMiddleware
             Title = "Not found",
             Detail = exception.Message
         };
-        
+
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
+        await context.Response.WriteAsJsonAsync(details);
     }
 
-    private static void HandleUnauthorizedAccessException(Exception exception, HttpContext context)
-    {
-        var details = new ProblemDetails
-        {
-            Status = StatusCodes.Status401Unauthorized,
-            Title = "Unauthorized",
-            Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
-        };
-        
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
-    }
-
-    private static void HandleAccessDeniedException(Exception exception, HttpContext context)
+    private static async Task HandleAccessDeniedExceptionAsync(Exception exception, HttpContext context)
     {
         var details = new ProblemDetails
         {
@@ -118,13 +103,13 @@ public class ExceptionHandlingMiddleware : IMiddleware
             Title = "Forbidden",
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
         };
-        
+
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
+        await context.Response.WriteAsJsonAsync(details);
     }
 
-    private static void HandleAlreadyExistsException(Exception exception, HttpContext context)
+    private static async Task HandleAlreadyExistsExceptionAsync(Exception exception, HttpContext context)
     {
         var details = new ProblemDetails
         {
@@ -135,6 +120,6 @@ public class ExceptionHandlingMiddleware : IMiddleware
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-        context.Response.WriteAsync(JsonConvert.SerializeObject(details));
+        await context.Response.WriteAsJsonAsync(details);
     }
 }
