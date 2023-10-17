@@ -18,7 +18,6 @@ public static class ConfigureServices
 
         services
             .ConfigureEndpoints()
-            .ConfigureAuthentication()
             .ConfigureOpenIddict(configuration, environment)
             .AddSingleton<ExceptionHandlingMiddleware>();
 
