@@ -229,7 +229,3 @@ components:
       type: openIdConnect
       description: OpenID Connect authentication scheme.
       openIdConnectUrl: /.well-known/openid-configuration
-security:
-  - OIDC:
-      - users_read
-      - users_write

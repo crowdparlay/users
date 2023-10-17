@@ -76,24 +76,6 @@ public class SwaggerWebHostFactory
                         }
                     }
                 );
-
-                var securityScheme = new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = OpenIdConnectSecuritySchemeName
-                    }
-                };
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    [securityScheme] = new[]
-                    {
-                        "users_read",
-                        "users_write"
-                    }
-                });
             });
         })
         .Build();

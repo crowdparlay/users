@@ -355,13 +355,5 @@
         "openIdConnectUrl": "/.well-known/openid-configuration"
       }
     }
-  },
-  "security": [
-    {
-      "OIDC": [
-        "users_read",
-        "users_write"
-      ]
-    }
-  ]
+  }
 }
