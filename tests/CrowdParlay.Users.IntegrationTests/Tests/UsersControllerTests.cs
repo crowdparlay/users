@@ -1,6 +1,6 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using CrowdParlay.Communication;
 using CrowdParlay.Users.Application.Features.Users.Commands;
@@ -111,8 +111,6 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var exchangeMessage = await _client.PostAsync("/connect/token", new FormUrlEncodedContent(exchangeData));
         var jsonDoc = await JsonDocument.ParseAsync(await exchangeMessage.Content.ReadAsStreamAsync());
         var token = jsonDoc.RootElement.GetProperty("access_token").ToString();
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         
         var updateRequest = new Update.Command(
             registerResponse!.Id,
@@ -122,7 +120,15 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: null,
             NewPassword: null);
         
-        var updateMessage = await _client.PutAsJsonAsync($"/api/v1/users/{updateRequest.Id}", updateRequest, JsonConfigurations.JsonOptions);
+        var serializedRequest = JsonSerializer.Serialize(updateRequest, JsonConfigurations.JsonOptions);
+        
+        var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/users/{updateRequest.Id}")
+        {
+            Content = new StringContent(serializedRequest, Encoding.UTF8, "application/json"),
+            Headers = { { "Authorization", $"Bearer {token}" } }
+        };
+        
+        var updateMessage = await _client.SendAsync(requestMessage);
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(JsonConfigurations.JsonOptions);
@@ -156,8 +162,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var registerRequest = new Register.Command("zen_mode", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(JsonConfigurations.JsonOptions);
-
-        //todo: fix scope(its unnecessary)
+        
         var exchangeData = new Dictionary<string, string>
         {
             { "grant_type", "password" },
@@ -168,8 +173,6 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var exchangeMessage = await _client.PostAsync("/connect/token", new FormUrlEncodedContent(exchangeData));
         var jsonDoc = await JsonDocument.ParseAsync(await exchangeMessage.Content.ReadAsStreamAsync());
         var token = jsonDoc.RootElement.GetProperty("access_token").ToString();
-
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         
         var updateRequest = new Update.Command(
             Id: registerResponse!.Id,
@@ -179,7 +182,15 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: registerRequest.Password,
             NewPassword: "someNewPassword!");
 
-        var updateMessage = await _client.PutAsJsonAsync($"/api/v1/users/{updateRequest.Id}", updateRequest, JsonConfigurations.JsonOptions);
+        var serializedRequest = JsonSerializer.Serialize(updateRequest, JsonConfigurations.JsonOptions);
+        
+        var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/users/{updateRequest.Id}")
+        {
+            Content = new StringContent(serializedRequest, Encoding.UTF8, "application/json"),
+            Headers = { { "Authorization", $"Bearer {token}" } }
+        };
+        
+        var updateMessage = await _client.SendAsync(requestMessage);
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(JsonConfigurations.JsonOptions);
