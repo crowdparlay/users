@@ -13,7 +13,7 @@ public class HealthChecksTests : IClassFixture<WebApplicationContext>
     [Fact(DisplayName = "Get health returns healthy", Timeout = 5000)]
     public async Task GetHealth_ReturnsHealthy()
     {
-        var response = await _client.GetAsync("/health");
+        var response = await _client.GetAsync("/healthz");
         response.Should().HaveStatusCode(HttpStatusCode.OK);
 
         var content = await response.Content.ReadAsStringAsync();
