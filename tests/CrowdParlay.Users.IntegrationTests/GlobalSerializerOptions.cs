@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
 using CrowdParlay.Users.Api.Services;
 
-namespace CrowdParlay.Users.IntegrationTests.Configurations;
+namespace CrowdParlay.Users.IntegrationTests;
 
-public static class JsonConfigurations
+public static class GlobalSerializerOptions
 {
-    public static JsonSerializerOptions JsonOptions { get; } = new()
+    public static JsonSerializerOptions SnakeCase { get; } = new()
     {
         PropertyNamingPolicy = new SnakeCaseJsonNamingPolicy(), 
         DictionaryKeyPolicy = new SnakeCaseJsonNamingPolicy() 
