@@ -4,10 +4,9 @@ using MassTransit.Testing;
 using Nito.AsyncEx;
 using Testcontainers.PostgreSql;
 
-// ReSharper disable ClassNeverInstantiated.Global
-
 namespace CrowdParlay.Users.IntegrationTests.Fixtures;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class WebApplicationContext
 {
     public readonly HttpClient Client;
