@@ -1,7 +1,8 @@
 image: mcr.microsoft.com/dotnet/sdk:7.0
 
 services:
-  - docker
+  - name: docker:dind
+    command: ["--tls=false"]
 
 stages:
   - build
@@ -16,7 +17,9 @@ build:
 test:
   stage: test
   variables:
-    TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
   script:
     - dotnet test
 
