@@ -25,9 +25,10 @@ public class Startup
         app.UseHealthChecks("/healthz");
 
         app.UseCors(builder => builder
-            .AllowAnyOrigin()
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 
         app.UseHttpsRedirection();
         app.UseAuthentication();
