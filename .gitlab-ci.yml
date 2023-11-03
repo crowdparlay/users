@@ -17,7 +17,7 @@ build:
   script:
     - dotnet restore
     - dotnet build --no-restore
-    - dotnet publish -c Release -o ../publish src/CrowdParlay.Users.Api/CrowdParlay.Users.Api.csproj
+    - dotnet publish -c Release -o ./publish src/CrowdParlay.Users.Api/CrowdParlay.Users.Api.csproj
 
 test:
   stage: test
