@@ -11,9 +11,13 @@ stages:
 
 build:
   stage: build
+  artifacts:
+    paths:
+      - publish/
   script:
     - dotnet restore
     - dotnet build --no-restore
+    - dotnet publish -c Release -o ../publish src/CrowdParlay.Users.Api/CrowdParlay.Users.Api.csproj
 
 test:
   stage: test
@@ -30,8 +34,7 @@ publish:
   stage: publish
   only:
     - master
-  artifacts:
-    paths:
-      - publish/
   script:
-    - dotnet publish -c Release -o ../publish src/CrowdParlay.Users.Api/CrowdParlay.Users.Api.csproj
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker build -t $CI_REGISTRY_USER/users:latest .
+    - docker push $CI_REGISTRY_USER/users:latest
