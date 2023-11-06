@@ -17,25 +17,17 @@ public class Startup
         _environment = environment;
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
-    {
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseMiddleware<TraceIdMiddleware>();
-        app.UseSerilogRequestLogging();
-        app.UseHealthChecks("/healthz");
-
-        app.UseCors(builder => builder
-            .SetIsOriginAllowed(_ => true)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
-
-        app.UseHttpsRedirection();
-        app.UseAuthentication();
-        app.UseRouting();
-        app.UseAuthorization();
-        app.UseEndpoints(builder => builder.MapControllers());
-    }
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment environment) => app
+        .UseMiddleware<ExceptionHandlingMiddleware>()
+        .UseMiddleware<TraceIdMiddleware>()
+        .UseSerilogRequestLogging()
+        .UseHealthChecks("/healthz")
+        .UseCors()
+        .UseHttpsRedirection()
+        .UseAuthentication()
+        .UseRouting()
+        .UseAuthorization()
+        .UseEndpoints(builder => builder.MapControllers());
 
     public void ConfigureServices(IServiceCollection services) => services
         .ConfigureApplicationServices()
