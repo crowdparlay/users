@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using CrowdParlay.Communication;
+using CrowdParlay.Users.Api;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.IntegrationTests.Extensions;
@@ -56,6 +57,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, GlobalSerializerOptions.SnakeCase);
 
         duplicateMessage.Should().HaveStatusCode(HttpStatusCode.Conflict);
+    }
+
+    [Fact(DisplayName = "Register user with invalid username returns validation failures", Timeout = 5000)]
+    public async Task RegisterValidation_Negative()
+    {
+        var registerRequest = new Register.Command(string.Empty, string.Empty, "Password", null);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        registerMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+
+        var validationProblem = await registerMessage.Content.ReadFromJsonAsync<ValidationProblem>(GlobalSerializerOptions.SnakeCase);
+        validationProblem!.ValidationErrors.Should().ContainKey("username").WhoseValue.Should().HaveCount(2);
+        validationProblem.ValidationErrors.Should().ContainKey("display_name").WhoseValue.Should().ContainSingle();
     }
 
     [Fact(DisplayName = "Get user by ID returns user", Timeout = 5000)]
