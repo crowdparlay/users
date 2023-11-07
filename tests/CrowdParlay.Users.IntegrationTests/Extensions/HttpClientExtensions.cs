@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace CrowdParlay.Users.IntegrationTests.Extensions;
@@ -14,7 +15,7 @@ public static class HttpClientExtensions
         };
 
         var oauthMessage = await client.PostAsync("/connect/token", new FormUrlEncodedContent(oauthRequest));
-        var oauthResponseDocument = await JsonDocument.ParseAsync(await oauthMessage.Content.ReadAsStreamAsync());
-        return oauthResponseDocument.RootElement.GetProperty("access_token").GetString()!;
+        var oauthResponseDocument = await oauthMessage.Content.ReadFromJsonAsync<JsonDocument>();
+        return oauthResponseDocument!.RootElement.GetProperty("access_token").GetString()!;
     }
 }
