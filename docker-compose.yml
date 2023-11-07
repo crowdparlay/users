@@ -25,6 +25,7 @@ services:
     build:
       context: .
     environment:
+      CORS_ORIGINS: http://localhost
       RABBITMQ_AMQP_SERVER_URL: "amqp://$RABBITMQ_USER:$RABBITMQ_PASSWORD@rabbitmq:5672"
       POSTGRES_CONNECTION_STRING: "Host=postgres;Port=5432;Database=$POSTGRES_DB;Password=$POSTGRES_PASSWORD;User Id=$POSTGRES_USER"
       ASPNETCORE_ENVIRONMENT: Development
