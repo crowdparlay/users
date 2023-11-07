@@ -15,7 +15,10 @@ public static class ConfigureEndpointsExtensions
         });
 
         mvcBuilder.AddJsonOptions(options =>
-            options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseJsonNamingPolicy());
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = GlobalSerializerOptions.SnakeCase.PropertyNamingPolicy;
+            options.JsonSerializerOptions.DictionaryKeyPolicy = GlobalSerializerOptions.SnakeCase.DictionaryKeyPolicy;
+        });
 
         services.AddApiVersioning(options =>
         {
