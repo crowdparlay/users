@@ -14,14 +14,13 @@ namespace CrowdParlay.Users.Application.Features.Authentication.Commands;
 
 public static class ExchangePassword
 {
-    public sealed record Command(string Username, string Password, string Scope) : IRequest<Response>;
+    public sealed record Command(string UsernameOrEmail, string Password, string Scope) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
         public Validator()
         {
-            RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.Password).NotEmpty();
+            RuleFor(command => command.Password).NotEmpty();
         }
     }
 
@@ -39,7 +38,7 @@ public static class ExchangePassword
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.GetByUsernameAsync(request.Username, cancellationToken)
+                await _users.GetByUsernameOrEmailAsync(request.UsernameOrEmail, cancellationToken)
                 ?? throw new NotFoundException();
 
             if (!_authentication.Authenticate(user, request.Password))
