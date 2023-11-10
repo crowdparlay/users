@@ -1,10 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using CrowdParlay.Communication;
 using CrowdParlay.Users.Api;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
-using CrowdParlay.Users.IntegrationTests.Configurations;
 using CrowdParlay.Users.IntegrationTests.Extensions;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
@@ -151,7 +152,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse.Id}");
         getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
-        var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>();
+        var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>(GlobalSerializerOptions.SnakeCase);
         getByIdResponse.Should().Be(new GetById.Response(
             updateRequest.Id,
             updateRequest.Username!,
