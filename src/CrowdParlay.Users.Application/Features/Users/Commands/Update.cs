@@ -25,12 +25,24 @@ public static class Update
     {
         public Validator()
         {
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.OldPassword).NotEqual(x => x.NewPassword).When(x => x.NewPassword is not null);
-            RuleFor(x => x.NewPassword).NotEqual(x => x.OldPassword).When(x => x.OldPassword is not null);
-            RuleFor(x => x.Username).Username().When(x => x.Username is not null);
-            RuleFor(x => x.DisplayName).DisplayName().When(x => x.DisplayName is not null);
-            RuleFor(x => x.Email).Email().When(x => x.Email is not null);
+            RuleFor(command => command.Id).NotEmpty();
+            
+            RuleFor(command => command.OldPassword)
+                .NotEqual(command => command.NewPassword)
+                .When(command => command.NewPassword is not null);
+            
+            RuleFor(command => command.NewPassword)
+                .NotEqual(command => command.OldPassword)
+                .When(command => command.OldPassword is not null);
+            
+            RuleFor(command => command.Username).Username()
+                .When(command => command.Username is not null);
+            
+            RuleFor(command => command.DisplayName).DisplayName()
+                .When(command => command.DisplayName is not null);
+            
+            RuleFor(command => command.Email).Email()
+                .When(command => command.Email is not null);
         }
     }
 
@@ -66,14 +78,14 @@ public static class Update
             var @event = new UserUpdatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
             await _broker.Publish(@event, cancellationToken);
 
-            return new Response(user.Id, user.Username, user.Email, user.DisplayName, user.AvatarUrl);
+            return new Response(user.Id, user.Username, user.DisplayName, user.Email, user.AvatarUrl);
         }
     }
 
     public sealed record Response(
         Uuid Id,
         string Username,
-        string Email,
         string DisplayName,
+        string Email,
         string? AvatarUrl);
 }
