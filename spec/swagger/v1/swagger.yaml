@@ -171,6 +171,8 @@ components:
           type: string
         display_name:
           type: string
+        email:
+          type: string
         password:
           type: string
         avatar_url:
@@ -187,6 +189,8 @@ components:
           type: string
         display_name:
           type: string
+        email:
+          type: string
         avatar_url:
           type: string
           nullable: true
@@ -198,6 +202,9 @@ components:
           type: string
           nullable: true
         display_name:
+          type: string
+          nullable: true
+        email:
           type: string
           nullable: true
         avatar_url:
@@ -219,6 +226,8 @@ components:
         username:
           type: string
         display_name:
+          type: string
+        email:
           type: string
         avatar_url:
           type: string
