@@ -8,6 +8,7 @@ using Testcontainers.PostgreSql;
 
 namespace CrowdParlay.Users.IntegrationTests.Fixtures;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class WebApplicationContext
 {
     public readonly HttpClient Client;

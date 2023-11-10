@@ -16,7 +16,8 @@ internal class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     {
         builder.ConfigureAppConfiguration(configuration => configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["POSTGRES_CONNECTION_STRING"] = _postgresConnectionString
+            ["POSTGRES_CONNECTION_STRING"] = _postgresConnectionString,
+            ["CORS_ORIGINS"] = "http://localhost"
         }));
 
         builder.ConfigureServices(services =>

@@ -1,6 +1,5 @@
 using System.Net;
 using CrowdParlay.Users.Application.Exceptions;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CrowdParlay.Users.Api.Middlewares;
 
@@ -19,107 +18,65 @@ public class ExceptionHandlingMiddleware : IMiddleware
         catch (Exception exception)
         {
             _logger.LogError(exception, "{ExceptionMessage}", exception.Message);
-
-            Func<Exception, HttpContext, Task> handler = exception switch
+            var problem = exception switch
             {
-                ValidationException => HandleValidationExceptionAsync,
-                FluentValidation.ValidationException => HandleFluentValidationExceptionAsync,
-                NotFoundException => HandleNotFoundExceptionAsync,
-                ForbiddenException => HandleAccessDeniedExceptionAsync,
-                AlreadyExistsException => HandleAlreadyExistsExceptionAsync,
-                _ => HandleGenericExceptionAsync
+                ValidationException e => SanitizeValidationException(e),
+                FluentValidation.ValidationException e => SanitizeFluentValidationException(e),
+                NotFoundException e => SanitizeNotFoundException(e, context),
+                ForbiddenException e => SanitizeForbiddenException(e, context),
+                AlreadyExistsException e => SanitizeAlreadyExistsException(e, context),
+                _ => SanitizeGenericException()
             };
 
-            await handler.Invoke(exception, context);
+            context.Response.ContentType = "application/problem+json";
+            context.Response.StatusCode = (int)problem.HttpStatusCode;
+            await context.Response.WriteAsJsonAsync(problem, problem.GetType(), GlobalSerializerOptions.SnakeCase);
         }
     }
 
-    private static async Task HandleGenericExceptionAsync(Exception exception, HttpContext context)
+    private static Problem SanitizeGenericException() => new()
     {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        await context.Response.WriteAsync("An unexpected error occurred.");
-    }
+        HttpStatusCode = HttpStatusCode.InternalServerError,
+        ErrorDescription = "Something went wrong. Try again later."
+    };
 
-    private static async Task HandleValidationExceptionAsync(Exception exception, HttpContext context)
+    private static ValidationProblem SanitizeValidationException(ValidationException exception) => new()
     {
-        var validationException = (ValidationException)exception;
-
-        var errors = validationException.Errors.ToDictionary(
+        HttpStatusCode = HttpStatusCode.BadRequest,
+        ErrorDescription = "The specified data is invalid.",
+        ValidationErrors = exception.Errors.ToDictionary(
             error => error.Key,
-            error => error.Value.ToArray());
+            error => error.Value.ToArray())
+    };
 
-        var details = new ValidationProblemDetails(errors)
-        {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
-        };
-
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        await context.Response.WriteAsJsonAsync(details);
-    }
-
-    private static async Task HandleFluentValidationExceptionAsync(Exception exception, HttpContext context)
+    private static ValidationProblem SanitizeFluentValidationException(FluentValidation.ValidationException exception) => new()
     {
-        var validationException = (FluentValidation.ValidationException)exception;
-
-        var failuresByProperty = validationException.Errors
+        HttpStatusCode = HttpStatusCode.BadRequest,
+        ErrorDescription = "The specified data is invalid.",
+        ValidationErrors = exception.Errors
             .GroupBy(error => error.PropertyName)
             .ToDictionary(
                 group => group.Key,
                 group => group
                     .Select(failure => failure.ErrorMessage)
-                    .ToArray());
+                    .ToArray())
+    };
 
-        var details = new ValidationProblemDetails(failuresByProperty)
-        {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-            Detail = "One or more validation errors occured."
-        };
-
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        await context.Response.WriteAsJsonAsync(details);
-    }
-
-    private static async Task HandleNotFoundExceptionAsync(Exception exception, HttpContext context)
+    private static Problem SanitizeNotFoundException(NotFoundException exception, HttpContext context) => new()
     {
-        var details = new ProblemDetails
-        {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-            Title = "Not found",
-            Detail = exception.Message
-        };
+        HttpStatusCode = HttpStatusCode.NotFound,
+        ErrorDescription = "The requested resource doesn't exist."
+    };
 
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-        await context.Response.WriteAsJsonAsync(details);
-    }
-
-    private static async Task HandleAccessDeniedExceptionAsync(Exception exception, HttpContext context)
+    private static Problem SanitizeForbiddenException(ForbiddenException exception, HttpContext context) => new()
     {
-        var details = new ProblemDetails
-        {
-            Status = StatusCodes.Status403Forbidden,
-            Title = "Forbidden",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
-        };
+        HttpStatusCode = HttpStatusCode.Forbidden,
+        ErrorDescription = "You have no permission for this action."
+    };
 
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-        await context.Response.WriteAsJsonAsync(details);
-    }
-
-    private static async Task HandleAlreadyExistsExceptionAsync(Exception exception, HttpContext context)
+    private static Problem SanitizeAlreadyExistsException(AlreadyExistsException exception, HttpContext context) => new()
     {
-        var details = new ProblemDetails
-        {
-            Status = StatusCodes.Status409Conflict,
-            Title = "Already exists",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
-        };
-
-        context.Response.ContentType = "application/problem+json";
-        context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-        await context.Response.WriteAsJsonAsync(details);
-    }
+        HttpStatusCode = HttpStatusCode.Conflict,
+        ErrorDescription = "Such resource already exists."
+    };
 }

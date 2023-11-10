@@ -14,7 +14,7 @@ namespace CrowdParlay.Users.Application.Features.Authentication.Commands;
 
 public static class ExchangePassword
 {
-    public sealed record Command(string UsernameOrEmail, string Password, string Scope) : IRequest<Response>;
+    public sealed record Command(string UsernameOrEmail, string Password, string? Scope) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -49,7 +49,9 @@ public static class ExchangePassword
                 nameType: OpenIddictConstants.Claims.Name,
                 roleType: OpenIddictConstants.Claims.Role);
 
-            identity.SetScopes(OpenIddictConstants.Claims.Scope, request.Scope);
+            if (request.Scope is not null)
+                identity.SetScopes(OpenIddictConstants.Claims.Scope, request.Scope);
+
             identity.InjectClaims(user, _users);
 
             var ticket = new AuthenticationTicket(

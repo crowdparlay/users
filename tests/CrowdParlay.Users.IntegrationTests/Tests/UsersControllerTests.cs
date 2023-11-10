@@ -1,8 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 using CrowdParlay.Communication;
+using CrowdParlay.Users.Api;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.IntegrationTests.Configurations;
@@ -29,8 +28,8 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task Register_Positive()
     {
         var registerRequest = new Register.Command("undrcrxwnkkkj", "Степной ишак", "nieeee@tt.tt", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
-        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(JsonConfigurations.JsonOptions);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
         registerResponse.Should().Be(new Register.Response(
             registerResponse!.Id,
@@ -51,25 +50,37 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task Register_Negative()
     {
         var registerRequest = new Register.Command("username", "display name 1", "uraaa@goto.wy", "password1", "https://example.com/avatar1.jpg");
-        await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
+        await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
 
         var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "meily@tup.ye", "password2", "https://example.com/avatar2.jpg");
-        var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, JsonConfigurations.JsonOptions);
+        var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, GlobalSerializerOptions.SnakeCase);
 
         duplicateMessage.Should().HaveStatusCode(HttpStatusCode.Conflict);
+    }
+
+    [Fact(DisplayName = "Register user with invalid username returns validation failures", Timeout = 5000)]
+    public async Task RegisterValidation_Negative()
+    {
+        var registerRequest = new Register.Command(string.Empty, string.Empty, string.Empty, "Password", null);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        registerMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+
+        var validationProblem = await registerMessage.Content.ReadFromJsonAsync<ValidationProblem>(GlobalSerializerOptions.SnakeCase);
+        validationProblem!.ValidationErrors.Should().ContainKey("username").WhoseValue.Should().HaveCount(2);
+        validationProblem.ValidationErrors.Should().ContainKey("display_name").WhoseValue.Should().ContainSingle();
     }
 
     [Fact(DisplayName = "Get user by ID returns user", Timeout = 5000)]
     public async Task GetById_Positive()
     {
         var registerRequest = new Register.Command("undrcrxwn", "Степной ишак", "pis@atb.eti", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
-        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(JsonConfigurations.JsonOptions);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
         var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse!.Id}");
         getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
-        var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>(JsonConfigurations.JsonOptions);
+        var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>(GlobalSerializerOptions.SnakeCase);
         getByIdResponse.Should().Be(new GetById.Response(
             registerResponse.Id,
             registerRequest.Username,
@@ -81,13 +92,13 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task GetByUsername_Positive()
     {
         var registerRequest = new Register.Command("compartmental", "Степной ишак", "jaZae@bal.sya", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
-        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(JsonConfigurations.JsonOptions);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
         var getByUsernameMessage = await _client.GetAsync($"/api/v1/users/resolve?username={registerResponse!.Username}");
         getByUsernameMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
-        var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>(JsonConfigurations.JsonOptions);
+        var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>(GlobalSerializerOptions.SnakeCase);
         getByUsernameResponse.Should().Be(new GetByUsername.Response(
             registerResponse.Id,
             registerRequest.Username,
@@ -99,20 +110,9 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task Update_Positive()
     {
         var registerRequest = new Register.Command("zanli_0", "Степной ишак", "pesokJ@naja.com", "qwerty123!", avatarUrl: null);
-        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
-        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(JsonConfigurations.JsonOptions);
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
-        var exchangeData = new Dictionary<string, string>
-        {
-            { "grant_type", "password" },
-            { "username", "zanli_0" },
-            { "password", "qwerty123!" },
-            { "scope", "offline_access"}
-        };
-        var exchangeMessage = await _client.PostAsync("/connect/token", new FormUrlEncodedContent(exchangeData));
-        var jsonDoc = await JsonDocument.ParseAsync(await exchangeMessage.Content.ReadAsStreamAsync());
-        var token = jsonDoc.RootElement.GetProperty("access_token").ToString();
-        
         var updateRequest = new Update.Command(
             registerResponse!.Id,
             Username: "akavi",
@@ -121,19 +121,19 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             AvatarUrl: "https://example.com/avatar.jpg",
             OldPassword: null,
             NewPassword: null);
-        
-        var serializedRequest = JsonSerializer.Serialize(updateRequest, JsonConfigurations.JsonOptions);
-        
+
+        var accessToken = await _client.AcquireAccessToken(registerRequest.Username, registerRequest.Password);
+        var serializedRequest = JsonSerializer.Serialize(updateRequest, GlobalSerializerOptions.SnakeCase);
         var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/users/{updateRequest.Id}")
         {
             Content = new StringContent(serializedRequest, Encoding.UTF8, "application/json"),
-            Headers = { { "Authorization", $"Bearer {token}" } }
+            Headers = { { "Authorization", $"Bearer {accessToken}" } }
         };
-        
+
         var updateMessage = await _client.SendAsync(requestMessage);
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
-        var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(JsonConfigurations.JsonOptions);
+        var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(GlobalSerializerOptions.SnakeCase);
         updateResponse.Should().Be(new Update.Response(
             updateRequest.Id,
             updateRequest.Username!,
@@ -151,7 +151,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse.Id}");
         getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
-        var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>(JsonConfigurations.JsonOptions);
+        var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>();
         getByIdResponse.Should().Be(new GetById.Response(
             updateRequest.Id,
             updateRequest.Username!,
@@ -163,20 +163,9 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     public async Task UpdatePassword_Positive()
     {
         var registerRequest = new Register.Command("zen_mode", "Степной ишак", "uzumuka@gmail.cum", "qwerty123!", "https://example.com/avatar.jpg");
-        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, JsonConfigurations.JsonOptions);
-        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(JsonConfigurations.JsonOptions);
-        
-        var exchangeData = new Dictionary<string, string>
-        {
-            { "grant_type", "password" },
-            { "username", "zen_mode" },
-            { "password", "qwerty123!" },
-            { "scope", "offline_access"}
-        };
-        var exchangeMessage = await _client.PostAsync("/connect/token", new FormUrlEncodedContent(exchangeData));
-        var jsonDoc = await JsonDocument.ParseAsync(await exchangeMessage.Content.ReadAsStreamAsync());
-        var token = jsonDoc.RootElement.GetProperty("access_token").ToString();
-        
+        var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
+        var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
+
         var updateRequest = new Update.Command(
             Id: registerResponse!.Id,
             Username: null,
@@ -186,18 +175,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
             OldPassword: registerRequest.Password,
             NewPassword: "someNewPassword!");
 
-        var serializedRequest = JsonSerializer.Serialize(updateRequest, JsonConfigurations.JsonOptions);
-        
+        var accessToken = await _client.AcquireAccessToken(registerRequest.Username, registerRequest.Password);
+        var serializedRequest = JsonSerializer.Serialize(updateRequest, GlobalSerializerOptions.SnakeCase);
         var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/users/{updateRequest.Id}")
         {
             Content = new StringContent(serializedRequest, Encoding.UTF8, "application/json"),
-            Headers = { { "Authorization", $"Bearer {token}" } }
+            Headers = { { "Authorization", $"Bearer {accessToken}" } }
         };
-        
+
         var updateMessage = await _client.SendAsync(requestMessage);
         updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
 
-        var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(JsonConfigurations.JsonOptions);
+        var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(GlobalSerializerOptions.SnakeCase);
         updateResponse.Should().Be(new Update.Response(
             registerResponse.Id,
             registerRequest.Username,
