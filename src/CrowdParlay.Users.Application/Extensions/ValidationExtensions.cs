@@ -4,12 +4,12 @@ namespace CrowdParlay.Users.Application.Extensions;
 
 public static class ValidationExtensions
 {
-    public static IRuleBuilder<T, string> Username<T>(this IRuleBuilder<T, string> ruleBuilder) => ruleBuilder
+    public static IRuleBuilderOptions<T, string?> Username<T>(this IRuleBuilder<T, string?> ruleBuilder) => ruleBuilder
         .NotEmpty()
         .Length(5, 25)
         .Matches(@"\w*");
 
-    public static IRuleBuilder<T, string> DisplayName<T>(this IRuleBuilder<T, string> ruleBuilder) => ruleBuilder
+    public static IRuleBuilderOptions<T, string?> DisplayName<T>(this IRuleBuilder<T, string?> ruleBuilder) => ruleBuilder
         .NotEmpty()
         .MaximumLength(25);
 
