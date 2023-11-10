@@ -48,6 +48,7 @@ internal class UsersRepository : IUsersRepository
                 {UserSchema.Id},
                 {UserSchema.Username},
                 {UserSchema.DisplayName},
+                {UserSchema.Email},
                 {UserSchema.AvatarUrl},
                 {UserSchema.PasswordHash},
                 {UserSchema.CreatedAt}
@@ -56,6 +57,7 @@ internal class UsersRepository : IUsersRepository
                 @{nameof(User.Id)},
                 @{nameof(User.Username)},
                 @{nameof(User.DisplayName)},
+                @{nameof(User.Email)},
                 @{nameof(User.AvatarUrl)},
                 @{nameof(User.PasswordHash)},
                 @{nameof(User.CreatedAt)}
@@ -73,6 +75,7 @@ internal class UsersRepository : IUsersRepository
             {UserSchema.Id} = @{nameof(User.Id)},
             {UserSchema.Username} = @{nameof(User.Username)},
             {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
+            {UserSchema.Email} = @{nameof(User.Email)},
             {UserSchema.AvatarUrl} = @{nameof(User.AvatarUrl)},
             {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
             {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)}
