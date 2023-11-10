@@ -22,9 +22,9 @@ public class ExceptionHandlingMiddleware : IMiddleware
             {
                 ValidationException e => SanitizeValidationException(e),
                 FluentValidation.ValidationException e => SanitizeFluentValidationException(e),
-                NotFoundException e => SanitizeNotFoundException(e, context),
-                ForbiddenException e => SanitizeForbiddenException(e, context),
-                AlreadyExistsException e => SanitizeAlreadyExistsException(e, context),
+                NotFoundException => SanitizeNotFoundException(),
+                ForbiddenException => SanitizeForbiddenException(),
+                AlreadyExistsException => SanitizeAlreadyExistsException(),
                 _ => SanitizeGenericException()
             };
 
@@ -62,19 +62,19 @@ public class ExceptionHandlingMiddleware : IMiddleware
                     .ToArray())
     };
 
-    private static Problem SanitizeNotFoundException(NotFoundException exception, HttpContext context) => new()
+    private static Problem SanitizeNotFoundException() => new()
     {
         HttpStatusCode = HttpStatusCode.NotFound,
         ErrorDescription = "The requested resource doesn't exist."
     };
 
-    private static Problem SanitizeForbiddenException(ForbiddenException exception, HttpContext context) => new()
+    private static Problem SanitizeForbiddenException() => new()
     {
         HttpStatusCode = HttpStatusCode.Forbidden,
         ErrorDescription = "You have no permission for this action."
     };
 
-    private static Problem SanitizeAlreadyExistsException(AlreadyExistsException exception, HttpContext context) => new()
+    private static Problem SanitizeAlreadyExistsException() => new()
     {
         HttpStatusCode = HttpStatusCode.Conflict,
         ErrorDescription = "Such resource already exists."
