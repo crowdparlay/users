@@ -77,14 +77,14 @@ public static class Register
             var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
             await _broker.Publish(@event, cancellationToken);
 
-            return new Response(user.Id, user.Username, user.Email, user.DisplayName, user.AvatarUrl);
+            return new Response(user.Id, user.Username, user.DisplayName, user.Email, user.AvatarUrl);
         }
     }
 
     public sealed record Response(
         Uuid Id,
         string Username,
-        string Email,
         string DisplayName,
+        string Email,
         string? AvatarUrl);
 }
