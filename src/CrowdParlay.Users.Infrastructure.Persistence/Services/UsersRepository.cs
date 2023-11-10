@@ -30,6 +30,19 @@ internal class UsersRepository : IUsersRepository
             $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.UsernameNormalized} = normalize_username(@{nameof(username)})",
             new { username });
     }
+    
+    public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail,
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<User>(sql:
+             $"""
+             SELECT * FROM {UserSchema.Table}
+             WHERE {UserSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
+             OR {UserSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
+             """,
+            new { usernameOrEmail });
+    }
 
     public async Task<IEnumerable<User>> GetManyAsync(int count, int page = 0, CancellationToken cancellationToken = default)
     {
