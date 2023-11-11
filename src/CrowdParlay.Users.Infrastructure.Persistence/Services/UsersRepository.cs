@@ -30,6 +30,19 @@ internal class UsersRepository : IUsersRepository
             $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.UsernameNormalized} = normalize_username(@{nameof(username)})",
             new { username });
     }
+    
+    public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail,
+        CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<User>(sql:
+             $"""
+             SELECT * FROM {UserSchema.Table}
+             WHERE {UserSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
+             OR {UserSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
+             """,
+            new { usernameOrEmail });
+    }
 
     public async Task<IEnumerable<User>> GetManyAsync(int count, int page = 0, CancellationToken cancellationToken = default)
     {
@@ -48,6 +61,7 @@ internal class UsersRepository : IUsersRepository
                 {UserSchema.Id},
                 {UserSchema.Username},
                 {UserSchema.DisplayName},
+                {UserSchema.Email},
                 {UserSchema.AvatarUrl},
                 {UserSchema.PasswordHash},
                 {UserSchema.CreatedAt}
@@ -56,6 +70,7 @@ internal class UsersRepository : IUsersRepository
                 @{nameof(User.Id)},
                 @{nameof(User.Username)},
                 @{nameof(User.DisplayName)},
+                @{nameof(User.Email)},
                 @{nameof(User.AvatarUrl)},
                 @{nameof(User.PasswordHash)},
                 @{nameof(User.CreatedAt)}
@@ -73,6 +88,7 @@ internal class UsersRepository : IUsersRepository
             {UserSchema.Id} = @{nameof(User.Id)},
             {UserSchema.Username} = @{nameof(User.Username)},
             {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
+            {UserSchema.Email} = @{nameof(User.Email)},
             {UserSchema.AvatarUrl} = @{nameof(User.AvatarUrl)},
             {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
             {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)}
