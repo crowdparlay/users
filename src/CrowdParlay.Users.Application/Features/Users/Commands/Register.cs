@@ -68,7 +68,7 @@ public static class Register
                 DisplayName = request.DisplayName,
                 Email = request.Email,
                 AvatarUrl = request.AvatarUrl,
-                PasswordHash = _passwordService.HashPassword(request.Password.Trim()),
+                PasswordHash = _passwordService.HashPassword(request.Password),
                 CreatedAt = DateTimeOffset.UtcNow
             };
 

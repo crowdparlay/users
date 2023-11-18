@@ -18,7 +18,7 @@ public static class ValidationExtensions
         .Length(5, 25)
         .Must(x => x.Any(char.IsDigit)).WithMessage("Username must contain a digit.")
         .Must(x => x.Any(char.IsLetter)).WithMessage("Username must contain a letter.")
-        .Matches(@"[\w!?@#]*");
+        .Matches(@"^[\w!?@#]*$");
     
     public static IRuleBuilderOptions<T, string?> Email<T>(this IRuleBuilder<T, string?> ruleBuilder) => ruleBuilder
         .NotEmpty()
