@@ -1,6 +1,5 @@
 using CrowdParlay.Communication;
 using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
@@ -8,6 +7,7 @@ using Dodo.Primitives;
 using FluentValidation;
 using MassTransit;
 using Mediator;
+using ValidationException = CrowdParlay.Users.Application.Exceptions.ValidationException;
 
 namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
@@ -16,16 +16,16 @@ public static class Register
     public sealed record Command : IRequest<Response>
     {
         public string Username { get; }
-        public string DisplayName { get; }
         public string Email { get; }
+        public string DisplayName { get; }
         public string Password { get; }
         public string? AvatarUrl { get; }
 
-        public Command(string username, string displayName, string email, string password, string? avatarUrl)
+        public Command(string username, string email, string displayName, string password, string? avatarUrl)
         {
             Username = username;
+            Email = email.Trim();
             DisplayName = displayName.Trim();
-            Email = email;
             Password = password;
             AvatarUrl = avatarUrl;
         }
@@ -36,9 +36,9 @@ public static class Register
         public Validator()
         {
             RuleFor(x => x.Username).Username();
+            RuleFor(x => x.Email).Email();
             RuleFor(x => x.DisplayName).DisplayName();
             RuleFor(x => x.Password).Password();
-            RuleFor(x => x.Email).Email();
         }
     }
 
@@ -67,8 +67,8 @@ public static class Register
             {
                 Id = Uuid.NewTimeBased(),
                 Username = request.Username,
-                DisplayName = request.DisplayName,
                 Email = request.Email,
+                DisplayName = request.DisplayName,
                 AvatarUrl = request.AvatarUrl,
                 PasswordHash = _passwordService.HashPassword(request.Password),
                 CreatedAt = DateTimeOffset.UtcNow
@@ -79,14 +79,14 @@ public static class Register
             var @event = new UserCreatedEvent(user.Id.ToString(), user.Username, user.DisplayName, user.AvatarUrl);
             await _broker.Publish(@event, cancellationToken);
 
-            return new Response(user.Id, user.Username, user.DisplayName, user.Email, user.AvatarUrl);
+            return new Response(user.Id, user.Username, user.Email, user.DisplayName, user.AvatarUrl);
         }
     }
 
     public sealed record Response(
         Uuid Id,
         string Username,
-        string DisplayName,
         string Email,
+        string DisplayName,
         string? AvatarUrl);
 }

@@ -21,9 +21,8 @@ internal class UsersRepository : IUsersRepository
             $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
     }
-    
-    public async Task<User?> GetByUsernameAsync(string username,
-        CancellationToken cancellationToken = default)
+
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -43,7 +42,7 @@ internal class UsersRepository : IUsersRepository
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(sql:
-             $"""
+            $"""
              SELECT * FROM {UserSchema.Table}
              WHERE {UserSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
              OR {UserSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
@@ -64,25 +63,25 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             $"""
-            INSERT INTO {UserSchema.Table} (
-                {UserSchema.Id},
-                {UserSchema.Username},
-                {UserSchema.DisplayName},
-                {UserSchema.Email},
-                {UserSchema.AvatarUrl},
-                {UserSchema.PasswordHash},
-                {UserSchema.CreatedAt}
-            )
-            VALUES (
-                @{nameof(User.Id)},
-                @{nameof(User.Username)},
-                @{nameof(User.DisplayName)},
-                @{nameof(User.Email)},
-                @{nameof(User.AvatarUrl)},
-                @{nameof(User.PasswordHash)},
-                @{nameof(User.CreatedAt)}
-            )
-            """,
+             INSERT INTO {UserSchema.Table} (
+                 {UserSchema.Id},
+                 {UserSchema.Username},
+                 {UserSchema.Email},
+                 {UserSchema.DisplayName},
+                 {UserSchema.AvatarUrl},
+                 {UserSchema.PasswordHash},
+                 {UserSchema.CreatedAt}
+             )
+             VALUES (
+                 @{nameof(User.Id)},
+                 @{nameof(User.Username)},
+                 @{nameof(User.Email)},
+                 @{nameof(User.DisplayName)},
+                 @{nameof(User.AvatarUrl)},
+                 @{nameof(User.PasswordHash)},
+                 @{nameof(User.CreatedAt)}
+             )
+             """,
             entity);
     }
 
@@ -91,16 +90,16 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             $"""
-            UPDATE {UserSchema.Table} SET
-            {UserSchema.Id} = @{nameof(User.Id)},
-            {UserSchema.Username} = @{nameof(User.Username)},
-            {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
-            {UserSchema.Email} = @{nameof(User.Email)},
-            {UserSchema.AvatarUrl} = @{nameof(User.AvatarUrl)},
-            {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
-            {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)}
-            WHERE {UserSchema.Id} = @{nameof(entity.Id)}
-            """,
+             UPDATE {UserSchema.Table} SET
+             {UserSchema.Id} = @{nameof(User.Id)},
+             {UserSchema.Username} = @{nameof(User.Username)},
+             {UserSchema.Email} = @{nameof(User.Email)},
+             {UserSchema.DisplayName} = @{nameof(User.DisplayName)},
+             {UserSchema.AvatarUrl} = @{nameof(User.AvatarUrl)},
+             {UserSchema.PasswordHash} = @{nameof(User.PasswordHash)},
+             {UserSchema.CreatedAt} = @{nameof(User.CreatedAt)}
+             WHERE {UserSchema.Id} = @{nameof(entity.Id)}
+             """,
             entity);
     }
 
@@ -111,7 +110,7 @@ internal class UsersRepository : IUsersRepository
         var count = await connection.ExecuteAsync(
             $"DELETE FROM {UserSchema.Table} WHERE {UserSchema.Id} = @{nameof(id)}",
             new { id });
-        
+
         if (count == 0)
             throw new NotFoundException();
     }
