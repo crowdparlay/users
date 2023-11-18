@@ -22,7 +22,6 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Conflict)]
     public async Task<Register.Response> Register([FromBody] UsersRegisterRequest request)
     {
         if (HttpContext.User.Identity?.IsAuthenticated == true)
