@@ -7,7 +7,7 @@ public class AddEmailNormalized_202310110001 : Migration
 {
     public override void Up()
     {
-        Create.Column("email_normalized").OnTable("users").AsString(25);
+        Create.Column("email_normalized").OnTable("users").AsString(50).NotNullable();
         Create.Index("users_email_normalized_idx").OnTable("users").OnColumn("email_normalized").Unique();
         
         Execute.EmbeddedScript("CrowdParlay.Users.Infrastructure.Persistence.Scripts.NormalizeEmailFunction.sql");
