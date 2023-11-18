@@ -57,9 +57,11 @@ public static class Register
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            var sameExists = await _users.GetByUsernameAsync(request.Username, cancellationToken) is not null;
-            if (sameExists)
-                throw new AlreadyExistsException("User with the specified username already exists.");
+            if (await _users.GetByUsernameAsync(request.Username, cancellationToken) is not null)
+                throw new ValidationException(nameof(request.Username), "This username is already taken.");
+
+            if (await _users.GetByEmailAsync(request.Email, cancellationToken) is not null)
+                throw new ValidationException(nameof(request.Email), "This email is already taken.");
 
             var user = new User
             {
