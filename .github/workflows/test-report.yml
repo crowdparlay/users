@@ -1,7 +1,7 @@
 name: Test Report
 on:
   workflow_run:
-    workflows: [ .NET ]
+    workflows: [.NET]
     types:
       - completed
 permissions:
