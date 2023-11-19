@@ -36,7 +36,8 @@
     </ItemGroup>
 
     <Target Name="OpenApiSpecificationTarget" AfterTargets="Build" Condition="$(Configuration)=='Debug'">
-        <Exec Command="scripts\swagger_spec.bat $(ProjectDir)$(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(SolutionDir)"/>
+        <Exec Command="dotnet tool restore" WorkingDirectory="$(SolutionDir)"/>
+        <Exec Command="dotnet swagger tofile --output spec\swagger\v1\swagger.yaml --yaml $(ProjectDir)$(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(SolutionDir)"/>
     </Target>
 
 </Project>

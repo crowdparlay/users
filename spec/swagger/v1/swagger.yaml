@@ -383,9 +383,9 @@ components:
           format: uuid
         username:
           type: string
-        display_name:
-          type: string
         email:
+          type: string
+        display_name:
           type: string
         avatar_url:
           type: string
