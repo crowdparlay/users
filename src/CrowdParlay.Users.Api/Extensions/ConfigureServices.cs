@@ -1,8 +1,7 @@
-using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Api.Filters;
-using CrowdParlay.Users.Api.Routing;
+using CrowdParlay.Communication;
+using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Services;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using MassTransit;
 using Serilog;
 
 namespace CrowdParlay.Users.Api.Extensions;
@@ -12,29 +11,26 @@ public static class ConfigureServices
     public static IServiceCollection ConfigureApiServices(
         this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
-        services
-            .ConfigureAuthentication()
-            .ConfigureOpenIddict(configuration, environment)
-            .ConfigureSwagger(configuration);
-
-        services
-            .AddEndpointsApiExplorer()
-            .AddHealthChecks();
-
-        // Logging (Serilog)
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .Enrich.With<ActivityLoggingEnricher>()
             .CreateLogger();
 
-        // Controllers, naming conventions and request filtering
-        services.AddControllers(options =>
-        {
-            var transformer = new KebabCaseParameterPolicy();
-            options.Conventions.Add(new RouteTokenTransformerConvention(transformer));
-            options.Filters.Add<ApiExceptionFilterAttribute>();
-        });
+        services
+            .ConfigureEndpoints()
+            .ConfigureOpenIddict(configuration, environment)
+            .ConfigureCors(configuration)
+            .AddSingleton<ExceptionHandlingMiddleware>();
 
-        return services;
+        return services.AddMassTransit(bus => bus.UsingRabbitMq((context, configurator) =>
+        {
+            var amqpServerUrl =
+                configuration["RABBITMQ_AMQP_SERVER_URL"]
+                ?? throw new InvalidOperationException("Missing required configuration 'RABBITMQ_AMQP_SERVER_URL'.");
+
+            configurator.Host(amqpServerUrl);
+            configurator.ConfigureEndpoints(context);
+            configurator.ConfigureTopology();
+        }));
     }
 }

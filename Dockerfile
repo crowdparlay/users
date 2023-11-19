@@ -1,6 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /app
-EXPOSE 8080
 
 COPY /src .
 RUN dotnet restore "CrowdParlay.Users.Api/CrowdParlay.Users.Api.csproj"

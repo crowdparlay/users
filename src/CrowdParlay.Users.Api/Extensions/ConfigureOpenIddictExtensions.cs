@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
-using DbContext = CrowdParlay.Users.Infrastructure.Persistence.DbContext;
+using CrowdParlay.Users.Infrastructure.Persistence;
+using OpenIddict.Validation.AspNetCore;
 
 namespace CrowdParlay.Users.Api.Extensions;
 
@@ -12,7 +13,7 @@ public static class ConfigureOpenIddictExtensions
 
         builder.AddCore(options => options
             .UseEntityFrameworkCore()
-            .UseDbContext<DbContext>());
+            .UseDbContext<OpenIddictDbContext>());
 
         builder.AddServer(options =>
         {
@@ -45,7 +46,7 @@ public static class ConfigureOpenIddictExtensions
 
                 var encryptionCertificate = X509Certificate2.CreateFromPemFile(encryptionCertificatePath);
                 var signingCertificate = X509Certificate2.CreateFromPemFile(signingCertificatePath);
-                
+
                 options
                     .AddEncryptionCertificate(encryptionCertificate)
                     .AddSigningCertificate(signingCertificate);
@@ -61,7 +62,15 @@ public static class ConfigureOpenIddictExtensions
         {
             options.UseLocalServer();
             options.UseAspNetCore();
+            options.Configure(x =>
+            {
+                x.TokenValidationParameters.ValidateIssuer = false;
+                x.TokenValidationParameters.ValidateAudience = false;
+                x.TokenValidationParameters.ValidateLifetime = false;
+            });
         });
+
+        services.AddAuthentication(options => options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
         return services;
     }

@@ -1,56 +1,41 @@
 using System.Security.Claims;
-using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Exceptions;
-using FluentValidation;
+using CrowdParlay.Users.Domain.Abstractions;
+using Dodo.Primitives;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
-using IAuthenticationService = CrowdParlay.Users.Application.Abstractions.IAuthenticationService;
 
 namespace CrowdParlay.Users.Application.Features.Authentication.Commands;
 
 public static class ExchangeRefreshToken
 {
-    public sealed record Command(string Username, string Scope, HttpContext Context) : IRequest<Response>;
-
-    public sealed class Validator : AbstractValidator<Command>
-    {
-        public Validator() => RuleFor(x => x.Username).NotEmpty();
-    }
+    public sealed record Command(Uuid UserId, string? Scope) : IRequest<Response>;
 
     public sealed class Handler : IRequestHandler<Command, Response>
     {
-        private readonly IUserService _users;
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IUsersRepository _users;
 
-        public Handler(IUserService users, IAuthenticationService authenticationService)
-        {
-            _users = users;
-            _authenticationService = authenticationService;
-        }
+        public Handler(IUsersRepository users) => _users = users;
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
             var user =
-                await _users.FindByUsernameAsync(request.Username)
+                await _users.GetByIdAsync(request.UserId, cancellationToken)
                 ?? throw new NotFoundException("The user does not exist.");
 
-            if (!await _authenticationService.CanSignInAsync(user))
-                throw new ForbiddenException("The user is no longer allowed to sign in.");
-
-            var authenticateResult = await request.Context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
             var identity = new ClaimsIdentity(
-                claims: authenticateResult.Principal!.Claims,
                 authenticationType: TokenValidationParameters.DefaultAuthenticationType,
                 nameType: OpenIddictConstants.Claims.Name,
                 roleType: OpenIddictConstants.Claims.Role);
 
-            identity.SetScopes(OpenIddictConstants.Claims.Scope, request.Scope);
-            await identity.InjectClaimsAsync(user, _users);
+            if (request.Scope is not null)
+                identity.SetScopes(OpenIddictConstants.Claims.Scope, request.Scope);
+
+            identity.InjectClaims(user, _users);
 
             var ticket = new AuthenticationTicket(
                 new ClaimsPrincipal(identity),
