@@ -16,6 +16,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Install plugins
+         npm install @semantic-release/changelog @semantic-release/git -D
       - name: Release
         uses: cycjimmy/semantic-release-action@v3.1.1
         with:
@@ -23,6 +25,6 @@ jobs:
             @semantic-release/changelog
             @semantic-release/git
             conventional-changelog-conventionalcommits
-            semantic-release-dotnet
+            semantic-release-docker
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
