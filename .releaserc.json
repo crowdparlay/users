@@ -1,0 +1,19 @@
+{
+  "branches": ["master"],
+  "plugins": [
+    "@semantic-release/changelog",
+    "@semantic-release/git",
+    [
+      "semantic-release-docker",
+      {
+        "name": "crowdparlay/users"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": ["spec/swagger/**"]
+      }
+    ]
+  ]
+}
