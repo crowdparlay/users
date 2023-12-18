@@ -2,7 +2,7 @@ name: Docker Build & Push
 
 on:
   workflow_run:
-    workflows: [ "Semantic Release Workflow" ]
+    workflows: [ "Semantic Release" ]
     types: [ completed ]
 
 env:
