@@ -9,7 +9,7 @@ internal static class ActivityExtensions
         ActivityIdFormat.Hierarchical => activity.Id,
         ActivityIdFormat.W3C => activity.SpanId.ToHexString(),
         _ => null
-    };
+    };;;;;;;;;
 
     public static string? GetTraceId(this Activity activity) => activity.IdFormat switch
     {
