@@ -15,6 +15,10 @@
       "semantic-release-telegram-bot",
       {
         "packageName": "crowdparlay/users",
+        "success":
+        {
+          "message": "**${packageName} v${nextRelease.version}** has been released!"
+        },
         "notifications": [
           {
             "chatIds": "-1001956726685",
