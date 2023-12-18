@@ -1,0 +1,27 @@
+{
+  "branches": ["master"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    "@semantic-release/git",
+    [
+      "@semantic-release/github",
+      {
+        "assets": ["spec/swagger/**"]
+      }
+    ],
+    [
+      "semantic-release-telegram-bot",
+      {
+        "packageName": "crowdparlay/users",
+        "notifications": [
+          {
+            "chatIds": "-1001956726685",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  ]
+}
