@@ -1,5 +1,7 @@
 {
-  "branches": ["master"],
+  "branches": [
+    "master"
+  ],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
@@ -8,16 +10,26 @@
     [
       "@semantic-release/github",
       {
-        "assets": ["spec/swagger/**"]
+        "assets": [
+          "spec/swagger/**"
+        ],
+        "failTitle": false,
+        "successComment": false
       }
     ],
     [
       "semantic-release-telegram-bot",
       {
         "packageName": "crowdparlay/users",
+        "success": {
+          "message": "**${packageName} v${nextRelease.version}** has been released!"
+        },
         "notifications": [
           {
-            "chatIds": "-1001956726685",
+            "chatIds": [
+              "-1001956726685",
+              "-1001637403101"
+            ],
             "branch": "master"
           }
         ]

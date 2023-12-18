@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ 'master' ]
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔽 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: 🎉 Release
+        id: semantic-release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          extra_plugins: |
+            semantic-release-telegram-bot
+        env:
+          GITHUB_TOKEN: ${{ secrets.AUTOMATION_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          GIT_AUTHOR_NAME: Crowd Parlay Automation
+          GIT_AUTHOR_EMAIL: 154692756+crowdparlay-bot@users.noreply.github.com
+          GIT_COMMITTER_NAME: Crowd Parlay Automation
+          GIT_COMMITTER_EMAIL: 154692756+crowdparlay-bot@users.noreply.github.com
+    outputs:
+      semver: ${{ steps.semantic-release.outputs.new_release_version }}
+  deliver:
+    name: Deliver
+    uses: ./.github/workflows/delivery.yml
+    needs: release
+    with:
+      semver: ${{ needs.release.outputs.semver  }}
+    secrets: inherit
+  deploy:
+    name: Deploy
+    uses: ./.github/workflows/deployment.yml
+    needs: deliver
+    secrets: inherit
