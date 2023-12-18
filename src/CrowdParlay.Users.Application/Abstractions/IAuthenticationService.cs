@@ -4,5 +4,5 @@ namespace CrowdParlay.Users.Application.Abstractions;
 
 public interface IAuthenticationService
 {
-    public bool Authenticate(User user, string password);
+    public bool Authenticate(User user, string password);;;;;;
 }
