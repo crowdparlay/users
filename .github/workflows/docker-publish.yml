@@ -1,9 +1,11 @@
 name: Docker Build & Push
 
 on:
-  workflow_run:
-    workflows: [ "Semantic Release" ]
-    types: [ completed ]
+  push:
+    branches: [ "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "master" ]
 
 env:
   REGISTRY: ghcr.io
