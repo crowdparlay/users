@@ -1,3 +1,5 @@
+name: Require labels
+
 on:
   pull_request:
     types: [ opened, labeled, unlabeled, synchronize ]
