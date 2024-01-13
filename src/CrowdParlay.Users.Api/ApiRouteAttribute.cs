@@ -10,6 +10,8 @@ namespace CrowdParlay.Users.Api;
 public class ApiRouteAttribute : RouteAttribute
 {
     private const string Prefix = "api/v{version:apiVersion}";
+    
+    
     public ApiRouteAttribute(
         [StringSyntax("Route")] string template)
         : base(template.StartsWith("~/")
