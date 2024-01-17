@@ -1,0 +1,30 @@
+name: Notify
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+env:
+  NOTIFICATION_TEXT: |
+    *[${{ github.repository }} ${{ inputs.version }}](https://github.com/${{ github.repository }}/releases/tag/${{ inputs.version }})* has been released!
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🌍 Send Telegram message to work chat
+        uses: appleboy/telegram-action@master
+        with:
+          to: -1001956726685
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: $NOTIFICATION_TEXT
+      - name: 🌎 Send Telegram message to public chat
+        uses: appleboy/telegram-action@master
+        with:
+          to: -1001637403101
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: $NOTIFICATION_TEXT

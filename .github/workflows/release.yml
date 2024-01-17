@@ -19,13 +19,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
-      semver: ${{ steps.semver-tag.outputs.tag }}
+      tag: ${{ steps.semver-tag.outputs.tag }}
+  notify:
+    name: Notify
+    uses: ./.github/workflows/notification.yml
+    needs: version
+    with:
+      version: ${{ needs.version.outputs.tag  }}
+    secrets: inherit
   deliver:
     name: Deliver
     uses: ./.github/workflows/delivery.yml
     needs: version
     with:
-      version: ${{ needs.version.outputs.semver  }}
+      version: ${{ needs.version.outputs.tag  }}
     secrets: inherit
   deploy:
     name: Deploy
