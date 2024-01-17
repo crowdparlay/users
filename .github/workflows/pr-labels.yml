@@ -2,7 +2,7 @@ name: Require SemVer label
 
 on:
   pull_request:
-    types: [ opened, labeled, unlabeled, synchronize ]
+    types: [ labeled, unlabeled, synchronize ]
     branches: [ master ]
 
 jobs:

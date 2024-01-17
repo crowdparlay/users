@@ -8,8 +8,10 @@ on:
         type: string
 
 env:
-  NOTIFICATION_TEXT: |
-    *[${{ github.repository }} ${{ inputs.version }}](https://github.com/${{ github.repository }}/releases/tag/${{ inputs.version }})* has been released!
+  NOTIFICATION_TEXT: >
+    **[${{ github.repository }} ${{ inputs.version }}]
+    (https://github.com/${{ github.repository }}/releases/tag/${{ inputs.version }})**
+    has been released!
 
 jobs:
   build:
