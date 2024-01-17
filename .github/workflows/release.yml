@@ -20,17 +20,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       tag: ${{ steps.semver-tag.outputs.tag }}
-  notify:
-    name: Notify
-    uses: ./.github/workflows/notification.yml
-    needs: version
-    with:
-      version: ${{ needs.version.outputs.tag  }}
-    secrets: inherit
   deliver:
     name: Deliver
     uses: ./.github/workflows/delivery.yml
     needs: version
+    with:
+      version: ${{ needs.version.outputs.tag  }}
+    secrets: inherit
+  notify:
+    name: Notify
+    uses: ./.github/workflows/notification.yml
+    needs: [ version, deliver ]
     with:
       version: ${{ needs.version.outputs.tag  }}
     secrets: inherit
