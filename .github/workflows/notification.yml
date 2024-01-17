@@ -21,10 +21,10 @@ jobs:
         with:
           to: -1001956726685
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: $NOTIFICATION_TEXT
+          message: ${{ env.NOTIFICATION_TEXT }}
       - name: 🌎 Send Telegram message to public chat
         uses: appleboy/telegram-action@master
         with:
           to: -1001637403101
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          token: ${{ env.NOTIFICATION_TEXT }}
           message: $NOTIFICATION_TEXT
