@@ -26,6 +26,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: ${{ env.NOTIFICATION_TEXT }}
           format: html
+          disable_web_page_preview: true
       - name: 🌎 Send Telegram message to public chat
         uses: appleboy/telegram-action@master
         with:
@@ -33,3 +34,4 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: ${{ env.NOTIFICATION_TEXT }}
           format: html
+          disable_web_page_preview: true
