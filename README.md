@@ -16,3 +16,4 @@
 1. `docker network create users-network`
 1. `docker compose up`
 1. The service is now available at `0.0.0.0:8080`
+
