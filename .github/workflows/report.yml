@@ -1,10 +1,7 @@
-name: Test Report
+name: Report
 
 on:
-  workflow_run:
-    workflows: [ '.NET' ]
-    types:
-      - completed
+  workflow_call:
 
 permissions:
   contents: read
@@ -16,7 +13,13 @@ jobs:
     name: Publish test report
     runs-on: ubuntu-latest
     steps:
-      - uses: dorny/test-reporter@v1
+      - name: ⬇️ Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: test-results
+          path: 'tests/**/*.trx'
+      - name: 📊 Generate report
+        uses: dorny/test-reporter@v1
         with:
           name: .NET test results
           artifact: test-results
