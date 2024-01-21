@@ -16,10 +16,32 @@ jobs:
         uses: K-Phoen/semver-release-action@v1.3.2
         with:
           release_branch: master
+          release_strategy: tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.github_token }}
     outputs:
       tag: ${{ steps.semver-tag.outputs.tag }}
+  release:
+    name: Publish GitHub release
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📝 Create changelog
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.github_token }}
+          output-file: false
+          skip-tag: true
+      - name: 🎁 Publish GitHub release
+        uses: actions/create-release@v1
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          release_name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
   deliver:
     name: Deliver
     uses: ./.github/workflows/delivery.yml
