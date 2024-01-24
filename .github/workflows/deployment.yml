@@ -2,11 +2,19 @@ name: Deploy
 
 on:
   workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version of the release to be deployed (for example, "v1.0.0" or "latest")
+        type: string
 
 jobs:
   rollout:
-    name: Rollout to Kubernetes
+    name: Roll out to Kubernetes
     runs-on: ubuntu-latest
     steps:
       - name: 🚀 Rollout restart
@@ -14,4 +22,4 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
-          args: rollout restart -n crowdparlay deployment/users
+          args: set image -n crowdparlay deployments/users users=ghcr.io/crowdparlay/users:${{ inputs.version }}
