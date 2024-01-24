@@ -1,6 +1,11 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag (version) to be associated with the ongoing release (for example, "v1.0.0")
+        type: string
   pull_request:
     types: [ closed ]
     branches: [ master ]
@@ -9,18 +14,28 @@ jobs:
   version:
     name: Increment version
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged
     steps:
-      - name: 🏷️ Push next SemVer tag
-        id: semver-tag
+      - name: 🦾 Predict next SemVer tag based on PR label
+        id: predicted-tag
+        if: github.event.pull_request.merged
         uses: K-Phoen/semver-release-action@v1.3.2
         with:
           release_branch: master
           release_strategy: none
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
+      - name: 💪 Use input tag if triggered manually
+        id: final-tag
+        if: success() || failure()
+        run: |
+          if [[ ${{ github.event_name == 'workflow_dispatch' }} == true ]]; then
+            tag=${{ inputs.tag }}
+          else
+            tag=${{ steps.predicted-tag.outputs.tag }}
+          fi
+          echo "tag=$tag" >> $GITHUB_OUTPUT
     outputs:
-      tag: ${{ steps.semver-tag.outputs.tag }}
+      tag: ${{ steps.final-tag.outputs.tag }}
   release:
     name: Publish GitHub release
     needs: version
