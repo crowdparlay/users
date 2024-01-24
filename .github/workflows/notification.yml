@@ -15,8 +15,8 @@ env:
     </a> has been released!"
 
 jobs:
-  private:
-    name: Send Telegram messages
+  telegram:
+    name: Send Telegram notifications
     runs-on: ubuntu-latest
     steps:
       - name: 🌍 Send Telegram message to work chat
