@@ -4,15 +4,14 @@ on:
   workflow_dispatch:
   push:
 
-permissions:
-  contents: read
-  actions: read
-  checks: write
-
 jobs:
   test:
     name: Build & test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      checks: write
     steps:
       - name: 🔽 Checkout repository
         uses: actions/checkout@v3
