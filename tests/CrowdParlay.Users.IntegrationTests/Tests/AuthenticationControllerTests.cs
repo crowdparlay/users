@@ -16,10 +16,10 @@ public class AuthenticationControllerTests : IClassFixture<WebApplicationContext
     [Fact(DisplayName = "Exchange password with email returns token")]
     public async Task Exchange_Password_Positive()
     {
-        var registerRequest = new Register.Command("krowlia", "aylbaylbaylb", "dadada@tt.tt", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("krowlia", "aylbaylb43@aylb.cdf", "Display name", "qwerty123!", "https://example.com/avatar.jpg");
         await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
-    
-        var accessToken = await _client.AcquireAccessToken(registerRequest.Email, registerRequest.Password);
-        accessToken.Should().NotBeNull();
+
+        Func<Task> acquireAccessToken = async () => await _client.AcquireAccessToken(registerRequest.Email, registerRequest.Password);
+        await acquireAccessToken.Should().NotThrowAsync();
     }
 }
