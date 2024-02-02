@@ -57,10 +57,10 @@ public static class Register
 
         public async ValueTask<Response> Handle(Command request, CancellationToken cancellationToken)
         {
-            if (await _users.GetByUsernameAsync(request.Username, cancellationToken) is not null)
+            if (await _users.GetByUsernameNormalizedAsync(request.Username, cancellationToken) is not null)
                 throw new ValidationException(nameof(request.Username), "This username is already taken.");
 
-            if (await _users.GetByEmailAsync(request.Email, cancellationToken) is not null)
+            if (await _users.GetByEmailNormalizedAsync(request.Email, cancellationToken) is not null)
                 throw new ValidationException(nameof(request.Email), "This email is already taken.");
 
             var user = new User
