@@ -25,18 +25,47 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         _harness = context.Harness;
     }
 
+    [Theory(DisplayName = "Register users")]
+    [InlineData("", HttpStatusCode.BadRequest)]
+    [InlineData("A", HttpStatusCode.BadRequest)]
+    [InlineData("Abc", HttpStatusCode.BadRequest)]
+    [InlineData("Abcde", HttpStatusCode.OK)]
+    [InlineData("Abcdefg", HttpStatusCode.OK)]
+    [InlineData("/", HttpStatusCode.BadRequest)]
+    [InlineData("a/bcdef", HttpStatusCode.BadRequest)]
+    [InlineData("a.bcdef", HttpStatusCode.BadRequest)]
+    [InlineData("______", HttpStatusCode.BadRequest)]
+    [InlineData("123456", HttpStatusCode.BadRequest)]
+    [InlineData("123___", HttpStatusCode.BadRequest)]
+    [InlineData("a_b_c_d_e", HttpStatusCode.OK)]
+    [InlineData("xxxxxx", HttpStatusCode.OK)]
+    [InlineData("a4a4a4", HttpStatusCode.OK)]
+    [InlineData("кириллица", HttpStatusCode.BadRequest)]
+    public async Task RegisterUsernames_Positive(string username, HttpStatusCode expectedStatusCode)
+    {
+        var request = new Register.Command(
+            username: username,
+            displayName: "Display name",
+            email: Guid.NewGuid().ToString("N") + "@example.com",
+            password: "qwerty123!",
+            avatarUrl: null);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/users/register", request, GlobalSerializerOptions.SnakeCase);
+        response.Should().HaveStatusCode(expectedStatusCode);
+    }
+
     [Fact(DisplayName = "Register user returns new user and publishes event")]
     public async Task Register_Positive()
     {
-        var registerRequest = new Register.Command("undrcrxwnkkkj", "Степной ишак", "nieeee@tt.tt", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undrcrxwnkkkj", "nieeee@tt.tt", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
         registerResponse.Should().Be(new Register.Response(
             registerResponse!.Id,
             registerRequest.Username,
-            registerRequest.DisplayName,
             registerRequest.Email,
+            registerRequest.DisplayName,
             registerRequest.AvatarUrl));
 
         var userCreatedEvent = await _harness.Published.LastOrDefaultAsync<UserCreatedEvent>();
@@ -50,13 +79,14 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     [Fact(DisplayName = "Register users with look-alike usernames returns failure", Timeout = 5000)]
     public async Task Register_Negative()
     {
-        var registerRequest = new Register.Command("username", "display name 1", "uraaa@goto.wy", "password1", "https://example.com/avatar1.jpg");
+        var registerRequest = new Register.Command("username", "uraaa@goto.wy", "display name 1", "password1", "https://example.com/avatar1.jpg");
         await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
 
-        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "display name 2", "meily@tup.ye", "password2", "https://example.com/avatar2.jpg");
+        var registerRequestDuplicate =
+            new Register.Command("us55e3rn44me3333e", "meily@tup.ye", "display name 2", "password2!", "https://example.com/avatar2.jpg");
         var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, GlobalSerializerOptions.SnakeCase);
 
-        duplicateMessage.Should().HaveStatusCode(HttpStatusCode.Conflict);
+        duplicateMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact(DisplayName = "Register user with invalid username returns validation failures", Timeout = 5000)]
@@ -67,14 +97,14 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
         registerMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
 
         var validationProblem = await registerMessage.Content.ReadFromJsonAsync<ValidationProblem>(GlobalSerializerOptions.SnakeCase);
-        validationProblem!.ValidationErrors.Should().ContainKey("username").WhoseValue.Should().HaveCount(2);
+        validationProblem!.ValidationErrors.Should().ContainKey("username").WhoseValue.Should().HaveCount(3);
         validationProblem.ValidationErrors.Should().ContainKey("display_name").WhoseValue.Should().ContainSingle();
     }
 
     [Fact(DisplayName = "Get user by ID returns user", Timeout = 5000)]
     public async Task GetById_Positive()
     {
-        var registerRequest = new Register.Command("undrcrxwn", "Степной ишак", "pis@atb.eti", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undrcrxwn", "pis@atb.eti", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -92,7 +122,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     [Fact(DisplayName = "Get user by username returns user", Timeout = 5000)]
     public async Task GetByUsername_Positive()
     {
-        var registerRequest = new Register.Command("compartmental", "Степной ишак", "jaZae@bal.sya", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("compartmental", "jaZae@bal.sya", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -110,7 +140,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     [Fact(DisplayName = "Update user changes user and publishes event", Timeout = 5000)]
     public async Task Update_Positive()
     {
-        var registerRequest = new Register.Command("zanli_0", "Степной ишак", "pesokJ@naja.com", "qwerty123!", avatarUrl: null);
+        var registerRequest = new Register.Command("zanli_0", "pesokJ@naja.com", "Степной ишак", "qwerty123!", avatarUrl: null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -163,7 +193,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationContext>
     [Fact(DisplayName = "Update user password changes user's password and publishes event", Timeout = 5000)]
     public async Task UpdatePassword_Positive()
     {
-        var registerRequest = new Register.Command("zen_mode", "Степной ишак", "uzumuka@gmail.cum", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("zen_mode", "uzumuka@gmail.com", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 

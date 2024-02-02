@@ -22,7 +22,15 @@ internal class UsersRepository : IUsersRepository
             new { id });
     }
 
-    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByUsernameExactAsync(string username, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<User>(
+            $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Username} = @{nameof(username)}",
+            new { username });
+    }
+    
+    public async Task<User?> GetByUsernameNormalizedAsync(string username, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -30,7 +38,7 @@ internal class UsersRepository : IUsersRepository
             new { username });
     }
 
-    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByEmailNormalizedAsync(string email, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -38,7 +46,7 @@ internal class UsersRepository : IUsersRepository
             new { email });
     }
 
-    public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByUsernameOrEmailNormalizedAsync(string usernameOrEmail, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(sql:
