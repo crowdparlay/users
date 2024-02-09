@@ -3,7 +3,6 @@ using CrowdParlay.Users.Api.Extensions;
 using Dodo.Primitives;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -36,7 +35,6 @@ public class SwaggerWebHostFactory
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlDocsFileName));
 
                 options.SupportNonNullableReferenceTypes();
-
                 options.MapType<Uuid>(() => new OpenApiSchema
                 {
                     Type = "string",
@@ -56,26 +54,6 @@ public class SwaggerWebHostFactory
 
                     return string.Join(string.Empty, lastNames);
                 });
-
-                options.AddSecurityDefinition(
-                    OpenIdConnectSecuritySchemeName,
-                    new OpenApiSecurityScheme
-                    {
-                        Type = SecuritySchemeType.OpenIdConnect,
-                        Description = "OpenID Connect authentication scheme.",
-                        In = ParameterLocation.Header,
-                        Name = HeaderNames.Authorization,
-                        OpenIdConnectUrl = new Uri("/.well-known/openid-configuration", UriKind.Relative),
-                        Flows = new OpenApiOAuthFlows
-                        {
-                            Password = new OpenApiOAuthFlow
-                            {
-                                AuthorizationUrl = new Uri("/connect/token", UriKind.Relative),
-                                TokenUrl = new Uri("/connect/token", UriKind.Relative)
-                            }
-                        }
-                    }
-                );
             });
         })
         .Build();
