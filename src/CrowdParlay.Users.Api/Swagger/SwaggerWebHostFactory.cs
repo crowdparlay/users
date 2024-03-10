@@ -10,8 +10,6 @@ namespace CrowdParlay.Users.Api.Swagger;
 
 public class SwaggerWebHostFactory
 {
-    private const string OpenIdConnectSecuritySchemeName = "OIDC";
-
     ///<summary>
     /// Ignored parts of namespaces, generally CQRS-conventional names,
     /// such as 'Queries' and 'Commands'. These are skipped when generating
@@ -49,7 +47,7 @@ public class SwaggerWebHostFactory
                     // Generates unique and user-friendly names for CQRS entities.
                     // For example, 'Features.Accounts.Commands.Create.Command' gets turned into 'AccountsCreateCommand'.
                     var lastNames = type.FullName!.Split('.', '+')
-                        .Where(identifier => !IgnoredNamespaceIdentifiers.Contains(identifier))
+                        .Except(IgnoredNamespaceIdentifiers)
                         .TakeLast(3);
 
                     return string.Join(string.Empty, lastNames);
