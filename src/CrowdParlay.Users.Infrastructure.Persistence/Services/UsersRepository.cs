@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
@@ -14,6 +15,18 @@ internal class UsersRepository : IUsersRepository
     public UsersRepository(IDbConnectionFactory connectionFactory) =>
         _connectionFactory = connectionFactory;
 
+    public async IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var reader = await connection.ExecuteReaderAsync(
+            $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Id} = ANY(@{nameof(ids)})",
+            new { ids });
+
+        var parser = reader.GetRowParser<User>();
+        while (await reader.ReadAsync(cancellationToken))
+            yield return parser(reader);
+    }
+
     public async Task<User?> GetByIdAsync(Uuid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
@@ -29,7 +42,7 @@ internal class UsersRepository : IUsersRepository
             $"SELECT * FROM {UserSchema.Table} WHERE {UserSchema.Username} = @{nameof(username)}",
             new { username });
     }
-    
+
     public async Task<User?> GetByUsernameNormalizedAsync(string username, CancellationToken cancellationToken = default)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);

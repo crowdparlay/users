@@ -5,6 +5,7 @@ namespace CrowdParlay.Users.Domain.Abstractions;
 
 public interface IUsersRepository : IAsyncGenericRepository<User, Uuid>
 {
+    public IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, CancellationToken cancellationToken = default);
     public Task<User?> GetByUsernameExactAsync(string username, CancellationToken cancellationToken = default);
     public Task<User?> GetByUsernameNormalizedAsync(string username, CancellationToken cancellationToken = default);
     public Task<User?> GetByEmailNormalizedAsync(string email, CancellationToken cancellationToken = default);
