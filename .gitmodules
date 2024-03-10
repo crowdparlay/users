@@ -1,0 +1,3 @@
+[submodule "src/CrowdParlay.Users.Api/Proto"]
+	path = src/CrowdParlay.Users.Api/Proto
+	url = https://github.com/crowdparlay/users-proto.git
