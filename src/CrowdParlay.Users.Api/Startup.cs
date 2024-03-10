@@ -1,5 +1,6 @@
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.Middlewares;
+using CrowdParlay.Users.Api.Services.gRPC;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
 using Serilog;
@@ -27,7 +28,11 @@ public class Startup
         .UseAuthentication()
         .UseRouting()
         .UseAuthorization()
-        .UseEndpoints(builder => builder.MapControllers());
+        .UseEndpoints(builder =>
+        {
+            builder.MapControllers();
+            builder.MapGrpcService<UsersGrpcService>();
+        });
 
     public void ConfigureServices(IServiceCollection services) => services
         .ConfigureApplicationServices()

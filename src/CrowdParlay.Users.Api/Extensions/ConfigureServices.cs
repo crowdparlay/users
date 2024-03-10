@@ -20,7 +20,8 @@ public static class ConfigureServices
             .ConfigureEndpoints()
             .ConfigureOpenIddict(configuration, environment)
             .ConfigureCors(configuration)
-            .AddSingleton<ExceptionHandlingMiddleware>();
+            .AddSingleton<ExceptionHandlingMiddleware>()
+            .AddGrpc();
 
         return services.AddMassTransit(bus => bus.UsingRabbitMq((context, configurator) =>
         {
