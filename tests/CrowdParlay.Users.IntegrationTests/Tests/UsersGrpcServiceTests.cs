@@ -9,15 +9,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-public class UsersGrpcServiceTests : IClassFixture<WebApplicationContext>
+public class UsersGrpcServiceTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly IServiceProvider _services;
     private readonly GrpcChannel _channel;
 
-    public UsersGrpcServiceTests(WebApplicationContext context)
+    public UsersGrpcServiceTests(WebApplicationFixture fixture)
     {
-        _services = context.Services;
-        _channel = context.GrpcChannel;
+        _services = fixture.Services;
+        _channel = fixture.GrpcChannel;
     }
 
     [Fact(DisplayName = "Get user by ID")]

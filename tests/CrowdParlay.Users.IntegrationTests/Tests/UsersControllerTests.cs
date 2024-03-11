@@ -14,15 +14,15 @@ using MassTransit.Testing;
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
 [Collection("CommunicationAffective")]
-public class UsersControllerTests : IClassFixture<WebApplicationContext>
+public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
     private readonly ITestHarness _harness;
 
-    public UsersControllerTests(WebApplicationContext context)
+    public UsersControllerTests(WebApplicationFixture fixture)
     {
-        _client = context.Client;
-        _harness = context.Harness;
+        _client = fixture.Client;
+        _harness = fixture.Harness;
     }
 
     [Theory(DisplayName = "Register users")]

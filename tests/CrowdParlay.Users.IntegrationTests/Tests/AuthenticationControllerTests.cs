@@ -6,12 +6,12 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-public class AuthenticationControllerTests : IClassFixture<WebApplicationContext>
+public class AuthenticationControllerTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
 
-    public AuthenticationControllerTests(WebApplicationContext context) =>
-        _client = context.Client;
+    public AuthenticationControllerTests(WebApplicationFixture fixture) =>
+        _client = fixture.Client;
 
     [Fact(DisplayName = "Exchange password with email returns token")]
     public async Task Exchange_Password_Positive()

@@ -4,11 +4,11 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-public class HealthChecksTests : IClassFixture<WebApplicationContext>
+public class HealthChecksTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
 
-    public HealthChecksTests(WebApplicationContext context) => _client = context.Client;
+    public HealthChecksTests(WebApplicationFixture fixture) => _client = fixture.Client;
 
     [Fact(DisplayName = "Get health returns healthy", Timeout = 5000)]
     public async Task GetHealth_ReturnsHealthy()
