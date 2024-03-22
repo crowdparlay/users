@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Exceptions;
@@ -17,7 +18,8 @@ public class UsersController : ApiControllerBase
     /// <summary>
     /// Creates a user.
     /// </summary>
-    [HttpPost, Route("[action]")]
+    [HttpPost("[action]")]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Register.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
@@ -33,7 +35,8 @@ public class UsersController : ApiControllerBase
     /// <summary>
     /// Returns user with the specified ID.
     /// </summary>
-    [HttpGet, Route("{userId}")]
+    [HttpGet("{userId}")]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
@@ -43,7 +46,8 @@ public class UsersController : ApiControllerBase
     /// <summary>
     /// Returns user with the specified username.
     /// </summary>
-    [HttpGet, Route("[action]")]
+    [HttpGet("[action]")]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(GetByUsername.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
@@ -54,7 +58,8 @@ public class UsersController : ApiControllerBase
     /// <summary>
     /// Updates user with the specified ID.
     /// </summary>
-    [HttpPut, Route("{userId}"), Authorize]
+    [HttpPut("{userId}"), Authorize]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Update.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
@@ -71,7 +76,8 @@ public class UsersController : ApiControllerBase
     /// <summary>
     /// Deletes user with the specified ID.
     /// </summary>
-    [HttpDelete, Route("{userId}"), Authorize]
+    [HttpDelete("{userId}"), Authorize]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Update.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Forbidden)]
