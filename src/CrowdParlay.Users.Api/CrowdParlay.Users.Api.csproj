@@ -27,8 +27,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.9.0"/>
-        <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="4.9.0"/>
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.6.0" />
+        <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="5.6.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="7.0.0"/>
         <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0"/>
         <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.1"/>

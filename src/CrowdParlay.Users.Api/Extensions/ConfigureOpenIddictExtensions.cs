@@ -1,5 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
+using CrowdParlay.Users.Api.Services.OpenIddict;
 using CrowdParlay.Users.Infrastructure.Persistence;
+using OpenIddict.Server;
 using OpenIddict.Validation.AspNetCore;
 
 namespace CrowdParlay.Users.Api.Extensions;
@@ -17,21 +19,27 @@ public static class ConfigureOpenIddictExtensions
 
         builder.AddServer(options =>
         {
-            options
-                .SetTokenEndpointUris("/connect/token")
-                .SetUserinfoEndpointUris("/connect/userinfo");
+            options.SetTokenEndpointUris("/connect/token");
 
             options
                 .AllowPasswordFlow()
                 .AllowRefreshTokenFlow()
                 .AcceptAnonymousClients();
 
+            options.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(handlerDescriptor =>
+                handlerDescriptor.UseScopedHandler<RefreshTokenGrantEventHandler>());
+
+            options.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(handlerDescriptor =>
+                handlerDescriptor.UseScopedHandler<PasswordGrantEventHandler>());
+
+            options.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(handlerDescriptor =>
+                handlerDescriptor.UseScopedHandler<GoogleIdTokenAssertionEventHandler>());
+
             options
                 .SetAccessTokenLifetime(TimeSpan.FromMinutes(30))
                 .SetRefreshTokenLifetime(TimeSpan.FromDays(7));
 
-            options
-                .DisableAccessTokenEncryption();
+            options.DisableAccessTokenEncryption();
 
             if (environment.IsDevelopment())
             {
@@ -54,24 +62,22 @@ public static class ConfigureOpenIddictExtensions
 
             options
                 .UseAspNetCore()
-                .DisableTransportSecurityRequirement()
-                .EnableTokenEndpointPassthrough();
+                .DisableTransportSecurityRequirement();
         });
 
         builder.AddValidation(options =>
         {
             options.UseLocalServer();
             options.UseAspNetCore();
-            options.Configure(x =>
+            options.Configure(validationOptions =>
             {
-                x.TokenValidationParameters.ValidateIssuer = false;
-                x.TokenValidationParameters.ValidateAudience = false;
-                x.TokenValidationParameters.ValidateLifetime = false;
+                validationOptions.TokenValidationParameters.ValidateIssuer = false;
+                validationOptions.TokenValidationParameters.ValidateAudience = false;
+                validationOptions.TokenValidationParameters.ValidateLifetime = false;
             });
         });
 
         services.AddAuthentication(options => options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-
         return services;
     }
 }

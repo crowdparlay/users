@@ -1,6 +1,4 @@
 using System.Reflection;
-using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
@@ -37,7 +35,6 @@ public static class ConfigureServices
                 .UseOpenIddict())
             .AddSingleton<IDbConnectionFactory>(new SqlConnectionFactory(connectionString))
             .AddScoped<IUsersRepository, UsersRepository>()
-            .AddScoped<IAuthenticationService, AuthenticationService>()
             .AddHostedService<DatabaseInitializer>();
     }
 }
