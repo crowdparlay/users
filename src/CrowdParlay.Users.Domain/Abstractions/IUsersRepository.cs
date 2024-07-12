@@ -10,4 +10,5 @@ public interface IUsersRepository : IAsyncGenericRepository<User, Uuid>
     public Task<User?> GetByUsernameNormalizedAsync(string username, CancellationToken cancellationToken = default);
     public Task<User?> GetByEmailNormalizedAsync(string email, CancellationToken cancellationToken = default);
     public Task<User?> GetByUsernameOrEmailNormalizedAsync(string usernameOrEmail, CancellationToken cancellationToken = default);
+    public Task<User?> GetByExternalLoginAsync(string provider, string identity, CancellationToken cancellationToken = default);
 }

@@ -135,4 +135,18 @@ internal class UsersRepository : IUsersRepository
         if (count == 0)
             throw new NotFoundException();
     }
+
+    public async Task<User?> GetByExternalLoginAsync(string providerId, string identity, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<User>(
+            $"""
+             SELECT * FROM {UsersSchema.Table} users
+             JOIN {ExternalLoginProvidersSchema.Table} providers ON providers.{ExternalLoginProvidersSchema.Id} = @{nameof(providerId)}
+             JOIN {ExternalLoginsSchema.Table} logins ON logins.{ExternalLoginsSchema.Identity} = @{nameof(identity)}
+             WHERE users.{UsersSchema.Id} = logins.{ExternalLoginsSchema.Id}
+             LIMIT 1
+             """,
+            new { providerId, identity });
+    }
 }

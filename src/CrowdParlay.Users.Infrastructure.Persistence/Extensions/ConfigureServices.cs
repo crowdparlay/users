@@ -34,7 +34,8 @@ public static class ConfigureServices
                 .UseNpgsql(connectionString)
                 .UseOpenIddict())
             .AddSingleton<IDbConnectionFactory>(new SqlConnectionFactory(connectionString))
+            .AddHostedService<DatabaseInitializer>()
             .AddScoped<IUsersRepository, UsersRepository>()
-            .AddHostedService<DatabaseInitializer>();
+            .AddScoped<IExternalLoginsRepository, ExternalLoginsRepository>();
     }
 }
