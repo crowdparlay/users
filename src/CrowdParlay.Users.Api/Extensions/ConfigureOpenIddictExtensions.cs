@@ -32,9 +32,6 @@ public static class ConfigureOpenIddictExtensions
             options.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(handlerDescriptor =>
                 handlerDescriptor.UseScopedHandler<PasswordGrantEventHandler>());
 
-            options.AddEventHandler<OpenIddictServerEvents.HandleTokenRequestContext>(handlerDescriptor =>
-                handlerDescriptor.UseScopedHandler<GoogleIdTokenAssertionEventHandler>());
-
             options
                 .SetAccessTokenLifetime(TimeSpan.FromMinutes(30))
                 .SetRefreshTokenLifetime(TimeSpan.FromDays(7));
