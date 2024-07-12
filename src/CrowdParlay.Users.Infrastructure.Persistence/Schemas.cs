@@ -1,6 +1,6 @@
 namespace CrowdParlay.Users.Infrastructure.Persistence;
 
-public static class UserSchema
+public static class UsersSchema
 {
     public const string Table = "users";
     public const string Id = "id";
