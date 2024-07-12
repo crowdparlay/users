@@ -3,8 +3,8 @@ using FluentMigrator.Builders.Create;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations;
 
-[Migration(202307190001)]
-public class AddUsernameNormalized_202307190001 : Migration
+[Migration(2023071901)]
+public class Migration_20230719_01_AddUsernameNormalized : Migration
 {
     public override void Up()
     {

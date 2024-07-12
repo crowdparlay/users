@@ -2,8 +2,8 @@
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations;
 
-[Migration(202310110001)]
-public class AddEmailNormalized_202310110001 : Migration
+[Migration(2023101101)]
+public class Migration_20231011_01_AddEmailNormalized : Migration
 {
     public override void Up()
     {
