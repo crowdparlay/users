@@ -24,7 +24,6 @@ public class Startup
         app.UseMiddleware<TraceIdMiddleware>();
         app.UseSerilogRequestLogging();
 
-        app.UseHttpsRedirection();
         app.UseRouting();
         app.UseCors();
 
