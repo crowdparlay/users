@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace CrowdParlay.Users.IntegrationTests.Services;
 
-internal class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
+public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
     private readonly string _postgresConnectionString;
 

@@ -16,8 +16,9 @@ public class UsersGrpcServiceTests : IAssemblyFixture<WebApplicationFixture>
 
     public UsersGrpcServiceTests(WebApplicationFixture fixture)
     {
+        var client = fixture.WebApplicationFactory.CreateClient();
+        _channel = GrpcChannel.ForAddress(client.BaseAddress!, new GrpcChannelOptions { HttpClient = client });
         _services = fixture.Services;
-        _channel = fixture.GrpcChannel;
     }
 
     [Fact(DisplayName = "Get user by ID")]

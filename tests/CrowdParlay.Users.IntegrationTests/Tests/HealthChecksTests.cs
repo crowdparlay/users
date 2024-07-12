@@ -8,7 +8,7 @@ public class HealthChecksTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
 
-    public HealthChecksTests(WebApplicationFixture fixture) => _client = fixture.Client;
+    public HealthChecksTests(WebApplicationFixture fixture) => _client = fixture.WebApplicationFactory.CreateClient();
 
     [Fact(DisplayName = "Get health returns healthy", Timeout = 5000)]
     public async Task GetHealth_ReturnsHealthy()
