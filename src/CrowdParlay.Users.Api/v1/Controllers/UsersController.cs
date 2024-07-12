@@ -51,8 +51,11 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task<GetById.Response> Self() =>
-        await Mediator.Send(new GetById.Query(HttpContext.GetUserId()!.Value));
+    public async Task<UserInfoResponse> Self()
+    {
+        var user = await Mediator.Send(new GetById.Query(HttpContext.GetUserId()!.Value));
+        return user.Adapt<UserInfoResponse>();
+    }
 
     /// <summary>
     /// Returns user with the specified username.

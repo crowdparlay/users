@@ -1,10 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Net.Mime;
 using System.Security.Claims;
+using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Extensions;
+using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
+using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +35,10 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]")]
-    public async Task<IActionResult> SignIn([FromForm] string usernameOrEmail, [FromForm] string password)
+    [Consumes("x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
+    public async Task<ActionResult<UserInfoResponse>> SignIn([FromForm] string usernameOrEmail, [FromForm] string password)
     {
         var user = await _usersRepository.GetByUsernameOrEmailNormalizedAsync(usernameOrEmail);
         if (user is null || !_passwordService.VerifyPassword(user.PasswordHash, password))
@@ -45,6 +52,7 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]"), Authorize]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
     public new async Task<IActionResult> SignOut()
     {
         await HttpContext.SignOutAsync();
@@ -52,7 +60,12 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]")]
-    public async Task<IActionResult> SignInGoogleCallback([FromForm] string credential)
+    [Consumes("x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.ServiceUnavailable)]
+    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback([FromForm] string credential)
     {
         var googleIdToken = _jwtHandler.ReadJwtToken(credential);
         var authenticationResult = await _googleAuthenticationService.AuthenticateUserByIdTokenAsync(googleIdToken);
@@ -64,7 +77,8 @@ public class AuthenticationController : ApiControllerBase
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity.AddUserClaims(authenticationResult.User!));
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                return Ok();
+                
+                return Ok(authenticationResult.User.Adapt<UserInfoResponse>());
             }
             case GoogleAuthenticationStatus.GoogleApiUnavailable:
                 return StatusCode((int)HttpStatusCode.ServiceUnavailable, "Google API is unavailable at the moment. Please try again later.");
