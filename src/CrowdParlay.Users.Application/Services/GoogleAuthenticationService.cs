@@ -4,6 +4,7 @@ using CrowdParlay.Users.Application.Models;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using Dodo.Primitives;
+using Microsoft.Extensions.Logging;
 using static CrowdParlay.Users.Application.Services.GoogleAuthenticationStatus;
 
 namespace CrowdParlay.Users.Application.Services;
@@ -15,15 +16,18 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
     private readonly IExternalLoginsRepository _externalLoginsRepository;
     private readonly IUsersRepository _usersRepository;
     private readonly IGoogleOidcService _googleOidcService;
+    private readonly ILogger<GoogleAuthenticationService> _logger;
 
     public GoogleAuthenticationService(
         IExternalLoginsRepository externalLoginsRepository,
         IUsersRepository usersRepository,
-        IGoogleOidcService googleOidcService)
+        IGoogleOidcService googleOidcService,
+        ILogger<GoogleAuthenticationService> logger)
     {
         _externalLoginsRepository = externalLoginsRepository;
         _usersRepository = usersRepository;
         _googleOidcService = googleOidcService;
+        _logger = logger;
     }
 
     public async Task<GoogleAuthenticationResult> AuthenticateUserByIdTokenAsync(JwtSecurityToken idToken)
@@ -36,8 +40,9 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
             if (googleUserInfo is null)
                 return new GoogleAuthenticationResult(InvalidGoogleIdToken);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException exception)
         {
+            _logger.LogError(exception, "Network-related exception was thrown while trying to access Google OpenID Connect API");
             return new GoogleAuthenticationResult(GoogleApiUnavailable);
         }
 
