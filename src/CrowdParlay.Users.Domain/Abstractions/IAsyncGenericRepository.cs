@@ -2,7 +2,7 @@ using CrowdParlay.Users.Domain.Entities;
 
 namespace CrowdParlay.Users.Domain.Abstractions;
 
-public interface IAsyncGenericRepository<TEntity, in TKey> where TEntity : EntityBase<TKey>
+public interface IAsyncGenericRepository<TEntity, in TKey> where TEntity : EntityBase<TKey> where TKey : notnull
 {
     public Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
     public Task<IEnumerable<TEntity>> GetManyAsync(int count, int page = 0, CancellationToken cancellationToken = default);
