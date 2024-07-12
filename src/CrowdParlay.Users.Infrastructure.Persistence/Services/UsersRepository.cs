@@ -15,7 +15,7 @@ internal class UsersRepository : IUsersRepository
     public UsersRepository(IDbConnectionFactory connectionFactory) =>
         _connectionFactory = connectionFactory;
 
-    public async IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         var reader = await connection.ExecuteReaderAsync(
@@ -27,7 +27,7 @@ internal class UsersRepository : IUsersRepository
             yield return parser(reader);
     }
 
-    public async Task<User?> GetByIdAsync(Uuid id, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdAsync(Uuid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -35,7 +35,7 @@ internal class UsersRepository : IUsersRepository
             new { id });
     }
 
-    public async Task<User?> GetByUsernameExactAsync(string username, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByUsernameExactAsync(string username, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -43,7 +43,7 @@ internal class UsersRepository : IUsersRepository
             new { username });
     }
 
-    public async Task<User?> GetByUsernameNormalizedAsync(string username, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByUsernameNormalizedAsync(string username, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -51,7 +51,7 @@ internal class UsersRepository : IUsersRepository
             new { username });
     }
 
-    public async Task<User?> GetByEmailNormalizedAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByEmailNormalizedAsync(string email, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -59,7 +59,7 @@ internal class UsersRepository : IUsersRepository
             new { email });
     }
 
-    public async Task<User?> GetByUsernameOrEmailNormalizedAsync(string usernameOrEmail, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByUsernameOrEmailNormalizedAsync(string usernameOrEmail, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(sql:
@@ -71,7 +71,7 @@ internal class UsersRepository : IUsersRepository
             new { usernameOrEmail });
     }
 
-    public async Task<IEnumerable<User>> GetManyAsync(int count, int page = 0, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<User>> GetManyAsync(int count, int page, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QueryAsync<User>(
@@ -79,7 +79,7 @@ internal class UsersRepository : IUsersRepository
             new { count, page });
     }
 
-    public async Task AddAsync(User entity, CancellationToken cancellationToken = default)
+    public async Task AddAsync(User entity, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -106,7 +106,7 @@ internal class UsersRepository : IUsersRepository
             entity);
     }
 
-    public async Task UpdateAsync(User entity, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(User entity, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -124,7 +124,7 @@ internal class UsersRepository : IUsersRepository
             entity);
     }
 
-    public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
