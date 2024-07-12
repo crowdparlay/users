@@ -35,7 +35,7 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]")]
-    [Consumes("x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     public async Task<ActionResult<UserInfoResponse>> SignIn([FromForm] string usernameOrEmail, [FromForm] string password)
@@ -60,7 +60,7 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]")]
-    [Consumes("x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
