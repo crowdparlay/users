@@ -18,6 +18,7 @@ public static class ConfigureServices
 
         return services
             .AddSingleton<IPasswordService, PasswordService>()
+            .AddScoped<IGoogleAuthenticationService, GoogleAuthenticationService>()
             .AddValidatorsFromAssembly(assembly)
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))

@@ -38,7 +38,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CrowdParlay.Users.Application\CrowdParlay.Users.Application.csproj"/>
-        <ProjectReference Include="..\CrowdParlay.Users.Infrastructure.Persistence\CrowdParlay.Users.Infrastructure.Persistence.csproj"/>
+        <ProjectReference Include="..\CrowdParlay.Users.Infrastructure\CrowdParlay.Users.Infrastructure.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

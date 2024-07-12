@@ -2,7 +2,7 @@ using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Services.gRPC;
 using CrowdParlay.Users.Application.Extensions;
-using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
+using CrowdParlay.Users.Infrastructure.Extensions;
 using Serilog;
 
 namespace CrowdParlay.Users.Api;
@@ -41,6 +41,6 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services) => services
         .ConfigureApplicationServices()
-        .ConfigurePersistenceServices(_configuration)
+        .ConfigureInfrastructureServices(_configuration)
         .ConfigureApiServices(_configuration, _environment);
 }
