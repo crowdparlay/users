@@ -4,13 +4,12 @@ using FluentAssertions;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-[Collection("CommunicationAffective")]
 public class TraceIdMiddlewareTests : IAssemblyFixture<WebApplicationFixture>
 {
     private const string TraceIdHeaderName = "X-TraceId";
     private readonly HttpClient _client;
 
-    public TraceIdMiddlewareTests(WebApplicationFixture fixture) => _client = fixture.Client;
+    public TraceIdMiddlewareTests(WebApplicationFixture fixture) => _client = fixture.WebApplicationFactory.CreateClient();
 
     [Fact(DisplayName = "Register user returns trace ID on success", Timeout = 5000)]
     public async Task RegisterUserOnSuccess_ReturnsTraceId()

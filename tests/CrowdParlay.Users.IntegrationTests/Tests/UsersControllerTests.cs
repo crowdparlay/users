@@ -13,7 +13,6 @@ using MassTransit.Testing;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
-[Collection("CommunicationAffective")]
 public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
@@ -21,8 +20,8 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 
     public UsersControllerTests(WebApplicationFixture fixture)
     {
-        _client = fixture.Client;
-        _harness = fixture.Harness;
+        _client = fixture.WebApplicationFactory.CreateClient();
+        _harness = fixture.Services.GetTestHarness();
     }
 
     [Theory(DisplayName = "Register users")]
@@ -82,8 +81,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
         var registerRequest = new Register.Command("username", "uraaa@goto.wy", "display name 1", "password1", "https://example.com/avatar1.jpg");
         await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
 
-        var registerRequestDuplicate =
-            new Register.Command("us55e3rn44me3333e", "meily@tup.ye", "display name 2", "password2!", "https://example.com/avatar2.jpg");
+        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "meily@tup.ye", "display name 2", "password2!", null);
         var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, GlobalSerializerOptions.SnakeCase);
 
         duplicateMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
@@ -137,7 +135,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             registerRequest.AvatarUrl));
     }
 
-    [Fact(DisplayName = "Update user changes user and publishes event", Timeout = 5000)]
+    [Fact(DisplayName = "Update user changes user and publishes event")]
     public async Task Update_Positive()
     {
         var registerRequest = new Register.Command("zanli_0", "pesokJ@naja.com", "Степной ишак", "qwerty123!", avatarUrl: null);

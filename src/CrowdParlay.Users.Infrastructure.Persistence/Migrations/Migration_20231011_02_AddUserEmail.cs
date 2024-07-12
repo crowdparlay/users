@@ -2,8 +2,8 @@
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations;
 
-[Migration(202310110002)]
-public class AddUserEmail_202310110002 : Migration
+[Migration(2023101102)]
+public class Migration_20231011_02_AddUserEmail : Migration
 {
     public override void Up() => Create.Column("email").OnTable("users").AsString(50).NotNullable();
 

@@ -2,7 +2,7 @@ using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Services.gRPC;
 using CrowdParlay.Users.Application.Extensions;
-using CrowdParlay.Users.Infrastructure.Persistence.Extensions;
+using CrowdParlay.Users.Infrastructure.Extensions;
 using Serilog;
 
 namespace CrowdParlay.Users.Api;
@@ -18,24 +18,28 @@ public class Startup
         _environment = environment;
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment environment) => app
-        .UseMiddleware<ExceptionHandlingMiddleware>()
-        .UseMiddleware<TraceIdMiddleware>()
-        .UseSerilogRequestLogging()
-        .UseHealthChecks("/healthz")
-        .UseCors()
-        .UseHttpsRedirection()
-        .UseAuthentication()
-        .UseRouting()
-        .UseAuthorization()
-        .UseEndpoints(builder =>
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
+    {
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseMiddleware<TraceIdMiddleware>();
+        app.UseSerilogRequestLogging();
+
+        app.UseRouting();
+        app.UseCors();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseHealthChecks("/healthz");
+        app.UseEndpoints(builder =>
         {
             builder.MapControllers();
             builder.MapGrpcService<UsersGrpcService>();
         });
+    }
 
     public void ConfigureServices(IServiceCollection services) => services
         .ConfigureApplicationServices()
-        .ConfigurePersistenceServices(_configuration)
+        .ConfigureInfrastructureServices(_configuration)
         .ConfigureApiServices(_configuration, _environment);
 }

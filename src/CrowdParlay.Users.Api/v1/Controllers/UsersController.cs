@@ -44,6 +44,17 @@ public class UsersController : ApiControllerBase
         await Mediator.Send(new GetById.Query(userId));
 
     /// <summary>
+    /// Returns current authenticated user.
+    /// </summary>
+    [HttpGet("[action]"), Authorize]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
+    public async Task<GetById.Response> Self() =>
+        await Mediator.Send(new GetById.Query(HttpContext.GetUserId()!.Value));
+
+    /// <summary>
     /// Returns user with the specified username.
     /// </summary>
     [HttpGet("[action]")]
@@ -67,7 +78,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
     public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request)
     {
-        if (userId != User.GetUserId())
+        if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();
 
         return await Mediator.Send(request.Adapt<Update.Command>() with { Id = userId });
@@ -84,7 +95,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
     public async Task Delete([FromRoute] Uuid userId)
     {
-        if (userId != User.GetUserId())
+        if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();
 
         await Mediator.Send(new Delete.Command(userId));

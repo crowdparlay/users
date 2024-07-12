@@ -1,6 +1,4 @@
 using System.Reflection;
-using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
@@ -36,8 +34,8 @@ public static class ConfigureServices
                 .UseNpgsql(connectionString)
                 .UseOpenIddict())
             .AddSingleton<IDbConnectionFactory>(new SqlConnectionFactory(connectionString))
+            .AddHostedService<DatabaseInitializer>()
             .AddScoped<IUsersRepository, UsersRepository>()
-            .AddScoped<IAuthenticationService, AuthenticationService>()
-            .AddHostedService<DatabaseInitializer>();
+            .AddScoped<IExternalLoginsRepository, ExternalLoginsRepository>();
     }
 }

@@ -2,8 +2,8 @@ using FluentMigrator;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Migrations;
 
-[Migration(202307040001)]
-public class InitialTables_202307040001 : Migration
+[Migration(2023070401)]
+public class Migration_20230704_01_InitialTables : Migration
 {
     public override void Up()
     {

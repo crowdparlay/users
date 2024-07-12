@@ -1,46 +1,79 @@
-using CrowdParlay.Users.Application.Features.Authentication.Commands;
-using Dodo.Primitives;
-using Microsoft.AspNetCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using CrowdParlay.Users.Application.Abstractions;
+using CrowdParlay.Users.Application.Extensions;
+using CrowdParlay.Users.Application.Services;
+using CrowdParlay.Users.Domain.Abstractions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OpenIddict.Abstractions;
-using OpenIddict.Server.AspNetCore;
 
 namespace CrowdParlay.Users.Api.v1.Controllers;
 
 [ApiVersion("1.0")]
 public class AuthenticationController : ApiControllerBase
 {
-    /// <summary>
-    /// An OpenID Connect token endpoint mainly used to produce JWT.
-    /// </summary>
-    [HttpPost("~/connect/token"), IgnoreAntiforgeryToken, ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> Exchange()
+    private readonly IUsersRepository _usersRepository;
+    private readonly IPasswordService _passwordService;
+    private readonly IGoogleAuthenticationService _googleAuthenticationService;
+    private readonly JwtSecurityTokenHandler _jwtHandler = new();
+
+    public AuthenticationController(
+        IUsersRepository usersRepository,
+        IPasswordService passwordService,
+        IGoogleAuthenticationService googleAuthenticationService)
     {
-        var request =
-            HttpContext.GetOpenIddictServerRequest()
-            ?? throw new InvalidOperationException("OpenID Connect token exchange request is invalid.");
+        _usersRepository = usersRepository;
+        _passwordService = passwordService;
+        _googleAuthenticationService = googleAuthenticationService;
+    }
 
-        request.Scope ??= string.Empty;
-        switch (request.GrantType)
+    [HttpPost("[action]")]
+    public async Task<IActionResult> SignIn([FromForm] string usernameOrEmail, [FromForm] string password)
+    {
+        var user = await _usersRepository.GetByUsernameOrEmailNormalizedAsync(usernameOrEmail);
+        if (user is null || !_passwordService.VerifyPassword(user.PasswordHash, password))
+            return Unauthorized("The username or password is incorrect.");
+
+        var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity.AddUserClaims(user));
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        return Ok();
+    }
+
+    [HttpPost("[action]"), Authorize]
+    public new async Task<IActionResult> SignOut()
+    {
+        await HttpContext.SignOutAsync();
+        return Ok();
+    }
+
+    [HttpPost("[action]")]
+    public async Task<IActionResult> SignInGoogleCallback([FromForm] string credential)
+    {
+        var googleIdToken = _jwtHandler.ReadJwtToken(credential);
+        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByIdTokenAsync(googleIdToken);
+
+        switch (authenticationResult.Status)
         {
-            case OpenIddictConstants.GrantTypes.Password:
+            case GoogleAuthenticationStatus.Success:
             {
-                var command = new ExchangePassword.Command(request.Username!, request.Password!, request.Scope);
-                var response = await Mediator.Send(command);
-                return SignIn(response.Principal, response.Properties, response.AuthenticationScheme);
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity.AddUserClaims(authenticationResult.User!));
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                return Ok();
             }
-            case OpenIddictConstants.GrantTypes.RefreshToken:
-            {
-                var authenticationResult = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-                var userId = Uuid.Parse(authenticationResult.Principal!.GetClaim(OpenIddictConstants.Claims.Subject)!);
-
-                var command = new ExchangeRefreshToken.Command(userId, request.Scope);
-                var response = await Mediator.Send(command);
-                return SignIn(response.Principal, response.Properties, response.AuthenticationScheme);
-            }
+            case GoogleAuthenticationStatus.GoogleApiUnavailable:
+                return StatusCode((int)HttpStatusCode.ServiceUnavailable, "Google API is unavailable at the moment. Please try again later.");
+            case GoogleAuthenticationStatus.InvalidGoogleIdToken:
+                return Unauthorized("The provided Google ID token is invalid.");
+            case GoogleAuthenticationStatus.NoUserAssociatedWithGoogleIdentity:
+                return Unauthorized("There is no user associated with the provided Google identity.");
             default:
-                return BadRequest("The specified grant type is not supported.");
+                return Unauthorized("Google authentication service returned an unexpected authentication status.");
         }
     }
 }
