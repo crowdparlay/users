@@ -2,7 +2,6 @@ using System.Security.Cryptography.X509Certificates;
 using CrowdParlay.Users.Api.Services.OpenIddict;
 using CrowdParlay.Users.Infrastructure.Persistence;
 using OpenIddict.Server;
-using OpenIddict.Validation.AspNetCore;
 
 namespace CrowdParlay.Users.Api.Extensions;
 
@@ -74,7 +73,6 @@ public static class ConfigureOpenIddictExtensions
             });
         });
 
-        services.AddAuthentication(options => options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         return services;
     }
 }

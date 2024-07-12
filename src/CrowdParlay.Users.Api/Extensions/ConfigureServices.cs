@@ -19,6 +19,7 @@ public static class ConfigureServices
         services
             .ConfigureEndpoints()
             .ConfigureOpenIddict(configuration, environment)
+            .ConfigureAuthentication()
             .ConfigureCors(configuration)
             .AddKeyedSingleton("SnakeCase", GlobalSerializerOptions.SnakeCase)
             .AddSingleton<ExceptionHandlingMiddleware>()
