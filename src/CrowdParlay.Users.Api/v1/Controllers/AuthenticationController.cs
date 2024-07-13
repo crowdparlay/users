@@ -5,7 +5,6 @@ using System.Security.Claims;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Extensions;
-using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
 using Mapster;
@@ -36,6 +35,7 @@ public class AuthenticationController : ApiControllerBase
 
     [HttpPost("[action]")]
     [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     public async Task<ActionResult<UserInfoResponse>> SignIn([FromForm] string usernameOrEmail, [FromForm] string password)
@@ -52,6 +52,7 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]"), Authorize]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
     public new async Task<IActionResult> SignOut()
     {
@@ -61,11 +62,11 @@ public class AuthenticationController : ApiControllerBase
 
     [HttpPost("[action]")]
     [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+    [ProducesResponseType((int)HttpStatusCode.Redirect)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.ServiceUnavailable)]
-    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback([FromForm] string credential)
+    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback([FromForm] string credential, [FromQuery] Uri returnUrl)
     {
         var googleIdToken = _jwtHandler.ReadJwtToken(credential);
         var authenticationResult = await _googleAuthenticationService.AuthenticateUserByIdTokenAsync(googleIdToken);
@@ -77,17 +78,19 @@ public class AuthenticationController : ApiControllerBase
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity.AddUserClaims(authenticationResult.User!));
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                
-                return Ok(authenticationResult.User.Adapt<UserInfoResponse>());
+
+                return returnUrl.Host == Request.Host.Value
+                    ? Redirect(returnUrl.ToString())
+                    : Redirect(Request.Host.Value);
             }
             case GoogleAuthenticationStatus.GoogleApiUnavailable:
-                return StatusCode((int)HttpStatusCode.ServiceUnavailable, "Google API is unavailable at the moment. Please try again later.");
+                return StatusCode((int)HttpStatusCode.ServiceUnavailable, new Problem("Google API is unavailable at the moment."));
             case GoogleAuthenticationStatus.InvalidGoogleIdToken:
-                return Unauthorized("The provided Google ID token is invalid.");
+                return Unauthorized(new Problem("The provided Google ID token is invalid."));
             case GoogleAuthenticationStatus.NoUserAssociatedWithGoogleIdentity:
-                return Unauthorized("There is no user associated with the provided Google identity.");
+                return Unauthorized(new Problem("There is no user associated with the provided Google identity."));
             default:
-                return Unauthorized("Google authentication service returned an unexpected authentication status.");
+                return Unauthorized(new Problem("Google authentication service returned an unexpected authentication status."));
         }
     }
 }

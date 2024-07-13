@@ -83,10 +83,13 @@ public class AuthenticationTests : IAssemblyFixture<WebApplicationFixture>
             ["g_csrf_token"] = "7d9f9222f033d69d"
         };
 
-        var signInResponse = await _client.PostAsync("/api/v1/authentication/sign-in-google-callback", new FormUrlEncodedContent(signInRequest));
-        signInResponse.Should().BeSuccessful();
+        var signInResponse = await _client.PostAsync(
+            $"/api/v1/authentication/sign-in-google-callback?returnUrl={_client.BaseAddress}",
+            new FormUrlEncodedContent(signInRequest));
+
+        signInResponse.Should().BeRedirection();
         _cookies.GetAllCookies().Should().Contain(cookie => cookie.Name == ".CrowdParlay.Authentication");
-        
+
         var signOutResponse = await _client.PostAsync("/api/v1/authentication/sign-out", content: null);
         signOutResponse.Should().BeSuccessful();
     }
