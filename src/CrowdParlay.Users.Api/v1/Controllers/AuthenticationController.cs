@@ -36,13 +36,13 @@ public class AuthenticationController : ApiControllerBase
     [HttpPost("[action]")]
     [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     public async Task<ActionResult<UserInfoResponse>> SignIn([FromForm] string usernameOrEmail, [FromForm] string password)
     {
         var user = await _usersRepository.GetByUsernameOrEmailNormalizedAsync(usernameOrEmail);
         if (user is null || !_passwordService.VerifyPassword(user.PasswordHash, password))
-            return Unauthorized("The username or password is incorrect.");
+            return Unauthorized(new Problem("The specified credentials are invalid."));
 
         var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity.AddUserClaims(user));
