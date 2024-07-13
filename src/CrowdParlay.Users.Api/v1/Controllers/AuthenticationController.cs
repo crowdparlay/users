@@ -4,6 +4,7 @@ using System.Net.Mime;
 using System.Security.Claims;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Abstractions;
+using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
@@ -21,7 +22,6 @@ public class AuthenticationController : ApiControllerBase
     private readonly IUsersRepository _usersRepository;
     private readonly IPasswordService _passwordService;
     private readonly IGoogleAuthenticationService _googleAuthenticationService;
-    private readonly JwtSecurityTokenHandler _jwtHandler = new();
 
     public AuthenticationController(
         IUsersRepository usersRepository,
@@ -62,15 +62,22 @@ public class AuthenticationController : ApiControllerBase
 
     [HttpPost("[action]")]
     [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Redirect)]
+    [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.ServiceUnavailable)]
-    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback([FromForm] string credential, [FromQuery] Uri returnUrl)
+    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback(
+        [FromForm] string credential,
+        [FromForm(Name = "state")] Uri? returnUri = null)
     {
-        var googleIdToken = _jwtHandler.ReadJwtToken(credential);
-        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByIdTokenAsync(googleIdToken);
+        var isCredentialJwt = new JwtSecurityTokenHandler().CanReadToken(credential);
+        if (!isCredentialJwt)
+            throw new ValidationException(nameof(credential), "Credential must be a valid JWT.");
 
+        var googleIdToken = new JwtSecurityToken(credential);
+        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByIdTokenAsync(googleIdToken);
         switch (authenticationResult.Status)
         {
             case GoogleAuthenticationStatus.Success:
@@ -79,9 +86,9 @@ public class AuthenticationController : ApiControllerBase
                 var principal = new ClaimsPrincipal(identity.AddUserClaims(authenticationResult.User!));
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                return returnUrl.Host == Request.Host.Value
-                    ? Redirect(returnUrl.ToString())
-                    : Redirect(Request.Host.Value);
+                return returnUri is not null
+                    ? Redirect(returnUri.ToString())
+                    : Ok(authenticationResult.User.Adapt<UserInfoResponse>());
             }
             case GoogleAuthenticationStatus.GoogleApiUnavailable:
                 return StatusCode((int)HttpStatusCode.ServiceUnavailable, new Problem("Google API is unavailable at the moment."));

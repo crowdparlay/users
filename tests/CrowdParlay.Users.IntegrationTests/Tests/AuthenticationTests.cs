@@ -74,20 +74,20 @@ public class AuthenticationTests : IAssemblyFixture<WebApplicationFixture>
         var registerRequest = new Register.Command("hlgfasdl", "test@gmail.com", "Daniel", "qwerty123!", "https://example.com/avatar.jpg");
         await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
 
+        var originUri = new Uri(_client.BaseAddress!, "originally-requested-resource");
         var signInRequest = new Dictionary<string, string>
         {
             ["clientId"] = "60607392567-hq4h3jmr4vg1740nonic5netgcmqmjlc.apps.googleusercontent.com",
             ["client_id"] = "60607392567-hq4h3jmr4vg1740nonic5netgcmqmjlc.apps.googleusercontent.com",
             ["credential"] = googleIdToken,
+            ["state"] = originUri.ToString(),
             ["select_by"] = "btn",
             ["g_csrf_token"] = "7d9f9222f033d69d"
         };
 
-        var signInResponse = await _client.PostAsync(
-            $"/api/v1/authentication/sign-in-google-callback?returnUrl={_client.BaseAddress}",
-            new FormUrlEncodedContent(signInRequest));
-
+        var signInResponse = await _client.PostAsync("/api/v1/authentication/sign-in-google-callback", new FormUrlEncodedContent(signInRequest));
         signInResponse.Should().BeRedirection();
+        signInResponse.Headers.Location.Should().Be(originUri);
         _cookies.GetAllCookies().Should().Contain(cookie => cookie.Name == ".CrowdParlay.Authentication");
 
         var signOutResponse = await _client.PostAsync("/api/v1/authentication/sign-out", content: null);
