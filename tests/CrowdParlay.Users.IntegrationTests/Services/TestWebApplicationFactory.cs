@@ -19,14 +19,16 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
         builder.ConfigureAppConfiguration(configuration => configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["POSTGRES_CONNECTION_STRING"] = _postgresConnectionString,
-            ["CORS_ORIGINS"] = "http://localhost"
+            ["CORS_ORIGINS"] = "http://localhost",
+            ["GOOGLEOAUTH:CLIENTID"] = "60239123456-is4a4ksd03944fszonic6nsdfhmlwdlp.apps.googleusercontent.com",
+            ["GOOGLEOAUTH:CLIENTSECRET"] = "DLDK60jdAxnZAfdfs9df2F-X"
         }));
 
         builder.ConfigureServices(services =>
         {
-            var googleOidcService = services.First(service => service.ServiceType == typeof(IGoogleOidcService));
+            var googleOidcService = services.First(service => service.ServiceType == typeof(IGoogleOAuthService));
             services.Remove(googleOidcService);
-            services.AddScoped<IGoogleOidcService, TestGoogleOidcService>();
+            services.AddScoped<IGoogleOAuthService, TestGoogleOAuthService>();
 
             var massTransitDescriptors = services
                 .Where(service => service.ServiceType.Namespace?.Split('.').First() == nameof(MassTransit))

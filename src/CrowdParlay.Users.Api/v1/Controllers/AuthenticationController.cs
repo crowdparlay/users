@@ -1,10 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mime;
 using System.Security.Claims;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
@@ -12,6 +10,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrowdParlay.Users.Api.v1.Controllers;
@@ -61,23 +60,16 @@ public class AuthenticationController : ApiControllerBase
     }
 
     [HttpPost("[action]")]
-    [Consumes("application/x-www-form-urlencoded"), Produces(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Redirect)]
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Unauthorized)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.ServiceUnavailable)]
-    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback(
-        [FromForm] string credential,
-        [FromForm(Name = "state")] Uri? returnUri = null)
+    public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback([FromQuery] string code, [FromQuery(Name = "state")] Uri? returnUri = null)
     {
-        var isCredentialJwt = new JwtSecurityTokenHandler().CanReadToken(credential);
-        if (!isCredentialJwt)
-            throw new ValidationException(nameof(credential), "Credential must be a valid JWT.");
-
-        var googleIdToken = new JwtSecurityToken(credential);
-        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByIdTokenAsync(googleIdToken);
+        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByAuthorizationCodeAsync(code, Request.GetEncodedUrl());
         switch (authenticationResult.Status)
         {
             case GoogleAuthenticationStatus.Success:
@@ -92,7 +84,7 @@ public class AuthenticationController : ApiControllerBase
             }
             case GoogleAuthenticationStatus.GoogleApiUnavailable:
                 return StatusCode((int)HttpStatusCode.ServiceUnavailable, new Problem("Google API is unavailable at the moment."));
-            case GoogleAuthenticationStatus.InvalidGoogleIdToken:
+            case GoogleAuthenticationStatus.InvalidAuthorizationCode:
                 return Unauthorized(new Problem("The provided Google ID token is invalid."));
             case GoogleAuthenticationStatus.NoUserAssociatedWithGoogleIdentity:
                 return Unauthorized(new Problem("There is no user associated with the provided Google identity."));
