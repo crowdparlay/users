@@ -73,8 +73,7 @@ public class AuthenticationTests : IAssemblyFixture<WebApplicationFixture>
             { "scope", "email profile" }
         };
 
-        var uri = new Uri($"/api/v1/authentication/sign-in-google-callback{query}", UriKind.Relative);
-        var signInResponse = await _client.PostAsync(uri, null);
+        var signInResponse = await _client.GetAsync($"/api/v1/authentication/sign-in-google-callback{query}");
         signInResponse.Should().BeRedirection();
         signInResponse.Headers.Location.Should().Be(originUri);
         _cookies.GetAllCookies().Should().Contain(cookie => cookie.Name == ".CrowdParlay.Authentication");

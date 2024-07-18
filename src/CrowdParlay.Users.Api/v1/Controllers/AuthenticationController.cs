@@ -59,7 +59,7 @@ public class AuthenticationController : ApiControllerBase
         return Ok();
     }
 
-    [HttpPost("[action]")]
+    [HttpGet("[action]")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserInfoResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Redirect)]
@@ -85,7 +85,7 @@ public class AuthenticationController : ApiControllerBase
             case GoogleAuthenticationStatus.GoogleApiUnavailable:
                 return StatusCode((int)HttpStatusCode.ServiceUnavailable, new Problem("Google API is unavailable at the moment."));
             case GoogleAuthenticationStatus.InvalidAuthorizationCode:
-                return Unauthorized(new Problem("The provided Google ID token is invalid."));
+                return Unauthorized(new Problem("The provided Google OAuth authorization code token is invalid."));
             case GoogleAuthenticationStatus.NoUserAssociatedWithGoogleIdentity:
                 return Unauthorized(new Problem("There is no user associated with the provided Google identity."));
             default:
