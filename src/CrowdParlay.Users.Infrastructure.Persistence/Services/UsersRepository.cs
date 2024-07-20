@@ -144,7 +144,7 @@ internal class UsersRepository : IUsersRepository
              SELECT * FROM {UsersSchema.Table} users
              JOIN {ExternalLoginProvidersSchema.Table} providers ON providers.{ExternalLoginProvidersSchema.Id} = @{nameof(providerId)}
              JOIN {ExternalLoginsSchema.Table} logins ON logins.{ExternalLoginsSchema.Identity} = @{nameof(identity)}
-             WHERE users.{UsersSchema.Id} = logins.{ExternalLoginsSchema.Id}
+             WHERE users.{UsersSchema.Id} = logins.{ExternalLoginsSchema.UserId}
              LIMIT 1
              """,
             new { providerId, identity });
