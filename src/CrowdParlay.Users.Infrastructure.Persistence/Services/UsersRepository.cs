@@ -141,7 +141,7 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
             $"""
-             SELECT * FROM {UsersSchema.Table} users
+             SELECT users.* FROM {UsersSchema.Table} users
              JOIN {ExternalLoginProvidersSchema.Table} providers ON providers.{ExternalLoginProvidersSchema.Id} = @{nameof(providerId)}
              JOIN {ExternalLoginsSchema.Table} logins ON logins.{ExternalLoginsSchema.Identity} = @{nameof(identity)}
              WHERE users.{UsersSchema.Id} = logins.{ExternalLoginsSchema.UserId}
