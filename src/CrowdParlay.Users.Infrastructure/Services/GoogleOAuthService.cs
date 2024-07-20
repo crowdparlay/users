@@ -23,7 +23,7 @@ public class GoogleOAuthService : IGoogleOAuthService
         _logger = logger;
     }
 
-    public async Task<string?> GetAccessTokenAsync(string code, string redirectUri, IEnumerable<string> scopes, CancellationToken cancellationToken)
+    public async Task<string?> GetAccessTokenAsync(string code, IEnumerable<string> scopes, CancellationToken cancellationToken)
     {
         var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
         {
@@ -38,7 +38,7 @@ public class GoogleOAuthService : IGoogleOAuthService
 
         try
         {
-            var response = await flow.ExchangeCodeForTokenAsync(null, code, redirectUri, cancellationToken);
+            var response = await flow.ExchangeCodeForTokenAsync(null, code, _configuration.AuthorizationFlowRedirectUri, cancellationToken);
             return response.AccessToken;
         }
         catch (TokenResponseException exception)

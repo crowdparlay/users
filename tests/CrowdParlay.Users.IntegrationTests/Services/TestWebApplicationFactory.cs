@@ -21,7 +21,8 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
             ["POSTGRES_CONNECTION_STRING"] = _postgresConnectionString,
             ["CORS_ORIGINS"] = "http://localhost",
             ["GOOGLEOAUTH:CLIENTID"] = "60239123456-is4a4ksd03944fszonic6nsdfhmlwdlp.apps.googleusercontent.com",
-            ["GOOGLEOAUTH:CLIENTSECRET"] = "DLDK60jdAxnZAfdfs9df2F-X"
+            ["GOOGLEOAUTH:CLIENTSECRET"] = "DLDK60jdAxnZAfdfs9df2F-X",
+            ["GOOGLEOAUTH:AUTHORIZATIONFLOWREDIRECTURI"] = "http://localhost/api/v1/authentication/sign-in-google-callback"
         }));
 
         builder.ConfigureServices(services =>

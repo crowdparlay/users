@@ -14,11 +14,10 @@ public class TestGoogleOAuthService : IGoogleOAuthService
     public TestGoogleOAuthService([FromKeyedServices("SnakeCase")] JsonSerializerOptions jsonSerializerOptions) =>
         _jsonSerializerOptions = jsonSerializerOptions;
 
-    public Task<string?> GetAccessTokenAsync(
-        string code, string redirectUri, IEnumerable<string> scopes, CancellationToken cancellationToken = default) =>
+    public Task<string?> GetAccessTokenAsync(string code, IEnumerable<string> scopes, CancellationToken cancellationToken) =>
         Task.FromResult("test.access.token")!;
 
-    public Task<GoogleUserInfo> GetUserInfoAsync(string accessToken, CancellationToken cancellationToken = default)
+    public Task<GoogleUserInfo> GetUserInfoAsync(string accessToken, CancellationToken cancellationToken)
     {
         const string sampleGoogleOAuthUserInfoResponse =
             """

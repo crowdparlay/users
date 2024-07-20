@@ -29,14 +29,13 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
         _logger = logger;
     }
 
-    public async Task<GoogleAuthenticationResult> AuthenticateUserByAuthorizationCodeAsync(
-        string code, string redirectUri, CancellationToken cancellationToken)
+    public async Task<GoogleAuthenticationResult> AuthenticateUserByAuthorizationCodeAsync(string code, CancellationToken cancellationToken)
     {
         GoogleUserInfo googleUserInfo;
 
         try
         {
-            var accessToken = await _googleOAuthService.GetAccessTokenAsync(code, redirectUri, new[] { "email", "profile" }, cancellationToken);
+            var accessToken = await _googleOAuthService.GetAccessTokenAsync(code, new[] { "email", "profile" }, cancellationToken);
             if (accessToken is null)
                 return new GoogleAuthenticationResult(InvalidAuthorizationCode);
 

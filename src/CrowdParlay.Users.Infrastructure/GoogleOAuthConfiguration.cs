@@ -4,4 +4,5 @@ public sealed class GoogleOAuthConfiguration
 {
     public required string ClientId { get; init; }
     public required string ClientSecret { get; init; }
+    public required string AuthorizationFlowRedirectUri { get; init; }
 }

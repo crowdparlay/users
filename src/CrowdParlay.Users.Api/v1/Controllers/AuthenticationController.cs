@@ -69,8 +69,7 @@ public class AuthenticationController : ApiControllerBase
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<ActionResult<UserInfoResponse>> SignInGoogleCallback([FromQuery] string code, [FromQuery(Name = "state")] Uri? returnUri = null)
     {
-        var requestUri = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
-        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByAuthorizationCodeAsync(code, requestUri);
+        var authenticationResult = await _googleAuthenticationService.AuthenticateUserByAuthorizationCodeAsync(code);
         switch (authenticationResult.Status)
         {
             case GoogleAuthenticationStatus.Success:

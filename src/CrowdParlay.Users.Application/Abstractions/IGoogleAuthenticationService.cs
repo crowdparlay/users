@@ -4,6 +4,5 @@ namespace CrowdParlay.Users.Application.Abstractions;
 
 public interface IGoogleAuthenticationService
 {
-    public Task<GoogleAuthenticationResult> AuthenticateUserByAuthorizationCodeAsync(
-        string code, string redirectUri, CancellationToken cancellationToken = default);
+    public Task<GoogleAuthenticationResult> AuthenticateUserByAuthorizationCodeAsync(string code, CancellationToken cancellationToken = default);
 }
