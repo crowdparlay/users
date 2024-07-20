@@ -7,6 +7,7 @@ using Google.Apis.Oauth2.v2;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Mapster;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -62,5 +63,19 @@ public class GoogleOAuthService : IGoogleOAuthService
         userInfo.AvatarUrl = googleUserInfo.Picture;
 
         return userInfo;
+    }
+
+    public string GetAuthorizationFlowUrl(IEnumerable<string> scopes, string state)
+    {
+        var query = new QueryBuilder
+        {
+            { "response_type", "code" },
+            { "client_id", _configuration.ClientId },
+            { "redirect_uri", _configuration.AuthorizationFlowRedirectUri },
+            { "scope", string.Join(' ', scopes) },
+            { "state", state }
+        };
+
+        return $"https://accounts.google.com/o/oauth2/v2/auth{query}";
     }
 }

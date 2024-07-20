@@ -81,4 +81,19 @@ public class AuthenticationTests : IAssemblyFixture<WebApplicationFixture>
         var signOutResponse = await _client.PostAsync("/api/v1/authentication/sign-out", content: null);
         signOutResponse.Should().BeSuccessful();
     }
+
+    [Fact(DisplayName = "Google SSO redirection endpoint redirects to correct URL")]
+    public async Task GoogleSso_Redirection_Positive()
+    {
+        var response = await _client.GetAsync("/api/v1/authentication/sso/google?returnUrl=https://test.com");
+        response.Should().BeRedirection();
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.AbsoluteUri.Should().Be(
+            "https://accounts.google.com/o/oauth2/v2/auth" +
+            "?response_type=code" +
+            "&client_id=60239123456-is4a4ksd03944fszonic6nsdfhmlwdlp.apps.googleusercontent.com" +
+            "&redirect_uri=http%3A%2F%2Flocalhost%2Fapi%2Fv1%2Fauthentication%2Fsign-in-google-callback" +
+            "&scope=email%20profile" +
+            "&state=https%3A%2F%2Ftest.com");
+    }
 }

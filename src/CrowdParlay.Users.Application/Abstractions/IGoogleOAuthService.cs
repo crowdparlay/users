@@ -6,4 +6,5 @@ public interface IGoogleOAuthService
 {
     public Task<GoogleUserInfo> GetUserInfoAsync(string accessToken, CancellationToken cancellationToken = default);
     public Task<string?> GetAccessTokenAsync(string code, IEnumerable<string> scopes, CancellationToken cancellationToken = default);
+    public string GetAuthorizationFlowUrl(IEnumerable<string> scopes, string state);
 }

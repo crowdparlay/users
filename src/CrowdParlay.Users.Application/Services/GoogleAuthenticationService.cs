@@ -66,6 +66,9 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
         await _externalLoginsRepository.AddAsync(login, cancellationToken);
         return new GoogleAuthenticationResult(Success, user);
     }
+
+    public string GetAuthorizationFlowUrl(string returnUrl) =>
+        _googleOAuthService.GetAuthorizationFlowUrl(new[] { "email", "profile" }, returnUrl);
 }
 
 public class GoogleAuthenticationResult

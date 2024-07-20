@@ -10,7 +10,6 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrowdParlay.Users.Api.v1.Controllers;
@@ -58,6 +57,9 @@ public class AuthenticationController : ApiControllerBase
         await HttpContext.SignOutAsync();
         return Ok();
     }
+
+    [HttpGet("sso/google")]
+    public IActionResult SsoGoogle(string returnUrl) => Redirect(_googleAuthenticationService.GetAuthorizationFlowUrl(returnUrl));
 
     [HttpGet("[action]")]
     [Produces(MediaTypeNames.Application.Json)]
