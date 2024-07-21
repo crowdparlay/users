@@ -46,7 +46,7 @@ public class AuthenticationController : ApiControllerBase
         var principal = new ClaimsPrincipal(identity.AddUserClaims(user));
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        return Ok();
+        return Ok(user.Adapt<UserInfoResponse>());
     }
 
     [HttpPost("[action]"), Authorize]
