@@ -46,7 +46,7 @@ public class AuthenticationController : ApiControllerBase
         var principal = new ClaimsPrincipal(identity.AddUserClaims(user));
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        return Ok();
+        return Ok(user.Adapt<UserInfoResponse>());
     }
 
     [HttpPost("[action]"), Authorize]
@@ -58,7 +58,7 @@ public class AuthenticationController : ApiControllerBase
         return Ok();
     }
 
-    [HttpGet("sso/google")]
+    [HttpGet("sso/google"), ProducesResponseType((int)HttpStatusCode.Redirect)]
     public IActionResult SsoGoogle(string returnUrl) => Redirect(_googleAuthenticationService.GetAuthorizationFlowUrl(returnUrl));
 
     [HttpGet("[action]")]
