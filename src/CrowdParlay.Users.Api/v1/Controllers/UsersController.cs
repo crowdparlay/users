@@ -1,13 +1,17 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.v1.DTOs;
+using CrowdParlay.Users.Application;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
+using CrowdParlay.Users.Application.Models;
 using Dodo.Primitives;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrowdParlay.Users.Api.v1.Controllers;
@@ -15,6 +19,13 @@ namespace CrowdParlay.Users.Api.v1.Controllers;
 [ApiVersion("1.0")]
 public class UsersController : ApiControllerBase
 {
+    private readonly IDataProtector _externalLoginTicketProtector;
+
+    public UsersController(IDataProtectionProvider dataProtectionProvider)
+    {
+        _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketDefaults.DataProtectionPurpose);
+    }
+
     /// <summary>
     /// Creates a user.
     /// </summary>
@@ -29,7 +40,19 @@ public class UsersController : ApiControllerBase
         if (HttpContext.User.Identity?.IsAuthenticated == true)
             throw new ForbiddenException();
 
-        return await Mediator.Send(request.Adapt<Register.Command>());
+        var command = request.Adapt<Register.Command>();
+        var encryptedTicketJson = Request.Cookies[ExternalLoginTicketDefaults.CookieKey];
+        if (encryptedTicketJson is null)
+            return await Mediator.Send(command);
+
+        var ticketJson = _externalLoginTicketProtector.Unprotect(encryptedTicketJson);
+        command.ExternalLoginTicket = JsonSerializer.Deserialize<ExternalLoginTicket>(ticketJson, GlobalSerializerOptions.SnakeCase)!;
+
+        if (command.ExternalLoginTicket.ProviderId == GoogleAuthenticationDefaults.ExternalLoginProviderId)
+            command.Email = command.ExternalLoginTicket.Identity;
+
+        Response.Cookies.Delete(ExternalLoginTicketDefaults.CookieKey);
+        return await Mediator.Send(command);
     }
 
     /// <summary>

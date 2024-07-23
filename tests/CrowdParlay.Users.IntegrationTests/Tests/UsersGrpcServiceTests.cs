@@ -33,7 +33,8 @@ public class UsersGrpcServiceTests : IAssemblyFixture<WebApplicationFixture>
             displayName: "John Doe",
             email: "johndoe@example.com",
             avatarUrl: null,
-            password: "Test_Pa55w0RD!"));
+            password: "Test_Pa55w0RD!",
+            externalLoginTicket: null));
 
         // Act
         var client = new UsersService.UsersServiceClient(_channel);
@@ -65,7 +66,8 @@ public class UsersGrpcServiceTests : IAssemblyFixture<WebApplicationFixture>
                 displayName: "John Doe",
                 email: $"john{i}@example.com",
                 avatarUrl: null,
-                password: "Test_Pa55w0RD!"));
+                password: "Test_Pa55w0RD!",
+                externalLoginTicket: null));
 
             users.Add(user);
         }

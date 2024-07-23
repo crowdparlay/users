@@ -1,6 +1,7 @@
 using CrowdParlay.Users.Api;
 using CrowdParlay.Users.IntegrationTests.Services;
 using Testcontainers.PostgreSql;
+using Testcontainers.Redis;
 
 namespace CrowdParlay.Users.IntegrationTests.Fixtures;
 
@@ -14,12 +15,18 @@ public class WebApplicationFixture : IAsyncDisposable
         .WithPortBinding(5432, true)
         .Build();
 
+    private readonly RedisContainer _redis = new RedisBuilder().Build();
+
     public WebApplicationFixture()
     {
-        Task.Run(async () => await _postgres.StartAsync()).Wait();
-        WebApplicationFactory = new TestWebApplicationFactory<Program>(_postgres.GetConnectionString());
+        Task.WaitAll(_redis.StartAsync(), _postgres.StartAsync());
+        WebApplicationFactory = new TestWebApplicationFactory<Program>(_postgres.GetConnectionString(), _redis.GetConnectionString());
         Services = WebApplicationFactory.Services;
     }
 
-    public async ValueTask DisposeAsync() => await _postgres.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await _postgres.DisposeAsync();
+        await _redis.DisposeAsync();
+    }
 }

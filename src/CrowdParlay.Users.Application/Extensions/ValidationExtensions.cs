@@ -14,7 +14,7 @@ public static class ValidationExtensions
         .NotEmpty()
         .MaximumLength(25);
 
-    public static IRuleBuilder<T, string> Password<T>(this IRuleBuilder<T, string> ruleBuilder) => ruleBuilder
+    public static IRuleBuilder<T, string> Password<T>(this IRuleBuilder<T, string?> ruleBuilder) => ruleBuilder
         .NotEmpty()
         .Length(5, 25)
         .Must(x => x.Any(char.IsDigit)).WithMessage("Password must contain a digit.")

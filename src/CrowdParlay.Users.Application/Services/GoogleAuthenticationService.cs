@@ -10,8 +10,6 @@ namespace CrowdParlay.Users.Application.Services;
 
 public class GoogleAuthenticationService : IGoogleAuthenticationService
 {
-    private const string GoogleExternalLoginProviderId = "google";
-
     private readonly IExternalLoginsRepository _externalLoginsRepository;
     private readonly IUsersRepository _usersRepository;
     private readonly IGoogleOAuthService _googleOAuthService;
@@ -47,24 +45,28 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
             return new GoogleAuthenticationResult(GoogleApiUnavailable);
         }
 
-        var user = await _usersRepository.GetByExternalLoginAsync(GoogleExternalLoginProviderId, googleUserInfo.Email, cancellationToken);
+        var user = await _usersRepository.GetByExternalLoginAsync(
+            GoogleAuthenticationDefaults.ExternalLoginProviderId,
+            googleUserInfo.Email,
+            cancellationToken);
+
         if (user is not null)
-            return new GoogleAuthenticationResult(Success, user);
+            return new GoogleAuthenticationResult(Success, googleUserInfo.Email, user);
 
         user = await _usersRepository.GetByEmailNormalizedAsync(googleUserInfo.Email, cancellationToken);
         if (user is null)
-            return new GoogleAuthenticationResult(NoUserAssociatedWithGoogleIdentity);
+            return new GoogleAuthenticationResult(NoUserAssociatedWithGoogleIdentity, googleUserInfo.Email);
 
         var login = new ExternalLogin
         {
             Id = Uuid.NewTimeBased(),
             UserId = user.Id,
-            ProviderId = GoogleExternalLoginProviderId,
+            ProviderId = GoogleAuthenticationDefaults.ExternalLoginProviderId,
             Identity = googleUserInfo.Email
         };
 
         await _externalLoginsRepository.AddAsync(login, cancellationToken);
-        return new GoogleAuthenticationResult(Success, user);
+        return new GoogleAuthenticationResult(Success, googleUserInfo.Email, user);
     }
 
     public string GetAuthorizationFlowUrl(string returnUrl) =>
@@ -73,17 +75,22 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
 
 public class GoogleAuthenticationResult
 {
+    public readonly string? Identity;
     public readonly User? User;
     public readonly GoogleAuthenticationStatus Status;
 
-    public GoogleAuthenticationResult(GoogleAuthenticationStatus status, User? user = null)
+    public GoogleAuthenticationResult(GoogleAuthenticationStatus status, string? identity = null, User? user = null)
     {
+        if (status is not InvalidAuthorizationCode and not GoogleApiUnavailable && identity is null)
+            throw new ArgumentNullException(nameof(identity));
+
         if (status is Success && user is null)
             throw new ArgumentNullException(nameof(user));
 
         if (status is not Success && user is not null)
             throw new ArgumentException("Google authentication failed, thus no user was expected to be authenticated.", nameof(user));
 
+        Identity = identity;
         User = user;
         Status = status;
     }

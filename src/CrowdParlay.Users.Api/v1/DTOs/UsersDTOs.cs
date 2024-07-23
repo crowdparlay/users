@@ -12,7 +12,7 @@ public sealed record UsersRegisterRequest(
     string Username,
     string DisplayName,
     string Email,
-    string Password,
+    string? Password,
     string? AvatarUrl);
 
 public sealed record UsersUpdateRequest(
