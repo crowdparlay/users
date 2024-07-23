@@ -39,7 +39,7 @@ public class GoogleOAuthService : IGoogleOAuthService
 
         try
         {
-            var response = await flow.ExchangeCodeForTokenAsync(null, code, _configuration.AuthorizationFlowRedirectUri, cancellationToken);
+            var response = await flow.ExchangeCodeForTokenAsync(null, code, _configuration.AuthorizationCodeFlowRedirectUri, cancellationToken);
             return response.AccessToken;
         }
         catch (TokenResponseException exception)
@@ -71,7 +71,7 @@ public class GoogleOAuthService : IGoogleOAuthService
         {
             { "response_type", "code" },
             { "client_id", _configuration.ClientId },
-            { "redirect_uri", _configuration.AuthorizationFlowRedirectUri },
+            { "redirect_uri", _configuration.AuthorizationCodeFlowRedirectUri },
             { "scope", string.Join(' ', scopes) },
             { "state", state }
         };

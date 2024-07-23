@@ -32,7 +32,7 @@ public class TestGoogleOAuthService : IGoogleOAuthService
         {
             { "response_type", "code" },
             { "client_id", _configuration.ClientId },
-            { "redirect_uri", _configuration.AuthorizationFlowRedirectUri },
+            { "redirect_uri", _configuration.AuthorizationCodeFlowRedirectUri },
             { "scope", string.Join(' ', scopes) },
             { "state", state }
         };
