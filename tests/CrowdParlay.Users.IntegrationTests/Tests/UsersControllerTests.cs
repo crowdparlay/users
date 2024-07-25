@@ -20,7 +20,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 
     public UsersControllerTests(WebApplicationFixture fixture)
     {
-        _client = fixture.WebApplicationFactory.CreateClient();
+        _client = fixture.WebApplicationFactory.CreateDefaultClient();
         _harness = fixture.Services.GetTestHarness();
     }
 

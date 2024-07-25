@@ -1,15 +1,19 @@
 using System.Net;
 using System.Net.Mime;
+using System.Security.Claims;
 using System.Text.Json;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.Application.Models;
 using Dodo.Primitives;
 using Mapster;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -41,18 +45,28 @@ public class UsersController : ApiControllerBase
             throw new ForbiddenException();
 
         var command = request.Adapt<Register.Command>();
+        Register.Response response;
+
         var encryptedTicketJson = Request.Cookies[ExternalLoginTicketDefaults.CookieKey];
         if (encryptedTicketJson is null)
-            return await Mediator.Send(command);
+            response = await Mediator.Send(command);
+        else
+        {
+            var ticketJson = _externalLoginTicketProtector.Unprotect(encryptedTicketJson);
+            command.ExternalLoginTicket = JsonSerializer.Deserialize<ExternalLoginTicket>(ticketJson, GlobalSerializerOptions.SnakeCase)!;
 
-        var ticketJson = _externalLoginTicketProtector.Unprotect(encryptedTicketJson);
-        command.ExternalLoginTicket = JsonSerializer.Deserialize<ExternalLoginTicket>(ticketJson, GlobalSerializerOptions.SnakeCase)!;
+            if (command.ExternalLoginTicket.ProviderId == GoogleAuthenticationDefaults.ExternalLoginProviderId)
+                command.Email = command.ExternalLoginTicket.Identity;
 
-        if (command.ExternalLoginTicket.ProviderId == GoogleAuthenticationDefaults.ExternalLoginProviderId)
-            command.Email = command.ExternalLoginTicket.Identity;
+            Response.Cookies.Delete(ExternalLoginTicketDefaults.CookieKey);
+            response = await Mediator.Send(command);
+        }
 
-        Response.Cookies.Delete(ExternalLoginTicketDefaults.CookieKey);
-        return await Mediator.Send(command);
+        var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity.AddUserClaims(response));
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        return response;
     }
 
     /// <summary>
@@ -124,6 +138,7 @@ public class UsersController : ApiControllerBase
         if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();
 
+        await HttpContext.SignOutAsync();
         await Mediator.Send(new Delete.Command(userId));
     }
 }
