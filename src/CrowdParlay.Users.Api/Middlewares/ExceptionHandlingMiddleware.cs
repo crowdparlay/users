@@ -17,15 +17,14 @@ public class ExceptionHandlingMiddleware : IMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{ExceptionMessage}", exception.Message);
             var response = exception switch
             {
-                ValidationException e => SanitizeValidationException(e),
-                FluentValidation.ValidationException e => SanitizeFluentValidationException(e),
-                NotFoundException => SanitizeNotFoundException(),
-                ForbiddenException => SanitizeForbiddenException(),
-                AlreadyExistsException => SanitizeAlreadyExistsException(),
-                _ => SanitizeGenericException()
+                ValidationException validationException => HandleValidationException(validationException),
+                FluentValidation.ValidationException validationException => HandleFluentValidationException(validationException),
+                NotFoundException => HandleNotFoundException(),
+                ForbiddenException => HandleForbiddenException(),
+                AlreadyExistsException => HandleAlreadyExistsException(),
+                _ => HandleException(exception)
             };
 
             context.Response.ContentType = "application/problem+json";
@@ -34,17 +33,21 @@ public class ExceptionHandlingMiddleware : IMiddleware
         }
     }
 
-    private static ProblemResponse SanitizeGenericException() => new(
-        HttpStatusCode.InternalServerError,
-        new Problem("Something went wrong. Try again later."));
+    private ProblemResponse HandleException(Exception exception)
+    {
+        _logger.LogError(exception, "{ExceptionMessage}", exception.Message);
+        return new ProblemResponse(
+            HttpStatusCode.InternalServerError,
+            new Problem("Something went wrong. Try again later."));
+    }
 
-    private static ProblemResponse SanitizeValidationException(ValidationException exception) => new(
+    private static ProblemResponse HandleValidationException(ValidationException exception) => new(
         HttpStatusCode.BadRequest,
         new ValidationProblem("The specified data is invalid.", exception.Errors.ToDictionary(
             error => error.Key,
             error => error.Value.ToArray())));
 
-    private static ProblemResponse SanitizeFluentValidationException(FluentValidation.ValidationException exception) => new(
+    private static ProblemResponse HandleFluentValidationException(FluentValidation.ValidationException exception) => new(
         HttpStatusCode.BadRequest,
         new ValidationProblem("The specified data is invalid.", exception.Errors
             .GroupBy(error => error.PropertyName)
@@ -54,15 +57,15 @@ public class ExceptionHandlingMiddleware : IMiddleware
                     .Select(failure => failure.ErrorMessage)
                     .ToArray())));
 
-    private static ProblemResponse SanitizeNotFoundException() => new(
+    private static ProblemResponse HandleNotFoundException() => new(
         HttpStatusCode.NotFound,
         new Problem("The requested resource doesn't exist."));
 
-    private static ProblemResponse SanitizeForbiddenException() => new(
+    private static ProblemResponse HandleForbiddenException() => new(
         HttpStatusCode.Forbidden,
         new Problem("You have no permission for this action."));
 
-    private static ProblemResponse SanitizeAlreadyExistsException() => new(
+    private static ProblemResponse HandleAlreadyExistsException() => new(
         HttpStatusCode.Conflict,
         new Problem("Such resource already exists."));
 
