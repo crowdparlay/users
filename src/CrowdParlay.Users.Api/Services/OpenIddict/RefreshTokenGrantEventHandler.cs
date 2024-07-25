@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using CrowdParlay.Users.Application.Extensions;
+using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
 using Microsoft.IdentityModel.Tokens;

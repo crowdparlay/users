@@ -1,11 +1,10 @@
 using System.Net;
 using System.Net.Mime;
-using System.Security.Claims;
 using System.Text.Json;
+using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application;
 using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Models;
 using CrowdParlay.Users.Application.Services;
 using CrowdParlay.Users.Domain.Abstractions;
@@ -56,10 +55,7 @@ public class AuthenticationController : ApiControllerBase
         if (user?.PasswordHash is null || !_passwordService.VerifyPassword(user.PasswordHash, password))
             return Unauthorized(new Problem("The specified credentials are invalid."));
 
-        var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity.AddUserClaims(user));
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user.Id);
         return Ok(user.Adapt<UserInfoResponse>());
     }
 
@@ -90,10 +86,7 @@ public class AuthenticationController : ApiControllerBase
         {
             case GoogleAuthenticationStatus.Success:
             {
-                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity.AddUserClaims(authenticationResult.User!));
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, authenticationResult.User!.Id);
                 return returnUri is not null
                     ? Redirect(returnUri.ToString())
                     : Ok(authenticationResult.User.Adapt<UserInfoResponse>());

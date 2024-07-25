@@ -1,12 +1,10 @@
 using System.Net;
 using System.Net.Mime;
-using System.Security.Claims;
 using System.Text.Json;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application;
 using CrowdParlay.Users.Application.Exceptions;
-using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.Application.Models;
@@ -25,10 +23,8 @@ public class UsersController : ApiControllerBase
 {
     private readonly IDataProtector _externalLoginTicketProtector;
 
-    public UsersController(IDataProtectionProvider dataProtectionProvider)
-    {
+    public UsersController(IDataProtectionProvider dataProtectionProvider) =>
         _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketDefaults.DataProtectionPurpose);
-    }
 
     /// <summary>
     /// Creates a user.
@@ -62,10 +58,7 @@ public class UsersController : ApiControllerBase
             response = await Mediator.Send(command);
         }
 
-        var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity.AddUserClaims(response));
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, response.Id);
         return response;
     }
 
