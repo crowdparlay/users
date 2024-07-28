@@ -15,7 +15,7 @@ public static class ConfigureAuthenticationExtensions
             options.Cookie.Name = ".CrowdParlay.Authentication";
             options.Cookie.HttpOnly = true;
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+            options.ExpireTimeSpan = TimeSpan.FromDays(7);
             options.SlidingExpiration = true;
             options.Events.OnRedirectToLogin = _ => Task.CompletedTask;
         });
