@@ -24,7 +24,7 @@ public class UsersController : ApiControllerBase
     private readonly IDataProtector _externalLoginTicketProtector;
 
     public UsersController(IDataProtectionProvider dataProtectionProvider) =>
-        _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketDefaults.DataProtectionPurpose);
+        _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketsConstants.DataProtectionPurpose);
 
     /// <summary>
     /// Creates a user.
@@ -43,19 +43,23 @@ public class UsersController : ApiControllerBase
         var command = request.Adapt<Register.Command>();
         Register.Response response;
 
-        var encryptedTicketJson = Request.Cookies[ExternalLoginTicketDefaults.CookieKey];
-        if (encryptedTicketJson is null)
+        if (request.ExternalLoginTicketId is null)
             response = await Mediator.Send(command);
         else
         {
+            var ticketCookieKey = string.Format(ExternalLoginTicketsConstants.CookieKeyTemplate, request.ExternalLoginTicketId);
+            var encryptedTicketJson =
+                Request.Cookies[ticketCookieKey]
+                ?? throw new ValidationException(nameof(request.ExternalLoginTicketId),
+                    "No external login ticket with the specified ID can be retrieved from Cookies.");
+
             var ticketJson = _externalLoginTicketProtector.Unprotect(encryptedTicketJson);
             command.ExternalLoginTicket = JsonSerializer.Deserialize<ExternalLoginTicket>(ticketJson, GlobalSerializerOptions.SnakeCase)!;
-
-            if (command.ExternalLoginTicket.ProviderId == GoogleAuthenticationDefaults.ExternalLoginProviderId)
-                command.Email = command.ExternalLoginTicket.Identity;
-
-            Response.Cookies.Delete(ExternalLoginTicketDefaults.CookieKey);
             response = await Mediator.Send(command);
+
+            var ticketCookies = Request.Cookies.Where(cookie => ExternalLoginTicketsConstants.CookieKeyRegex.IsMatch(cookie.Key));
+            foreach (var cookie in ticketCookies)
+                Response.Cookies.Delete(cookie.Key);
         }
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, response.Id);

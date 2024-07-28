@@ -46,7 +46,7 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
         }
 
         var user = await _usersRepository.GetByExternalLoginAsync(
-            GoogleAuthenticationDefaults.ExternalLoginProviderId,
+            GoogleAuthenticationConstants.ExternalLoginProviderId,
             googleUserInfo.Email,
             cancellationToken);
 
@@ -61,7 +61,7 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
         {
             Id = Uuid.NewTimeBased(),
             UserId = user.Id,
-            ProviderId = GoogleAuthenticationDefaults.ExternalLoginProviderId,
+            ProviderId = GoogleAuthenticationConstants.ExternalLoginProviderId,
             Identity = googleUserInfo.Email
         };
 

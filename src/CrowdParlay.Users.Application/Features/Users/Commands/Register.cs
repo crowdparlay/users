@@ -24,11 +24,17 @@ public static class Register
         public ExternalLoginTicket? ExternalLoginTicket { get; set; }
 
         public Command(
-            string username, string email, string displayName, string? password, string? avatarUrl,
+            string username, string? email, string displayName, string? password, string? avatarUrl,
             ExternalLoginTicket? externalLoginTicket)
         {
+            if (email is not null)
+                Email = email.Trim();
+            else if (externalLoginTicket?.ProviderId == GoogleAuthenticationConstants.ExternalLoginProviderId)
+                Email = externalLoginTicket.Identity;
+            else
+                throw new ArgumentNullException(email);
+
             Username = username;
-            Email = email.Trim();
             DisplayName = displayName.Trim();
             Password = password;
             AvatarUrl = avatarUrl;
@@ -44,7 +50,7 @@ public static class Register
             RuleFor(x => x.Email).Email();
             RuleFor(x => x.DisplayName).DisplayName();
 
-            When(x => x.ExternalLoginTicket?.ProviderId == GoogleAuthenticationDefaults.ExternalLoginProviderId, () =>
+            When(x => x.ExternalLoginTicket?.ProviderId == GoogleAuthenticationConstants.ExternalLoginProviderId, () =>
                 RuleFor(x => x.Email).Equal(x => x.ExternalLoginTicket!.Identity));
 
             When(x => x.ExternalLoginTicket is null || x.Password is not null, () =>

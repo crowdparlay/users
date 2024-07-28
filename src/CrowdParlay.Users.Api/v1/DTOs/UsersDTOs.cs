@@ -11,9 +11,10 @@ public sealed record UserInfoResponse(
 public sealed record UsersRegisterRequest(
     string Username,
     string DisplayName,
-    string Email,
+    string? Email,
     string? Password,
-    string? AvatarUrl);
+    string? AvatarUrl,
+    string? ExternalLoginTicketId);
 
 public sealed record UsersUpdateRequest(
     string? Username,

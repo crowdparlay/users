@@ -39,7 +39,7 @@ public class AuthenticationController : ApiControllerBase
         _usersRepository = usersRepository;
         _passwordService = passwordService;
         _googleAuthenticationService = googleAuthenticationService;
-        _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketDefaults.DataProtectionPurpose);
+        _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketsConstants.DataProtectionPurpose);
         _configuration = configuration;
         _linkGenerator = linkGenerator;
     }
@@ -93,17 +93,24 @@ public class AuthenticationController : ApiControllerBase
             }
             case GoogleAuthenticationStatus.NoUserAssociatedWithGoogleIdentity:
             {
-                var ticket = new ExternalLoginTicket(GoogleAuthenticationDefaults.ExternalLoginProviderId, authenticationResult.Identity!);
+                var ticket = new ExternalLoginTicket(GoogleAuthenticationConstants.ExternalLoginProviderId, authenticationResult.Identity!);
                 var ticketJson = JsonSerializer.Serialize(ticket, GlobalSerializerOptions.SnakeCase);
                 var encryptedTicketJson = _externalLoginTicketProtector.Protect(ticketJson);
 
-                Response.Cookies.Append(ExternalLoginTicketDefaults.CookieKey, encryptedTicketJson, new CookieOptions
+                var ticketId = Guid.NewGuid().ToString().Split('-').First();
+                var ticketCookieKey = string.Format(ExternalLoginTicketsConstants.CookieKeyTemplate, ticketId);
+                Response.Cookies.Append(ticketCookieKey, encryptedTicketJson, new CookieOptions
                 {
                     Expires = DateTimeOffset.UtcNow.AddHours(1),
                     Path = _linkGenerator.GetPathByAction("Register", "Users", Request.RouteValues)
                 });
 
-                var query = new QueryBuilder { { "provider", GoogleAuthenticationDefaults.ExternalLoginProviderId } };
+                var query = new QueryBuilder
+                {
+                    { "provider", GoogleAuthenticationConstants.ExternalLoginProviderId },
+                    { "ticket", ticketId }
+                };
+
                 if (returnUri is not null)
                     query.Add("returnUrl", returnUri.ToString());
 
