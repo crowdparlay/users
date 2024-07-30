@@ -145,7 +145,7 @@ public class AuthenticationTests : IAssemblyFixture<WebApplicationFixture>
         _cookies.GetAllCookies().Should().Contain(cookie => cookie.Name == $".CrowdParlay.ExternalLoginTickets.{ticketId}")
             .Which.Path.Should().Be("/api/v1/users/register");
 
-        var registerRequest = new UsersRegisterRequest("hlgfasdl", "Daniel", "test@gmail.com", null, "https://example.com/avatar.jpg", ticketId);
+        var registerRequest = new UsersRegisterRequest("hlgfasdl", "Daniel", null, null, "https://example.com/avatar.jpg", ticketId);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         registerMessage.Should().BeSuccessful();
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);

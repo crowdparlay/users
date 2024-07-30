@@ -17,12 +17,12 @@ public static class Register
     public sealed class Command : IRequest<Response>
     {
         public string Username { get; }
-        public string Email { get; set; }
+        public string Email { get; }
         public string DisplayName { get; }
         public string? Password { get; }
         public string? AvatarUrl { get; }
-        public ExternalLoginTicket? ExternalLoginTicket { get; set; }
-
+        public ExternalLoginTicket? ExternalLoginTicket { get; }
+        
         public Command(
             string username, string? email, string displayName, string? password, string? avatarUrl,
             ExternalLoginTicket? externalLoginTicket)
@@ -34,7 +34,7 @@ public static class Register
             else
                 throw new ArgumentNullException(email);
 
-            Username = username;
+            Username = username.Trim();
             DisplayName = displayName.Trim();
             Password = password;
             AvatarUrl = avatarUrl;

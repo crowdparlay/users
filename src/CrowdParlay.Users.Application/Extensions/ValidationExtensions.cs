@@ -8,7 +8,7 @@ public static class ValidationExtensions
         .NotEmpty()
         .Length(5, 25)
         .Must(x => x.Any(char.IsLetter)).WithMessage("Username must contain a letter.")
-        .Matches("^ *[A-Za-z0-9_]*$ *");
+        .Matches("^[A-Za-z0-9_]*$").WithMessage("Username can only contain letters, digits and underscores.");
 
     public static IRuleBuilderOptions<T, string?> DisplayName<T>(this IRuleBuilder<T, string?> ruleBuilder) => ruleBuilder
         .NotEmpty()

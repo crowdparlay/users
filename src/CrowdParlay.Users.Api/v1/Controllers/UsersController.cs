@@ -40,11 +40,9 @@ public class UsersController : ApiControllerBase
         if (HttpContext.User.Identity?.IsAuthenticated == true)
             throw new ForbiddenException();
 
-        var command = request.Adapt<Register.Command>();
-        Register.Response response;
-
+        Register.Command command;
         if (request.ExternalLoginTicketId is null)
-            response = await Mediator.Send(command);
+            command = new Register.Command(request.Username, request.Email, request.DisplayName, request.Password, request.AvatarUrl, null);
         else
         {
             var ticketCookieKey = string.Format(ExternalLoginTicketsConstants.CookieKeyTemplate, request.ExternalLoginTicketId);
@@ -54,15 +52,17 @@ public class UsersController : ApiControllerBase
                     "No external login ticket with the specified ID can be retrieved from Cookies.");
 
             var ticketJson = _externalLoginTicketProtector.Unprotect(encryptedTicketJson);
-            command.ExternalLoginTicket = JsonSerializer.Deserialize<ExternalLoginTicket>(ticketJson, GlobalSerializerOptions.SnakeCase)!;
-            response = await Mediator.Send(command);
-
-            var ticketCookies = Request.Cookies.Where(cookie => ExternalLoginTicketsConstants.CookieKeyRegex.IsMatch(cookie.Key));
-            foreach (var cookie in ticketCookies)
-                Response.Cookies.Delete(cookie.Key);
+            var ticket = JsonSerializer.Deserialize<ExternalLoginTicket>(ticketJson, GlobalSerializerOptions.SnakeCase)!;
+            command = new Register.Command(request.Username, request.Email, request.DisplayName, request.Password, request.AvatarUrl, ticket);
         }
 
+        var response = await Mediator.Send(command);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, response.Id);
+
+        var ticketCookies = Request.Cookies.Where(cookie => ExternalLoginTicketsConstants.CookieKeyRegex.IsMatch(cookie.Key));
+        foreach (var cookie in ticketCookies)
+            Response.Cookies.Delete(cookie.Key);
+
         return response;
     }
 
