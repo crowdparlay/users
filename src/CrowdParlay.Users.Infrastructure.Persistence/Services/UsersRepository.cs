@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Domain;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
@@ -14,6 +15,49 @@ internal class UsersRepository : IUsersRepository
 
     public UsersRepository(IDbConnectionFactory connectionFactory) =>
         _connectionFactory = connectionFactory;
+
+    public async Task<Page<User>> SearchAsync(SortingStrategy order, int offset, int count, CancellationToken cancellationToken)
+    {
+        var orderByCreatedAtDirection = order switch
+        {
+            SortingStrategy.NewestFirst => "DESC",
+            SortingStrategy.OldestFirst => "ASC",
+            _ => throw new ArgumentOutOfRangeException(nameof(order), order, "The specified order is not supported.")
+        };
+
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var result = await connection.QueryMultipleAsync(
+            $"""
+            SELECT COUNT(*) FROM {UsersSchema.Table};
+            SELECT * FROM {UsersSchema.Table}
+            ORDER BY {UsersSchema.CreatedAt} {orderByCreatedAtDirection}
+            LIMIT @{nameof(count)} OFFSET @{nameof(offset)};
+            """,
+            new { offset, count });
+
+        var totalCount = await result.ReadSingleAsync<int>();
+        var users = await result.ReadAsync<User>();
+        return new Page<User>(totalCount, users);
+    }
+
+    public async Task<IEnumerable<User>> SearchAsync(Order order, int offset, int count, CancellationToken cancellationToken)
+    {
+        var orderDirection = order switch
+        {
+            Order.Ascending => "ASC",
+            Order.Descending => "DESC",
+            _ => throw new ArgumentOutOfRangeException(nameof(order), order, "The specified order is not supported.")
+        };
+
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        return await connection.QueryAsync<User>(
+            $"""
+            SELECT * FROM {UsersSchema.Table}
+            ORDER BY {UsersSchema.CreatedAt} {orderDirection}
+            LIMIT @{nameof(count)} OFFSET @{nameof(offset)}
+            """,
+            new { offset, count });
+    }
 
     public async IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -64,19 +108,11 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
             $"""
-             SELECT * FROM {UsersSchema.Table}
-             WHERE {UsersSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
-             OR {UsersSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
-             """,
+            SELECT * FROM {UsersSchema.Table}
+            WHERE {UsersSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
+            OR {UsersSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
+            """,
             new { usernameOrEmail });
-    }
-
-    public async Task<IEnumerable<User>> GetManyAsync(int count, int page, CancellationToken cancellationToken)
-    {
-        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-        return await connection.QueryAsync<User>(
-            $"SELECT * FROM {UsersSchema.Table} LIMIT @{nameof(count)} OFFSET @{nameof(count)} * @{nameof(page)}",
-            new { count, page });
     }
 
     public async Task AddAsync(User entity, CancellationToken cancellationToken)

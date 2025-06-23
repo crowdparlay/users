@@ -5,6 +5,7 @@ using CrowdParlay.Users.Api.v1.DTOs;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
+using CrowdParlay.Users.Domain;
 using Dodo.Primitives;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,17 @@ namespace CrowdParlay.Users.Api.v1.Controllers;
 [ApiVersion("1.0")]
 public class UsersController : ApiControllerBase
 {
+    /// <summary>
+    /// Returns users.
+    /// </summary>
+    [HttpGet]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Page<Search.Response>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
+    [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
+    public async Task<Page<Search.Response>> Search(SortingStrategy order, int offset, int count) =>
+        await Mediator.Send(new Search.Query(order, offset, count));
+
     /// <summary>
     /// Creates a user.
     /// </summary>
@@ -39,6 +51,7 @@ public class UsersController : ApiControllerBase
     [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
+    [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
     public async Task<GetById.Response> GetById([FromRoute] Uuid userId) =>
         await Mediator.Send(new GetById.Query(userId));

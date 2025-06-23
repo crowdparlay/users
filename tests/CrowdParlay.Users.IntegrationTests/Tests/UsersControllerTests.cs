@@ -6,10 +6,16 @@ using CrowdParlay.Communication;
 using CrowdParlay.Users.Api;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
+using CrowdParlay.Users.Domain;
+using CrowdParlay.Users.Domain.Abstractions;
+using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.IntegrationTests.Extensions;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
+using Dodo.Primitives;
 using FluentAssertions;
 using MassTransit.Testing;
+using Mediator;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
@@ -19,11 +25,37 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
     private readonly ITestHarness _harness;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public UsersControllerTests(WebApplicationFixture fixture)
     {
         _client = fixture.WebApplicationFactory.CreateClient();
         _harness = fixture.Services.GetTestHarness();
+        _serviceScopeFactory = fixture.Services.GetRequiredService<IServiceScopeFactory>();
+    }
+
+    [Fact(DisplayName = "Search users")]
+    public async Task SearchUsers_Positive()
+    {
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
+        var registerUsersTasks = Enumerable.Range(0, 200).Select(i => sender.Send(new Register.Command(
+            username: $"test_user_{i}_{Guid.NewGuid():N}"[..25],
+            email: $"test_user_{i}@example.com",
+            displayName: $"test_user_{i}",
+            password: Guid.NewGuid().ToString("N")[..25],
+            avatarUrl: null)));
+
+        foreach (var task in registerUsersTasks)
+            await task;
+
+        var response = await _client.GetFromJsonAsync<Page<Search.Response>>(
+            "/api/v1/users?order=newestFirst&offset=0&count=100",
+            GlobalSerializerOptions.SnakeCase);
+
+        response!.TotalCount.Should().BeGreaterOrEqualTo(200);
+        response.Items.Count().Should().Be(100);
     }
 
     [Theory(DisplayName = "Register users")]
