@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http.Json;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
@@ -26,8 +28,8 @@ public class TraceIdMiddlewareTests : IAssemblyFixture<WebApplicationFixture>
         var command = new Register.Command(string.Empty, string.Empty, string.Empty,string.Empty, null);
         var response = await _client.PostAsJsonAsync("/api/v1/users/register", command);
 
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
-        response.Should().HaveClientError();
     }
 
     [Fact(DisplayName = "Register users returns unique trace IDs", Timeout = 5000)]
@@ -40,7 +42,7 @@ public class TraceIdMiddlewareTests : IAssemblyFixture<WebApplicationFixture>
 
         successMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
         failureMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
-        failureMessage.Should().HaveClientError();
+        failureMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         var successMessageTraceId = successMessage.Headers.GetValues(TraceIdHeaderName).ToList();
         var failureMessageTraceId = failureMessage.Headers.GetValues(TraceIdHeaderName).ToList();

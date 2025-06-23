@@ -14,7 +14,7 @@ public class HealthChecksTests : IAssemblyFixture<WebApplicationFixture>
     public async Task GetHealth_ReturnsHealthy()
     {
         var response = await _client.GetAsync("/healthz");
-        response.Should().HaveStatusCode(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var content = await response.Content.ReadAsStringAsync();
         content.Should().BeEquivalentTo("healthy");
