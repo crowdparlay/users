@@ -1,19 +1,13 @@
 ﻿using CrowdParlay.Users.Application.Exceptions;
-using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Dodo.Primitives;
-using FluentValidation;
 using Mediator;
 
 namespace CrowdParlay.Users.Application.Features.Users.Queries;
+
 public static class GetByUsername
 {
     public sealed record Query(string Username) : IRequest<Response>;
-
-    public sealed class Validator : AbstractValidator<Query>
-    {
-        public Validator() => RuleFor(x => x.Username).Username();
-    }
 
     public sealed class Handler : IRequestHandler<Query, Response>
     {
