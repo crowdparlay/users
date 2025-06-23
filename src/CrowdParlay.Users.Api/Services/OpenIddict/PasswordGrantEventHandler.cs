@@ -1,6 +1,6 @@
 using System.Security.Claims;
+using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Application.Abstractions;
-using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;

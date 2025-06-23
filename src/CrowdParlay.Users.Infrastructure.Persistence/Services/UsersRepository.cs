@@ -40,25 +40,6 @@ internal class UsersRepository : IUsersRepository
         return new Page<User>(totalCount, users);
     }
 
-    public async Task<IEnumerable<User>> SearchAsync(Order order, int offset, int count, CancellationToken cancellationToken)
-    {
-        var orderDirection = order switch
-        {
-            Order.Ascending => "ASC",
-            Order.Descending => "DESC",
-            _ => throw new ArgumentOutOfRangeException(nameof(order), order, "The specified order is not supported.")
-        };
-
-        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-        return await connection.QueryAsync<User>(
-            $"""
-            SELECT * FROM {UsersSchema.Table}
-            ORDER BY {UsersSchema.CreatedAt} {orderDirection}
-            LIMIT @{nameof(count)} OFFSET @{nameof(offset)}
-            """,
-            new { offset, count });
-    }
-
     public async IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
@@ -177,10 +158,10 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
             $"""
-             SELECT * FROM {UsersSchema.Table} users
+             SELECT users.* FROM {UsersSchema.Table} users
              JOIN {ExternalLoginProvidersSchema.Table} providers ON providers.{ExternalLoginProvidersSchema.Id} = @{nameof(providerId)}
              JOIN {ExternalLoginsSchema.Table} logins ON logins.{ExternalLoginsSchema.Identity} = @{nameof(identity)}
-             WHERE users.{UsersSchema.Id} = logins.{ExternalLoginsSchema.Id}
+             WHERE users.{UsersSchema.Id} = logins.{ExternalLoginsSchema.UserId}
              LIMIT 1
              """,
             new { providerId, identity });

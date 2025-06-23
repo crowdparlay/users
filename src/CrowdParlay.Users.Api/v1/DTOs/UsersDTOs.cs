@@ -1,13 +1,22 @@
+using Dodo.Primitives;
+
 namespace CrowdParlay.Users.Api.v1.DTOs;
 
-public record UsersRegisterRequest(
+public sealed record UserInfoResponse(
+    Uuid Id,
     string Username,
     string DisplayName,
-    string Email,
-    string Password,
     string? AvatarUrl);
 
-public record UsersUpdateRequest(
+public sealed record UsersRegisterRequest(
+    string Username,
+    string DisplayName,
+    string? Email,
+    string? Password,
+    string? AvatarUrl,
+    string? ExternalLoginTicketId);
+
+public sealed record UsersUpdateRequest(
     string? Username,
     string? DisplayName,
     string? Email,

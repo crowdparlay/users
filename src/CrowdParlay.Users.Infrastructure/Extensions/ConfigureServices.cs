@@ -10,5 +10,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration configuration) => services
         .ConfigurePersistenceServices(configuration)
-        .AddScoped<IGoogleOidcService, GoogleOidcService>();
+        .AddScoped<IGoogleOAuthService, GoogleOAuthService>()
+        .Configure<GoogleOAuthConfiguration>(configuration.GetSection("GoogleOAuth"));
 }

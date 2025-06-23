@@ -7,11 +7,8 @@ using CrowdParlay.Users.Api;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.Domain;
-using CrowdParlay.Users.Domain.Abstractions;
-using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.IntegrationTests.Extensions;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
-using Dodo.Primitives;
 using FluentAssertions;
 using MassTransit.Testing;
 using Mediator;
@@ -29,7 +26,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 
     public UsersControllerTests(WebApplicationFixture fixture)
     {
-        _client = fixture.WebApplicationFactory.CreateClient();
+        _client = fixture.WebApplicationFactory.CreateDefaultClient();
         _harness = fixture.Services.GetTestHarness();
         _serviceScopeFactory = fixture.Services.GetRequiredService<IServiceScopeFactory>();
     }
@@ -45,7 +42,8 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             email: $"test_user_{i}@example.com",
             displayName: $"test_user_{i}",
             password: Guid.NewGuid().ToString("N")[..25],
-            avatarUrl: null)));
+            avatarUrl: null,
+            externalLoginTicket: null)));
 
         foreach (var task in registerUsersTasks)
             await task;
@@ -81,7 +79,8 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             displayName: "Display name",
             email: Guid.NewGuid().ToString("N") + "@example.com",
             password: "qwerty123!",
-            avatarUrl: null);
+            avatarUrl: "https://i.crowdparlay.com/60404594-74da-4bc3-b8eb-84088bf6ff59",
+            externalLoginTicket: null);
 
         var response = await _client.PostAsJsonAsync("/api/v1/users/register", request, GlobalSerializerOptions.SnakeCase);
         response.StatusCode.Should().Be(expectedStatusCode);
@@ -90,7 +89,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Register user returns new user and publishes event")]
     public async Task Register_Positive()
     {
-        var registerRequest = new Register.Command("undrcrxwnkkkj", "nieeee@tt.tt", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undrcrxwnkkkj", "nieeee@tt.tt", "Степной ишак", "qwerty123!", null, null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -112,10 +111,10 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Register users with look-alike usernames returns failure", Timeout = 5000)]
     public async Task Register_Negative()
     {
-        var registerRequest = new Register.Command("username", "uraaa@goto.wy", "display name 1", "password1", "https://example.com/avatar1.jpg");
+        var registerRequest = new Register.Command("username", "uraaa@goto.wy", "display name 1", "password1", "https://example.com/avtr.jpg", null);
         await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
 
-        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "meily@tup.ye", "display name 2", "password2!", null);
+        var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "meily@tup.ye", "display name 2", "password2!", null, null);
         var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, GlobalSerializerOptions.SnakeCase);
 
         duplicateMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -124,7 +123,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Register user with invalid username returns validation failures", Timeout = 5000)]
     public async Task RegisterValidation_Negative()
     {
-        var registerRequest = new Register.Command(string.Empty, string.Empty, string.Empty, "Password", null);
+        var registerRequest = new Register.Command(string.Empty, string.Empty, string.Empty, "Password", null, null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         registerMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
@@ -136,7 +135,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Get user by ID returns user", Timeout = 5000)]
     public async Task GetById_Positive()
     {
-        var registerRequest = new Register.Command("undrcrxwn", "pis@atb.eti", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("undrcrxwn", "pis@atb.eti", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg", null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -154,7 +153,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Get user by username returns user", Timeout = 5000)]
     public async Task GetByUsername_Positive()
     {
-        var registerRequest = new Register.Command("compartmental", "jaZae@bal.sya", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("compartmental", "jaZae@bal.sya", "Степной ишак", "qwerty123!", null, null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -172,7 +171,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Update user changes user and publishes event")]
     public async Task Update_Positive()
     {
-        var registerRequest = new Register.Command("zanli_0", "pesokJ@naja.com", "Степной ишак", "qwerty123!", avatarUrl: null);
+        var registerRequest = new Register.Command("zanli_0", "pesokJ@naja.com", "Степной ишак", "qwerty123!", null, null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -185,7 +184,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             OldPassword: null,
             NewPassword: null);
 
-        var accessToken = await _client.AcquireAccessToken(registerRequest.Username, registerRequest.Password);
+        var accessToken = await _client.AcquireAccessToken(registerRequest.Username, registerRequest.Password!);
         var serializedRequest = JsonSerializer.Serialize(updateRequest, GlobalSerializerOptions.SnakeCase);
         var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/users/{updateRequest.Id}")
         {
@@ -225,7 +224,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Update user password changes user's password and publishes event", Timeout = 5000)]
     public async Task UpdatePassword_Positive()
     {
-        var registerRequest = new Register.Command("zen_mode", "uzumuka@gmail.com", "Степной ишак", "qwerty123!", "https://example.com/avatar.jpg");
+        var registerRequest = new Register.Command("zen_mode", "uzumuka@gmail.com", "Степной ишак", "qwerty123!", "https://example.com/i.jpg", null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
@@ -236,9 +235,9 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             Email: null,
             AvatarUrl: null,
             OldPassword: registerRequest.Password,
-            NewPassword: "someNewPassword!");
+            NewPassword: "someNewPassword!7");
 
-        var accessToken = await _client.AcquireAccessToken(registerRequest.Username, registerRequest.Password);
+        var accessToken = await _client.AcquireAccessToken(registerRequest.Username, registerRequest.Password!);
         var serializedRequest = JsonSerializer.Serialize(updateRequest, GlobalSerializerOptions.SnakeCase);
         var requestMessage = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/users/{updateRequest.Id}")
         {

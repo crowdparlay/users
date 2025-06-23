@@ -2,7 +2,9 @@ using CrowdParlay.Communication;
 using CrowdParlay.Users.Api.Middlewares;
 using CrowdParlay.Users.Api.Services;
 using MassTransit;
+using Microsoft.AspNetCore.DataProtection;
 using Serilog;
+using StackExchange.Redis;
 
 namespace CrowdParlay.Users.Api.Extensions;
 
@@ -25,6 +27,10 @@ public static class ConfigureServices
             .AddSingleton<ExceptionHandlingMiddleware>()
             .AddHttpClient()
             .AddGrpc();
+
+        var dataProtectionRedisConnectionString = configuration["DATA_PROTECTION_REDIS_CONNECTION_STRING"]!;
+        var dataProtectionRedisMultiplexer = ConnectionMultiplexer.Connect(dataProtectionRedisConnectionString);
+        services.AddDataProtection().PersistKeysToStackExchangeRedis(dataProtectionRedisMultiplexer);
 
         return services.AddMassTransit(bus => bus.UsingRabbitMq((context, configurator) =>
         {

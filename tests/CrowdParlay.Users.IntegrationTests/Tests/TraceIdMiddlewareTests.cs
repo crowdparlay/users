@@ -16,7 +16,7 @@ public class TraceIdMiddlewareTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Register user returns trace ID on success", Timeout = 5000)]
     public async Task RegisterUserOnSuccess_ReturnsTraceId()
     {
-        var registerRequest = new Register.Command("username", "display name", "password", "email@gmail.com", null);
+        var registerRequest = new Register.Command("username", "display name", "password", "email@gmail.com", null, null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
 
         registerMessage.Headers.Should().Contain(header => header.Key == TraceIdHeaderName);
@@ -25,7 +25,7 @@ public class TraceIdMiddlewareTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Register user returns trace ID on failure", Timeout = 5000)]
     public async Task RegisterUserOnFailure_ReturnsTraceId()
     {
-        var command = new Register.Command(string.Empty, string.Empty, string.Empty,string.Empty, null);
+        var command = new Register.Command(string.Empty, string.Empty, string.Empty,string.Empty, null, null);
         var response = await _client.PostAsJsonAsync("/api/v1/users/register", command);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -35,7 +35,7 @@ public class TraceIdMiddlewareTests : IAssemblyFixture<WebApplicationFixture>
     [Fact(DisplayName = "Register users returns unique trace IDs", Timeout = 5000)]
     public async Task RegisterUser_ReturnsUniqueTraceIds()
     {
-        var registerRequest = new Register.Command("username", "display name", "emaeMamaZvonit@gmail.com", "password",  null);
+        var registerRequest = new Register.Command("username", "display name", "emaeMamaZvonit@gmail.com", "password",  null, null);
 
         var successMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
         var failureMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest);
