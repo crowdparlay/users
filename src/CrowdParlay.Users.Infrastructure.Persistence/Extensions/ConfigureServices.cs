@@ -2,10 +2,10 @@ using System.Reflection;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
-using CrowdParlay.Users.Infrastructure.Persistence.SqlTypeHandlers;
 using Dapper;
 using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +15,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection ConfigurePersistenceServices(this IServiceCollection services, IConfiguration configuration)
     {
-        SqlMapper.AddTypeHandler(new DodoUuidTypeHandler());
         DefaultTypeMap.MatchNamesWithUnderscores = true;
 
         var connectionString =
@@ -31,6 +30,7 @@ public static class ConfigureServices
                 .WithGlobalConnectionString(connectionString)
                 .ScanIn(Assembly.GetExecutingAssembly()).For.All())
             .AddDbContext<OpenIddictDbContext>(options => options
+                .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning))
                 .UseNpgsql(connectionString)
                 .UseOpenIddict())
             .AddSingleton<IDbConnectionFactory>(new SqlConnectionFactory(connectionString))

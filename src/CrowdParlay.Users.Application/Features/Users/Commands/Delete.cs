@@ -1,6 +1,5 @@
 using CrowdParlay.Communication;
 using CrowdParlay.Users.Domain.Abstractions;
-using Dodo.Primitives;
 using FluentValidation;
 using MassTransit;
 using Mediator;
@@ -9,7 +8,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 
 public static class Delete
 {
-    public sealed record Command(Uuid Id) : IRequest;
+    public sealed record Command(Guid Id) : IRequest;
 
     public sealed class Validator : AbstractValidator<Command>
     {

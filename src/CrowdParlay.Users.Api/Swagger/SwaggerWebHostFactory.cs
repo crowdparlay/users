@@ -1,6 +1,5 @@
 using System.Reflection;
 using CrowdParlay.Users.Api.Extensions;
-using Dodo.Primitives;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
@@ -33,7 +32,7 @@ public class SwaggerWebHostFactory
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlDocsFileName));
 
                 options.SupportNonNullableReferenceTypes();
-                options.MapType<Uuid>(() => new OpenApiSchema
+                options.MapType<Guid>(() => new OpenApiSchema
                 {
                     Type = "string",
                     Format = "uuid"

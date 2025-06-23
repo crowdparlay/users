@@ -3,7 +3,6 @@ using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using Dapper;
-using Dodo.Primitives;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Services;
 
@@ -14,7 +13,7 @@ public class ExternalLoginsRepository : IExternalLoginsRepository
     public ExternalLoginsRepository(IDbConnectionFactory connectionFactory) =>
         _connectionFactory = connectionFactory;
     
-    public async Task<IEnumerable<ExternalLogin>> GetByUserIdAsync(Uuid userId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ExternalLogin>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QueryAsync<ExternalLogin>(
@@ -43,7 +42,7 @@ public class ExternalLoginsRepository : IExternalLoginsRepository
             entity);
     }
     
-    public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 

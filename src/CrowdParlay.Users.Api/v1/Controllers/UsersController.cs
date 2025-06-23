@@ -8,7 +8,7 @@ using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.Application.Models;
-using Dodo.Primitives;
+using CrowdParlay.Users.Domain;
 using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -25,6 +25,17 @@ public class UsersController : ApiControllerBase
 
     public UsersController(IDataProtectionProvider dataProtectionProvider) =>
         _externalLoginTicketProtector = dataProtectionProvider.CreateProtector(ExternalLoginTicketsConstants.DataProtectionPurpose);
+
+    /// <summary>
+    /// Returns users.
+    /// </summary>
+    [HttpGet]
+    [Consumes(MediaTypeNames.Application.Json), Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Page<Search.Response>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
+    [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
+    public async Task<Page<Search.Response>> Search(SortingStrategy order, int offset, int count) =>
+        await Mediator.Send(new Search.Query(order, offset, count));
 
     /// <summary>
     /// Creates a user.
@@ -74,7 +85,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task<GetById.Response> GetById([FromRoute] Uuid userId) =>
+    public async Task<GetById.Response> GetById([FromRoute] Guid userId) =>
         await Mediator.Send(new GetById.Query(userId));
 
     /// <summary>
@@ -85,11 +96,8 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task<UserInfoResponse> Self()
-    {
-        var user = await Mediator.Send(new GetById.Query(HttpContext.GetUserId()!.Value));
-        return user.Adapt<UserInfoResponse>();
-    }
+    public async Task<GetById.Response> Self() =>
+        await Mediator.Send(new GetById.Query(HttpContext.GetUserId()!.Value));
 
     /// <summary>
     /// Returns user with the specified username.
@@ -113,7 +121,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request)
+    public async Task<Update.Response> Update([FromRoute] Guid userId, [FromBody] UsersUpdateRequest request)
     {
         if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();
@@ -130,7 +138,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task Delete([FromRoute] Uuid userId)
+    public async Task Delete([FromRoute] Guid userId)
     {
         if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();

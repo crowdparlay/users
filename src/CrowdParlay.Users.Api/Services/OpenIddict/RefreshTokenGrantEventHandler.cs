@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using CrowdParlay.Users.Api.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
-using Dodo.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server;
@@ -23,7 +22,7 @@ public class RefreshTokenGrantEventHandler : IOpenIddictServerHandler<OpenIddict
             return;
 
         var jwt = _jwtHandler.ReadJwtToken(context.Request.RefreshToken);
-        var userId = Uuid.Parse(jwt.Subject);
+        var userId = Guid.Parse(jwt.Subject);
         var user = await _usersRepository.GetByIdAsync(userId);
         if (user is null)
         {

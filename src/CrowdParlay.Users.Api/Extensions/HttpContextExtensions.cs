@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Dodo.Primitives;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using OpenIddict.Abstractions;
@@ -9,16 +8,16 @@ namespace CrowdParlay.Users.Api.Extensions;
 
 public static class HttpContextExtensions
 {
-    public static Uuid? GetUserId(this HttpContext context)
+    public static Guid? GetUserId(this HttpContext context)
     {
         var userId =
             context.User.GetClaim(CookieAuthenticationConstants.UserIdClaim)
             ?? context.User.GetClaim(OpenIddictConstants.Claims.Subject);
 
-        return Uuid.TryParse(userId, out var value) ? value : null;
+        return Guid.TryParse(userId, out var value) ? value : null;
     }
 
-    public static async Task SignInAsync(this HttpContext context, string authenticationScheme, Uuid userId)
+    public static async Task SignInAsync(this HttpContext context, string authenticationScheme, Guid userId)
     {
         var userIdClaimType = authenticationScheme switch
         {

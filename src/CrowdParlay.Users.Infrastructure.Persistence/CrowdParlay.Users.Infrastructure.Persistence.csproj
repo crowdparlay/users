@@ -1,25 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="7.1.0"/>
-        <PackageReference Include="Dapper" Version="2.1.11"/>
-        <PackageReference Include="FluentMigrator" Version="3.3.2"/>
-        <PackageReference Include="FluentMigrator.Console" Version="3.3.2"/>
-        <PackageReference Include="FluentMigrator.Runner" Version="3.3.2"/>
-        <PackageReference Include="FluentMigrator.Runner.Core" Version="3.3.2"/>
-        <PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.3.2"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.12"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="Npgsql" Version="7.0.6"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11"/>
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.9.0"/>
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.5"/>
+        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="FluentMigrator" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Console" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner.Core" Version="7.1.0" />
+        <PackageReference Include="FluentMigrator.Runner.Postgres" Version="7.1.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.6" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="6.4.0" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,10 +1,10 @@
 using System.Runtime.CompilerServices;
 using CrowdParlay.Users.Application.Exceptions;
+using CrowdParlay.Users.Domain;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using Dapper;
-using Dodo.Primitives;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Services;
 
@@ -14,6 +14,30 @@ internal class UsersRepository : IUsersRepository
 
     public UsersRepository(IDbConnectionFactory connectionFactory) =>
         _connectionFactory = connectionFactory;
+
+    public async Task<Page<User>> SearchAsync(SortingStrategy order, int offset, int count, CancellationToken cancellationToken)
+    {
+        var orderByCreatedAtDirection = order switch
+        {
+            SortingStrategy.NewestFirst => "DESC",
+            SortingStrategy.OldestFirst => "ASC",
+            _ => throw new ArgumentOutOfRangeException(nameof(order), order, "The specified order is not supported.")
+        };
+
+        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var result = await connection.QueryMultipleAsync(
+            $"""
+            SELECT COUNT(*) FROM {UsersSchema.Table};
+            SELECT * FROM {UsersSchema.Table}
+            ORDER BY {UsersSchema.CreatedAt} {orderByCreatedAtDirection}
+            LIMIT @{nameof(count)} OFFSET @{nameof(offset)};
+            """,
+            new { offset, count });
+
+        var totalCount = await result.ReadSingleAsync<int>();
+        var users = await result.ReadAsync<User>();
+        return new Page<User>(totalCount, users);
+    }
 
     public async IAsyncEnumerable<User> GetByIdsAsync(Guid[] ids, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -27,7 +51,7 @@ internal class UsersRepository : IUsersRepository
             yield return parser(reader);
     }
 
-    public async Task<User?> GetByIdAsync(Uuid id, CancellationToken cancellationToken)
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -64,19 +88,11 @@ internal class UsersRepository : IUsersRepository
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
             $"""
-             SELECT * FROM {UsersSchema.Table}
-             WHERE {UsersSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
-             OR {UsersSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
-             """,
+            SELECT * FROM {UsersSchema.Table}
+            WHERE {UsersSchema.UsernameNormalized} = normalize_username(@{nameof(usernameOrEmail)})
+            OR {UsersSchema.EmailNormalized} = normalize_email(@{nameof(usernameOrEmail)})
+            """,
             new { usernameOrEmail });
-    }
-
-    public async Task<IEnumerable<User>> GetManyAsync(int count, int page, CancellationToken cancellationToken)
-    {
-        await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-        return await connection.QueryAsync<User>(
-            $"SELECT * FROM {UsersSchema.Table} LIMIT @{nameof(count)} OFFSET @{nameof(count)} * @{nameof(page)}",
-            new { count, page });
     }
 
     public async Task AddAsync(User entity, CancellationToken cancellationToken)
@@ -124,7 +140,7 @@ internal class UsersRepository : IUsersRepository
             entity);
     }
 
-    public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 

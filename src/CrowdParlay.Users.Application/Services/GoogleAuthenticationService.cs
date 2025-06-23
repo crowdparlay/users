@@ -2,7 +2,6 @@ using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Models;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
-using Dodo.Primitives;
 using Microsoft.Extensions.Logging;
 using static CrowdParlay.Users.Application.Services.GoogleAuthenticationStatus;
 
@@ -59,7 +58,7 @@ public class GoogleAuthenticationService : IGoogleAuthenticationService
 
         var login = new ExternalLogin
         {
-            Id = Uuid.NewTimeBased(),
+            Id = Guid.CreateVersion7(),
             UserId = user.Id,
             ProviderId = GoogleAuthenticationConstants.ExternalLoginProviderId,
             Identity = googleUserInfo.Email

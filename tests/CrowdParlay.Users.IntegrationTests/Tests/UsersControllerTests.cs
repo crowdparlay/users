@@ -6,22 +6,54 @@ using CrowdParlay.Communication;
 using CrowdParlay.Users.Api;
 using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
+using CrowdParlay.Users.Domain;
 using CrowdParlay.Users.IntegrationTests.Extensions;
 using CrowdParlay.Users.IntegrationTests.Fixtures;
 using FluentAssertions;
 using MassTransit.Testing;
+using Mediator;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CrowdParlay.Users.IntegrationTests.Tests;
 
+[Collection(nameof(UsersControllerTests))]
+[CollectionDefinition(nameof(UsersControllerTests), DisableParallelization = true)]
 public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
 {
     private readonly HttpClient _client;
     private readonly ITestHarness _harness;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public UsersControllerTests(WebApplicationFixture fixture)
     {
         _client = fixture.WebApplicationFactory.CreateDefaultClient();
         _harness = fixture.Services.GetTestHarness();
+        _serviceScopeFactory = fixture.Services.GetRequiredService<IServiceScopeFactory>();
+    }
+
+    [Fact(DisplayName = "Search users")]
+    public async Task SearchUsers_Positive()
+    {
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+
+        var registerUsersTasks = Enumerable.Range(0, 200).Select(i => sender.Send(new Register.Command(
+            username: $"test_user_{i}_{Guid.NewGuid():N}"[..25],
+            email: $"test_user_{i}@example.com",
+            displayName: $"test_user_{i}",
+            password: Guid.NewGuid().ToString("N")[..25],
+            avatarUrl: null,
+            externalLoginTicket: null)));
+
+        foreach (var task in registerUsersTasks)
+            await task;
+
+        var response = await _client.GetFromJsonAsync<Page<Search.Response>>(
+            "/api/v1/users?order=newestFirst&offset=0&count=100",
+            GlobalSerializerOptions.SnakeCase);
+
+        response!.TotalCount.Should().BeGreaterOrEqualTo(200);
+        response.Items.Count().Should().Be(100);
     }
 
     [Theory(DisplayName = "Register users")]
@@ -51,7 +83,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             externalLoginTicket: null);
 
         var response = await _client.PostAsJsonAsync("/api/v1/users/register", request, GlobalSerializerOptions.SnakeCase);
-        response.Should().HaveStatusCode(expectedStatusCode);
+        response.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact(DisplayName = "Register user returns new user and publishes event")]
@@ -85,7 +117,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
         var registerRequestDuplicate = new Register.Command("us55e3rn44me3333e", "meily@tup.ye", "display name 2", "password2!", null, null);
         var duplicateMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequestDuplicate, GlobalSerializerOptions.SnakeCase);
 
-        duplicateMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+        duplicateMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact(DisplayName = "Register user with invalid username returns validation failures", Timeout = 5000)]
@@ -93,7 +125,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
     {
         var registerRequest = new Register.Command(string.Empty, string.Empty, string.Empty, "Password", null, null);
         var registerMessage = await _client.PostAsJsonAsync("/api/v1/users/register", registerRequest, GlobalSerializerOptions.SnakeCase);
-        registerMessage.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+        registerMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         var validationProblem = await registerMessage.Content.ReadFromJsonAsync<ValidationProblem>(GlobalSerializerOptions.SnakeCase);
         validationProblem!.ValidationErrors.Should().ContainKey("username").WhoseValue.Should().HaveCount(3);
@@ -108,7 +140,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
         var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse!.Id}");
-        getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+        getByIdMessage.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>(GlobalSerializerOptions.SnakeCase);
         getByIdResponse.Should().Be(new GetById.Response(
@@ -126,7 +158,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
         var registerResponse = await registerMessage.Content.ReadFromJsonAsync<Register.Response>(GlobalSerializerOptions.SnakeCase);
 
         var getByUsernameMessage = await _client.GetAsync($"/api/v1/users/resolve?username={registerResponse!.Username}");
-        getByUsernameMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+        getByUsernameMessage.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var getByUsernameResponse = await getByUsernameMessage.Content.ReadFromJsonAsync<GetByUsername.Response>(GlobalSerializerOptions.SnakeCase);
         getByUsernameResponse.Should().Be(new GetByUsername.Response(
@@ -161,7 +193,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
         };
 
         var updateMessage = await _client.SendAsync(requestMessage);
-        updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+        updateMessage.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(GlobalSerializerOptions.SnakeCase);
         updateResponse.Should().Be(new Update.Response(
@@ -179,7 +211,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
             updateResponse.AvatarUrl));
 
         var getByIdMessage = await _client.GetAsync($"/api/v1/users/{registerResponse.Id}");
-        getByIdMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+        getByIdMessage.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var getByIdResponse = await getByIdMessage.Content.ReadFromJsonAsync<GetById.Response>(GlobalSerializerOptions.SnakeCase);
         getByIdResponse.Should().Be(new GetById.Response(
@@ -214,7 +246,7 @@ public class UsersControllerTests : IAssemblyFixture<WebApplicationFixture>
         };
 
         var updateMessage = await _client.SendAsync(requestMessage);
-        updateMessage.Should().HaveStatusCode(HttpStatusCode.OK);
+        updateMessage.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var updateResponse = await updateMessage.Content.ReadFromJsonAsync<Update.Response>(GlobalSerializerOptions.SnakeCase);
         updateResponse.Should().Be(new Update.Response(

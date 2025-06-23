@@ -4,7 +4,6 @@ using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Application.Models;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
-using Dodo.Primitives;
 using FluentValidation;
 using MassTransit;
 using Mediator;
@@ -91,7 +90,7 @@ public static class Register
 
             var user = new User
             {
-                Id = Uuid.NewTimeBased(),
+                Id = Guid.CreateVersion7(),
                 Username = request.Username,
                 Email = request.Email,
                 DisplayName = request.DisplayName,
@@ -110,7 +109,7 @@ public static class Register
 
             var externalLogin = new ExternalLogin
             {
-                Id = Uuid.NewTimeBased(),
+                Id = Guid.CreateVersion7(),
                 UserId = user.Id,
                 ProviderId = request.ExternalLoginTicket.ProviderId,
                 Identity = request.ExternalLoginTicket.Identity
@@ -122,7 +121,7 @@ public static class Register
     }
 
     public sealed record Response(
-        Uuid Id,
+        Guid Id,
         string Username,
         string Email,
         string DisplayName,

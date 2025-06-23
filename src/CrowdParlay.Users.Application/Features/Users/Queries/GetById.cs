@@ -1,6 +1,5 @@
 ﻿using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
-using Dodo.Primitives;
 using FluentValidation;
 using Mediator;
 
@@ -8,7 +7,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Queries;
 
 public static class GetById
 {
-    public sealed record Query(Uuid Id) : IRequest<Response>;
+    public sealed record Query(Guid Id) : IRequest<Response>;
 
     public sealed class Validator : AbstractValidator<Query>
     {
@@ -31,5 +30,5 @@ public static class GetById
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName, string? AvatarUrl);
+    public sealed record Response(Guid Id, string Username, string DisplayName, string? AvatarUrl);
 }
