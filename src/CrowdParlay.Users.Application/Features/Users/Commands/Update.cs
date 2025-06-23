@@ -3,7 +3,6 @@ using CrowdParlay.Users.Application.Abstractions;
 using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Application.Extensions;
 using CrowdParlay.Users.Domain.Abstractions;
-using Dodo.Primitives;
 using FluentValidation;
 using MassTransit;
 using Mediator;
@@ -14,7 +13,7 @@ namespace CrowdParlay.Users.Application.Features.Users.Commands;
 public static class Update
 {
     public sealed record Command(
-        Uuid Id,
+        Guid Id,
         string? Username,
         string? DisplayName,
         string? Email,
@@ -103,7 +102,7 @@ public static class Update
     }
 
     public sealed record Response(
-        Uuid Id,
+        Guid Id,
         string Username,
         string DisplayName,
         string Email,

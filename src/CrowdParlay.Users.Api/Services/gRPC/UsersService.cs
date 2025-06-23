@@ -1,6 +1,5 @@
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.gRPC;
-using Dodo.Primitives;
 using Google.Protobuf.WellKnownTypes;
 using Google.Rpc;
 using Grpc.Core;
@@ -17,7 +16,7 @@ public class UsersGrpcService : UsersService.UsersServiceBase
 
     public override async Task<User> GetUser(GetUserRequest request, ServerCallContext context)
     {
-        var user = await _users.GetByIdAsync(Uuid.Parse(request.Id));
+        var user = await _users.GetByIdAsync(Guid.Parse(request.Id));
         return user.Adapt<User>();
     }
 

@@ -1,6 +1,5 @@
 ﻿using CrowdParlay.Users.Application.Exceptions;
 using CrowdParlay.Users.Domain.Abstractions;
-using Dodo.Primitives;
 using Mediator;
 
 namespace CrowdParlay.Users.Application.Features.Users.Queries;
@@ -26,5 +25,5 @@ public static class GetByUsername
     }
 
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName, string? AvatarUrl);
+    public sealed record Response(Guid Id, string Username, string DisplayName, string? AvatarUrl);
 }

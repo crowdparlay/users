@@ -9,7 +9,6 @@ using CrowdParlay.Users.Application.Features.Users.Commands;
 using CrowdParlay.Users.Application.Features.Users.Queries;
 using CrowdParlay.Users.Application.Models;
 using CrowdParlay.Users.Domain;
-using Dodo.Primitives;
 using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -86,7 +85,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(GetById.Response), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task<GetById.Response> GetById([FromRoute] Uuid userId) =>
+    public async Task<GetById.Response> GetById([FromRoute] Guid userId) =>
         await Mediator.Send(new GetById.Query(userId));
 
     /// <summary>
@@ -122,7 +121,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(ValidationProblem), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task<Update.Response> Update([FromRoute] Uuid userId, [FromBody] UsersUpdateRequest request)
+    public async Task<Update.Response> Update([FromRoute] Guid userId, [FromBody] UsersUpdateRequest request)
     {
         if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();
@@ -139,7 +138,7 @@ public class UsersController : ApiControllerBase
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(Problem), (int)HttpStatusCode.NotFound)]
-    public async Task Delete([FromRoute] Uuid userId)
+    public async Task Delete([FromRoute] Guid userId)
     {
         if (userId != HttpContext.GetUserId())
             throw new ForbiddenException();

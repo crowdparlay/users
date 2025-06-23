@@ -1,10 +1,8 @@
-using Dodo.Primitives;
-
 namespace CrowdParlay.Users.Domain.Entities;
 
-public class ExternalLogin : EntityBase<Uuid>
+public class ExternalLogin : EntityBase<Guid>
 {
-    public Uuid UserId { get; set; }
+    public Guid UserId { get; set; }
     public string ProviderId { get; set; }
     public string Identity { get; set; }
 }

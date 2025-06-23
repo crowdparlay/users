@@ -5,7 +5,6 @@ using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Domain.Entities;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using Dapper;
-using Dodo.Primitives;
 
 namespace CrowdParlay.Users.Infrastructure.Persistence.Services;
 
@@ -52,7 +51,7 @@ internal class UsersRepository : IUsersRepository
             yield return parser(reader);
     }
 
-    public async Task<User?> GetByIdAsync(Uuid id, CancellationToken cancellationToken)
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<User>(
@@ -141,7 +140,7 @@ internal class UsersRepository : IUsersRepository
             entity);
     }
 
-    public async Task DeleteAsync(Uuid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 

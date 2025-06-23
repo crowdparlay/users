@@ -1,6 +1,5 @@
 using CrowdParlay.Users.Domain;
 using CrowdParlay.Users.Domain.Abstractions;
-using Dodo.Primitives;
 using FluentValidation;
 using Mediator;
 
@@ -38,5 +37,5 @@ public static class Search
         }
     }
 
-    public sealed record Response(Uuid Id, string Username, string DisplayName, string? AvatarUrl);
+    public sealed record Response(Guid Id, string Username, string DisplayName, string? AvatarUrl);
 }

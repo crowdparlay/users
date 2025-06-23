@@ -2,7 +2,6 @@ using System.Reflection;
 using CrowdParlay.Users.Domain.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Abstractions;
 using CrowdParlay.Users.Infrastructure.Persistence.Services;
-using CrowdParlay.Users.Infrastructure.Persistence.SqlTypeHandlers;
 using Dapper;
 using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +15,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection ConfigurePersistenceServices(this IServiceCollection services, IConfiguration configuration)
     {
-        SqlMapper.AddTypeHandler(new DodoUuidTypeHandler());
         DefaultTypeMap.MatchNamesWithUnderscores = true;
 
         var connectionString =
