@@ -4,7 +4,7 @@ namespace CrowdParlay.Users.Api.Services;
 
 /// <summary>
 /// An endpoint parameter transformer that applies kebab-case naming convention to endpoint routes and parameter names.
-/// For example, turns '/Animal/8/AddType' into '/animals/8/add-type'.
+/// For example, turns '/Animals/8/AddType' into '/animals/8/add-type'.
 /// </summary>
 public partial class KebabCaseParameterPolicy : IOutboundParameterTransformer
 {
