@@ -1,5 +1,7 @@
+using CrowdParlay.Users.Domain;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -21,9 +23,18 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         foreach (var description in _provider.ApiVersionDescriptions)
             options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
-        
+
         options.SupportNonNullableReferenceTypes();
         options.UseAllOfToExtendReferenceSchemas();
+        options.MapType<SortingStrategy>(() => new OpenApiSchema
+        {
+            Type = "string",
+            Enum = Enum.GetNames(typeof(SortingStrategy))
+                .Select(name => char.ToLowerInvariant(name[0]) + name[1..])
+                .Select(name => new OpenApiString(name))
+                .Cast<IOpenApiAny>()
+                .ToList()
+        });
     }
 
     private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription versionDescription)

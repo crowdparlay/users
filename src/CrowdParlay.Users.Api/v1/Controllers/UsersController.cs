@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using ValidationException = CrowdParlay.Users.Application.Exceptions.ValidationException;
 
 namespace CrowdParlay.Users.Api.v1.Controllers;
 
